@@ -1,0 +1,5 @@
+pytest
+pytest-mock
+requests
+gunicorn
+flake8
