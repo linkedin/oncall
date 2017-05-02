@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+
+{% block head %}
+  <head>
+    <style>
+      nav.navbar {
+        background: {{header_color}};
+      }
+      .subheader {
+         background: {{header_color}};
+      }
+    </style>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/static/images/favicon.png?v3">
+    <title>Oncall</title>
+    {% assets "css_libs" %} <link href="{{ ASSET_URL }}" rel="stylesheet"> {% endassets %}
+    {% assets "oncall_css" %} <link href="{{ ASSET_URL }}" rel="stylesheet"> {% endassets %}
+  </head>
+{% endblock head %}
+  <body {% if user %} data-user="{{user}}" data-authenticated="true" {% else %} data-authenticated="false" {% endif %}>
+    {% block navigation %}
+    <header>
+      <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+          <div id="navbar" class="navbar-collapse collapse">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="/" data-navigo><span><img id="logo" class="icon-rotate" src="/static/images/oncall_logo_white.png"></span><span><b>ON</b>CALL</span></a>
+            </div>
+            <ul class="nav navbar-nav navbar-left">
+              <li><a class="user-dashboard-link" href="/dashboard/{{user}}" data-navigo>My Dashboard</a></li>
+              <li><a href="/teams/all" data-navigo>Browse Teams</a></li>
+            </ul>
+            <div class="navbar-right">
+              <div class="navbar-nav nav-actions dropdown">
+                <button id="create-btn" class="btn btn-white" data-toggle="modal" data-target="#team-edit-modal" data-modal-action="oncall.team.createTeam" data-modal-title="Create a team">+ Create a team</button>
+              </div>
+              <div id="upcoming-shifts" class="navbar-nav nav-actions dropdown"></div>
+              <div class="navbar-nav nav-actions dropdown user-info-container">
+                <form action="" method="POST" id="navbar-form">
+                  <input name="username" class="navbar-input" type="text" placeholder="Username">
+                  <input  name="password" class="navbar-input" type="password" placeholder="Password">
+                  <button id="login-btn" class="btn btn-white" type="submit">Sign in</button>
+                </form>
+                <div class="dropdown-toggle user-info" data-toggle="dropdown">
+                  <img class="headshot profile-picture placeholder" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="{{user}}">
+                  <i class="svg-icon svg-icon-chevron svg-icon-chevron-down">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+                      <path d="M1.5 0l-1.5 1.5 4 4 4-4-1.5-1.5-2.5 2.5-2.5-2.5z" transform="translate(0 1)" />
+                    </svg>
+                  </i>
+                </div>
+                <ul class="dropdown-menu o">
+                  <li><a class="user-settings-link" href="/user/{{user}}" data-navigo>Settings</a></li>
+                  <li><a class="logout" href="javascript:void(0);">Logout</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="view-loader">
+          <div class="view-loader-inner"></div>
+        </div>
+      </nav>
+    </header>
+    {% endblock navigation %}
+    <div class="content-wrapper">
+      <div class="loader-li">
+        <div class="logo"></div>
+        <div class="bar">
+          <div class="bar-inner"></div>
+        </div>
+      </div>
+      {% block content %}{% endblock %}
+    </div>
+    <footer>
+      {{footer|safe}}
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal fade" id="confirm-action-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-action">
+      <div class="modal-dialog" role="document">
+        <form class="modal-form modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <div class="modal-body">
+            Are you sure?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary modal-cta" id="confirm-action"><span class="btn-text">Confirm</span> <i class="loader loader-small"></i></button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal fade" id="input-modal" tabindex="-1" role="dialog" aria-labelledby="create-input">
+      <div class="modal-dialog" role="document">
+        <form class="modal-form modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <div class="modal-body">
+            <input type="text" class="form-control create-input" placeholder="Name" />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary modal-cta" id="create-item"><span class="btn-text">Save</span> <i class="loader loader-small"></i></button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal fade" id="team-edit-modal" tabindex="-1" role="dialog" aria-labelledby="team-edit">
+      <div class="modal-dialog" role="document">
+        <form class="modal-form modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <div class="modal-body">
+            <p>
+              <label for="team-name"> Team Name: </label> <input type="text" name="name" id="team-name" class="form-control" placeholder="Name" />
+            </p>
+            <p>
+              <label for="team-email"> Team E-Mail: </label> <input type="text" name="email" id="team-email" class="form-control" placeholder="Email Address" />
+            </p>
+            <p>
+              <label for="team-slack"> Team Slack: </label> <input type="text" name="slack_channel" id="team-slack" class="form-control" placeholder="#SlackChannel" />
+            </p>
+            <p>
+              <label for="team-timezone"> Team Scheduling Timezone: </label>
+              <select name="scheduling_timezone" id="team-timezone" class="form-control team-timezone">
+                <option value="US/Pacific">US/Pacific</option>
+                <option value="US/Eastern">US/Eastern</option>
+                <option value="US/Central">US/Central</option>
+                <option value="US/Mountain">US/Mountain</option>
+                <option value="US/Alaska">US/Alaska</option>
+                <option value="US/Hawaii">US/Hawaii</option>
+                <option value="Asia/Kolkata">Asia/Kolkata</option>
+                <option value="UTC">UTC</option>
+              </select>
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary modal-cta" id="create-item"><span class="btn-text">Save</span> <i class="loader loader-small"></i></button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% raw %}
+
+    <!--// **********************
+      Misc templates
+    *********************** //-->
+
+    <!--// Upcoming shifts dropdown //-->
+    <script id="upcoming-shifts-template" type="text/x-handlebars-template">
+      <div class="dropdown" data-toggle="dropdown">
+        <svg width="23px" height="30px" viewBox="0 0 23 30">
+          <defs>
+            <polygon id="path-1" points="0.0145914397 0.029188716 0.0145914397 29.9124572 10.8062863 29.9124572 10.8062863 0.029188716 0.0145914397 0.029188716"></polygon>
+            <polygon id="path-3" points="10.846284 29.9124572 10.846284 0.029188716 0.0546307978 0.029188716 0.0546307978 29.9124572"></polygon>
+          </defs>
+          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            <g id="Header-Copy-3" transform="translate(-915.000000, -13.000000)">
+              <g id="Page-1" transform="translate(915.000000, 13.000000)">
+                <g id="Group-3" transform="translate(11.089494, 0.029183)">
+                  <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                  </mask>
+                  <g id="Clip-2"></g>
+                  <path d="M-2.26279377,14.2399086 C-1.77841634,15.5276323 -2.22794942,16.7172432 -3.37022568,17.3658035 C-4.32333852,17.9069125 -5.11647082,18.6318152 -5.76328016,19.5114455 C-7.36366926,21.687963 -7.93460311,24.1594027 -7.82627626,26.8201809 C-7.82522568,26.8454533 -7.80240467,26.8697918 -7.78775486,26.8984494 L7.81557198,26.8984494 C7.82625292,26.8435272 7.83903502,26.8062899 7.83996887,26.7687607 C7.87154475,25.5103366 7.79368482,24.2623016 7.45201167,23.0436829 C6.75675875,20.5639553 5.4595214,18.5371459 3.15891829,17.2294027 C2.53574708,16.8751809 2.18561089,16.2650253 2.10314008,15.5320681 C1.99638911,14.5833911 2.36094163,13.7796946 2.90129183,13.0421848 C3.04568872,12.8450253 3.25609728,12.692749 3.44829572,12.5345778 C4.02419066,12.0607062 4.6626537,11.6483521 5.17463813,11.1141887 C6.5376537,9.69175681 7.27708949,7.9417179 7.64858755,6.02592023 C7.83815953,5.04841051 7.86635019,4.06039494 7.83063035,3.04360506 L-7.80999222,3.04360506 C-7.82049805,3.09911089 -7.83281323,3.13646498 -7.83398054,3.17416926 C-7.88003113,4.68111479 -7.73131518,6.16226265 -7.23292996,7.59455837 C-6.49407782,9.7178463 -5.28024514,11.4705117 -3.29668482,12.6207257 L-2.26279377,14.2399086 Z M-10.7358093,29.9124572 C-10.7549533,29.8097918 -10.7897977,29.7071848 -10.7906148,29.6044027 C-10.795751,28.9724767 -10.7836109,28.3402588 -10.7979689,27.7086245 C-10.8033969,27.4685078 -10.7305564,27.3778074 -10.4853035,27.3858035 C-10.0402062,27.4003366 -9.59429183,27.3899475 -9.10717121,27.3899475 C-9.10717121,27.2530214 -9.10425292,27.1407257 -9.10757977,27.0286634 C-9.16156809,25.1991304 -8.99125681,23.4018735 -8.34304669,21.6724961 C-7.47368872,19.3532743 -6.09176265,17.452535 -3.90123735,16.2050837 C-3.42543969,15.9341498 -3.2254786,15.3907646 -3.40442802,14.8095 C-3.57730739,14.2480214 -3.84952529,13.773216 -4.38578988,13.4266984 C-6.4203035,12.1121848 -7.68176265,10.2018152 -8.4521323,7.94160117 C-8.94905837,6.48379961 -9.14376654,4.97901362 -9.10810506,3.44183463 C-9.10226848,3.18922763 -9.10670428,2.93632879 -9.10775486,2.68354669 C-9.1078716,2.65512257 -9.11691829,2.62675681 -9.13005058,2.55029767 C-9.46898054,2.55029767 -9.81514786,2.54907198 -10.1613152,2.55053113 C-10.9175603,2.55374125 -10.783144,2.60446109 -10.7921907,1.91230156 C-10.7991362,1.38741829 -10.7962763,0.862301556 -10.7904397,0.337359922 C-10.7893307,0.234461089 -10.7548949,0.131912451 -10.7358093,0.029188716 L10.7427899,0.029188716 C10.7618755,0.131912451 10.7964864,0.234461089 10.7974202,0.337359922 C10.8030817,0.969169261 10.7925759,1.60121206 10.8060584,2.23278794 C10.8111362,2.47290467 10.7321673,2.56383852 10.4890739,2.5565428 C10.0441518,2.54323541 9.59852918,2.55274903 9.11175875,2.55274903 C9.11175875,2.98027821 9.10837354,3.38463619 9.11234241,3.7889358 C9.12734241,5.30860506 8.88208949,6.78549222 8.36205058,8.21247665 C7.536,10.479286 6.19113619,12.3412704 4.10724514,13.6232743 C3.6148716,13.9261342 3.2054358,15.0403366 3.41385992,15.5759591 C3.5032179,15.8056284 3.67703113,16.057535 3.88329572,16.1782938 C6.61084436,17.7750058 8.08773152,20.2375739 8.80271206,23.2295195 C9.04510506,24.2440331 9.13428794,25.2789747 9.11292607,26.3229047 C9.10598054,26.6622432 9.11181712,27.0017568 9.11181712,27.3888385 C9.55481323,27.3888385 9.97843191,27.3867957 10.4021089,27.3894222 C10.7974202,27.3918735 10.7991712,27.3940914 10.8001634,27.7962899 C10.8015642,28.3989163 10.8027899,29.0016595 10.7974202,29.604286 C10.7964864,29.7071848 10.7618755,29.8097335 10.7427899,29.9124572 L-10.7358093,29.9124572 Z" id="Fill-1" fill="#FFFFFF" mask="url(#mask-2)"></path>
+                </g>
+                <g id="Group-6" transform="translate(0.291829, 0.029183)">
+                  <mask id="mask-4" fill="white">
+                    <use xlink:href="#path-3"></use>
+                  </mask>
+                  <g id="Clip-5"></g>
+                  <path d="M13.1236576,14.2399086 C12.6392802,15.5276323 13.0888132,16.7172432 14.2310895,17.3658035 C15.1842023,17.9069125 15.9773346,18.6318152 16.624144,19.5114455 C18.2245331,21.687963 18.7954669,24.1594027 18.6870817,26.8201809 C18.6860895,26.8454533 18.6632101,26.8697918 18.6486187,26.8984494 L3.04529183,26.8984494 C3.03461089,26.8435272 3.02188716,26.8062899 3.02089494,26.7687607 C2.98931907,25.5103366 3.06717899,24.2623016 3.40885214,23.0436829 C4.10410506,20.5639553 5.40134241,18.5371459 7.70194553,17.2294027 C8.32511673,16.8751809 8.67525292,16.2650253 8.75772374,15.5320681 C8.86447471,14.5833911 8.49992218,13.7796946 7.95963035,13.0421848 C7.8151751,12.8450253 7.60476654,12.692749 7.41256809,12.5345778 C6.83667315,12.0607062 6.19821012,11.6483521 5.68628405,11.1141887 C4.32321012,9.69175681 3.58377432,7.9417179 3.21227626,6.02592023 C3.02270428,5.04841051 2.99457198,4.06039494 3.03023346,3.04360506 L18.670856,3.04360506 C18.6813619,3.09911089 18.693677,3.13646498 18.6948444,3.17416926 C18.7408366,4.68111479 18.592179,6.16226265 18.0937938,7.59455837 C17.3549416,9.7178463 16.1411089,11.4705117 14.1575486,12.6207257 L13.1236576,14.2399086 Z M21.5966732,29.9124572 C21.6158171,29.8097918 21.6506615,29.7071848 21.6514786,29.6044027 C21.6566148,28.9724767 21.6444747,28.3402588 21.6588327,27.7086245 C21.6642607,27.4685078 21.5914202,27.3778074 21.3461673,27.3858035 C20.90107,27.4003366 20.4551556,27.3899475 19.968035,27.3899475 C19.968035,27.2530214 19.9651167,27.1407257 19.9684436,27.0286634 C20.0224319,25.1991304 19.8521206,23.4018735 19.2039105,21.6724961 C18.3345525,19.3532743 16.9526265,17.452535 14.7621012,16.2050837 C14.2863035,15.9341498 14.0863424,15.3907646 14.2652918,14.8095 C14.4381712,14.2480214 14.7103891,13.773216 15.2466537,13.4266984 C17.2811673,12.1121848 18.5426265,10.2018152 19.3129961,7.94160117 C19.8099222,6.48379961 20.004572,4.97901362 19.9689689,3.44183463 C19.9630739,3.18922763 19.9675681,2.93632879 19.9686187,2.68354669 C19.9687354,2.65512257 19.9777237,2.62675681 19.9909144,2.55029767 C20.329786,2.55029767 20.6759533,2.54907198 21.0221206,2.55053113 C21.7784241,2.55374125 21.6440078,2.60446109 21.6530545,1.91230156 C21.6599416,1.38741829 21.6570817,0.862301556 21.6513035,0.337359922 C21.6501946,0.234461089 21.6157588,0.131912451 21.5966732,0.029188716 L0.11807393,0.029188716 C0.0990466926,0.131912451 0.0643774319,0.234461089 0.0634435798,0.337359922 C0.0577821012,0.969169261 0.0682879377,1.60121206 0.0548638132,2.23278794 C0.0497276265,2.47290467 0.128696498,2.56383852 0.371789883,2.5565428 C0.816770428,2.54323541 1.262393,2.55274903 1.74916342,2.55274903 C1.74916342,2.98027821 1.75254864,3.38463619 1.7485214,3.7889358 C1.7335214,5.30860506 1.97877432,6.78549222 2.49881323,8.21247665 C3.32486381,10.479286 4.66972763,12.3412704 6.75361868,13.6232743 C7.24599222,13.9261342 7.65548638,15.0403366 7.44700389,15.5759591 C7.35764591,15.8056284 7.18383268,16.057535 6.97756809,16.1782938 C4.25001946,17.7750058 2.7731323,20.2375739 2.05821012,23.2295195 C1.81575875,24.2440331 1.72663424,25.2789747 1.74799611,26.3229047 C1.75494163,26.6622432 1.74904669,27.0017568 1.74904669,27.3888385 C1.30610895,27.3888385 0.882431907,27.3867957 0.45881323,27.3894222 C0.0634435798,27.3918735 0.061692607,27.3940914 0.0607587549,27.7962899 C0.0593579767,28.3989163 0.05807393,29.0016595 0.0635019455,29.604286 C0.0643774319,29.7071848 0.0990466926,29.8097335 0.11807393,29.9124572 L21.5966732,29.9124572 Z" id="Fill-4" fill="#FFFFFF" mask="url(#mask-4)"></path>
+                </g>
+                <g id="Group-15" transform="translate(0.000000, 0.029183)" fill="#FFFFFF">
+                  <path d="M21.9017393,3.06420233 L0.30640856,3.06420233 C0.1452607,3.06420233 0.0145797665,2.9335214 0.0145797665,2.77237354 L0.0145797665,0.321011673 C0.0145797665,0.159863813 0.1452607,0.0291828794 0.30640856,0.0291828794 L21.9017393,0.0291828794 C22.0628872,0.0291828794 22.1935681,0.159863813 22.1935681,0.321011673 L22.1935681,2.77237354 C22.1935681,2.9335214 22.0628872,3.06420233 21.9017393,3.06420233" id="Fill-7"></path>
+                  <path d="M21.9017393,29.9124514 L0.30640856,29.9124514 C0.1452607,29.9124514 0.0145797665,29.7817704 0.0145797665,29.6206226 L0.0145797665,27.1692607 C0.0145797665,27.0081128 0.1452607,26.8774319 0.30640856,26.8774319 L21.9017393,26.8774319 C22.0628872,26.8774319 22.1935681,27.0081128 22.1935681,27.1692607 L22.1935681,29.6206226 C22.1935681,29.7817704 22.0628872,29.9124514 21.9017393,29.9124514" id="Fill-9"></path>
+                  <path d="M11.1184553,25.2999514 C9.35866926,25.299893 7.59888327,25.2962743 5.83909728,25.304037 C5.59652918,25.3051459 5.49730739,25.2324222 5.53384436,24.9850681 C5.84300778,22.8921304 6.58226848,21.0096012 8.20623735,19.5689008 C8.45849416,19.3451265 8.74460311,19.150535 9.039,18.9850097 C9.89166537,18.5055934 10.5040389,17.8189202 10.9081634,16.9336868 C10.9547977,16.8316051 11.0569377,16.7549125 11.1333385,16.66643 C11.2081051,16.7557296 11.3070934,16.8339397 11.3537276,16.9360214 C11.7537082,17.8114494 12.357035,18.4961381 13.2016459,18.9672082 C14.3180661,19.5898541 15.0896031,20.5370136 15.6839416,21.6437451 C16.2363152,22.6723249 16.558144,23.7760214 16.7234942,24.9278113 C16.7710039,25.259037 16.7314319,25.3000097 16.3978132,25.3000097 C14.6380272,25.3000681 12.8782412,25.3000097 11.1184553,25.2999514" id="Fill-11"></path>
+                  <path d="M11.110751,12.963607 C11.0239611,12.8294241 10.9605759,12.760786 10.9301673,12.679716 C10.6465097,11.9248716 10.2298366,11.2499883 9.69584825,10.6497549 C9.5575214,10.4942685 9.38032296,10.3701245 9.20960311,10.2474397 C8.83985603,9.98164202 8.45154864,9.74047471 8.09219066,9.46177821 C7.80742412,9.24092218 7.83748249,9.13545525 8.18166537,9.02350973 C10.4041167,8.30094163 12.6272101,7.58047471 14.85007,6.85919066 C15.1452257,6.76341245 15.4385136,6.66127237 15.7362374,6.57454086 C15.8112957,6.5526537 15.9509066,6.55096109 15.9719767,6.5891323 C16.010323,6.65858755 16.0112568,6.77771206 15.9774047,6.85370428 C15.36293,8.23475486 14.5032023,9.41782879 13.1540778,10.1638016 C12.761393,10.3809222 12.4598755,10.6690156 12.234,11.0285486 C11.8999728,11.560144 11.6140973,12.1219728 11.3055175,12.669677 C11.2586498,12.7529066 11.2001673,12.8295409 11.110751,12.963607" id="Fill-13"></path>
+                </g>
+              </g>
+            </g>
+          </g>
+        </svg>
+        <div id="upcoming-shift-info">
+          Next shift: <b class="upcoming-shift-role"> {{this.[0].role}} </b>
+          <div> Start: <b> {{convertUnixTime this.[0].start 'ddd MMM DD, YYYY'}} </b> </div>
+        </div>
+        <i class="svg-icon svg-icon-chevron svg-icon-chevron-down">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+            <path d="M1.5 0l-1.5 1.5 4 4 4-4-1.5-1.5-2.5 2.5-2.5-2.5z" transform="translate(0 1)" />
+          </svg>
+        </i>
+      </div>
+      <ul class="dropdown-menu o">
+        {{#each .}}
+        <li>
+          <h4> <a href="team/{{team}}" data-navigo> {{team}} </a> <span class="badge pull-right" data-role="{{role}}"> {{role}} </span> </h4>
+          <p> From: {{convertUnixTime start}} </p>
+          <p> To: {{convertUnixTime end}} </p>
+        </li>
+        {{/each}}
+      </ul>
+    </script>
+
+    {% endraw %}
+
+    {% block js %}
+    {% assets "libs" %} <script src="{{ ASSET_URL }}"></script> {% endassets %}
+    {% assets "oncall_js" %} <script src="{{ ASSET_URL }}"></script> {% endassets %}
+    {% endblock js %}
+  </body>
+</html>

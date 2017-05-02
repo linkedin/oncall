@@ -1,0 +1,60 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+debug: True
+oncall_host: http://localhost:8080
+metrics: dummy
+db:
+  conn:
+    kwargs:
+      scheme: mysql+pymysql
+      user: root
+      host: 127.0.0.1
+      database: oncall-api
+      charset: utf8
+      echo: True
+    str: "%(scheme)s://%(user)s@%(host)s/%(database)s?charset=%(charset)s"
+  kwargs:
+    pool_recycle: 3600
+session:
+  encrypt_key: 'abc'
+  sign_key: '123'
+auth:
+  debug: True
+  module: 'oncall.auth.modules.debug'
+notifier:
+  skipsend: True
+healthcheck_path: /tmp/status
+messengers:
+  - type: dummy
+    application: oncall
+    iris_api_key: magic
+
+# allow_origins_list:
+#   - http://www.example.com
+
+index_content_setting:
+  footer: |
+    <ul>
+      <li>Oncall © LinkedIn 2017</li>
+      <li><a href="mailto:HELP_EMAIL_ADDRESS" target="_blank">Feedback</a></li>
+    </ul>
+
+notifications:
+  default_roles:
+    - "primary"
+    - "secondary"
+    - "shadow"
+    - "manager"
+  default_times:
+    - 86400
+    - 604800
+  default_modes:
+    - "email"
+
+reminder:
+  polling_interval: 360
+  default_timezone: 'US/Pacific'
+
+slack_instance: foobar
+header_color: '#3a3a3a'

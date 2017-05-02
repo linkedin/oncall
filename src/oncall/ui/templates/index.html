@@ -1,0 +1,1295 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% raw %}
+
+<!--// **********************
+  Browse teams Page
+*********************** //-->
+
+<script id="browse-teams-template" type="text/x-handlebars-template">
+  <div class="main container-fluid clearfix">
+    <h2>Browse Teams</h2>
+    <section class="card-wrap-alt col-4">
+      {{#each this}}
+        {{>browse-card}}
+      {{/each}}
+    </section>
+  </div>
+</script>
+
+<!-- // Browse card partial -->
+<script id="browse-card-template" type="text/x-handlebars-template">
+  <div class="module module-card card-column">
+    <div class="module-heading module-card-heading border-bottom">
+      <h3 class="light uppercase">
+        {{key}}
+      </h3>
+    </div>
+    <ul class="module-card-inner">
+      {{#each items}}
+        <li><a href="/team/{{this}}" data-navigo>{{this}}</a></li>
+      {{/each}}
+    </ul>
+  </div>
+</script>
+
+<!--// **********************
+  Dashboard Page
+*********************** //-->
+
+<script id="dashboard-template" type="text/x-handlebars-template">
+  {{#if error}}
+    {{>error-page this}}
+  {{else}}
+    <div class="subheader">
+      <div class="container-fluid" id="user-details">
+        <img class="headshot-large pull-left placeholder" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="user">
+        <div class="pull-left">
+          <h3>
+            <span class="user-details-name">
+              <span class="placeholder"></span>
+            </span>
+          </h3>
+          <h4 class="user-details-email">
+            <span class="placeholder"></span>
+          </h4>
+        </div>
+      </div>
+    </div>
+    <div class="main container-fluid clearfix">
+      <section class="pull-left col-md-12 col-left-edge card-wrap col-3">
+        {{#if data}}
+          {{#each data}}
+            <div class="module module-card dashboard-card card-column" data-team="{{this}}">
+              <div class="module-heading module-card-heading border-bottom">
+                <h4>
+                  <span>
+                    <a href="/team/{{this}}" data-navigo>{{this}}</a>
+                  </span>
+                </h4>
+              </div>
+              <div class="dashboard-card-inner">
+                <i class="loader"></i>
+              </div>
+            </div>
+          {{/each}}
+        {{else}}
+          <div class="module module-card">
+            You are not part of any teams.
+          </div>
+        {{/if}}
+      </section>
+    </div>
+  {{/if}}
+</script>
+
+<!-- // Dashboard card inner partial -->
+<script id="dashboard-card-inner-template" type="text/x-handlebars-template">
+  <ul class="card-inner-wrapper">
+    {{#each data}}
+      {{#ifNotEmpty this}}
+        <span class="subheading light">{{@key}}</span>
+        {{#each this}}
+          {{#each this}}
+          <li class="card-inner border-bottom" data-card-name="{{full_name}}">
+            <img class="card-picture" src="{{photo_url}}" alt="{{full_name}}">
+            <h4><strong>{{full_name}}</strong> <span class="badge pull-right" data-role="{{role}}">{{role}}</span></h4>
+            <div class="light"><a href="mailto:{{user_contacts.email}}">{{user_contacts.email}}</a></div>
+            <span class="light"><a href="tel:{{user_contacts.call}}">{{user_contacts.call}}</a></span>
+            <ul class="border-top card-content">
+              <li class="small light">{{convertUnixTime start}} - {{convertUnixTime end}}</li>
+            </ul>
+          </li>
+          {{/each}}
+        {{/each}}
+      {{/ifNotEmpty}}
+    {{/each}}
+    <a class="btn btn-blue card-btn" href="/team/{{name}}" data-navigo> View Team Calendar </a>
+  </ul>
+</script>
+
+<!--// **********************
+  Search Page
+*********************** //-->
+
+<script id="search-template" type="text/x-handlebars-template">
+  <div class="subheader search">
+    <form class="container-fluid main-search">
+      <h1>What are you looking for?</h1>
+      <div class="search-wrapper">
+        <span class="search-input-wrapper">
+          <input type="text" class="form-control search-input typeahead" placeholder="Search for teams or services" />
+          <i class="loader loader-small"></i>
+        </span>
+        <button id="submit-search" class="btn btn-white">Search</button>
+      </div>
+    </form>
+  </div>
+  <div class="main container-fluid">
+    <ul class="search-results">
+    </ul>
+    {{#if this}}
+      <div class="recently-viewed">
+        <h3>Most Recently Viewed</h3>
+        <div class="card-wrap col-3">
+          {{#each .}}
+          <div class="module module-card dashboard-card card-column" data-team="{{this}}">
+            <div class="module-card-heading border-bottom">
+              <h4>
+                <span>
+                  <a href="/team/{{this}}" data-navigo>{{this}}</a>
+                </span>
+              </h4>
+            </div>
+            <div class="dashboard-card-inner">
+              <i class="loader"></i>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+  </div>
+</script>
+
+<!--// search results partial -->
+<script id="search-results-template" type="text/x-handlebars-template">
+  {{#if noResults}}
+    <ul>
+      <h4>No teams or services found</h4>
+    </ul>
+  {{else}}
+    {{#ifExists teams}}
+      <h3>Teams</h3>
+      {{#if teams}}
+        <ul>
+          {{#each teams}}
+            <li class="result">
+              <h4>
+                <a href="/team/{{this}}" data-navigo>{{this}}</a>
+              </h4>
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <ul>
+          <h4>No teams found</h4>
+        </ul>
+      {{/if}}
+    {{/ifExists}}
+    {{#ifExists services}}
+      <h3>Services</h3>
+      {{#ifNotEmpty services}}
+        <ul>
+          {{#each services}}
+            <li class="result">
+              <h4>
+                <a href="/team/{{this}}" data-navigo>{{@key}} - <i>{{this}}</i></a>
+              </h4>
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <ul>
+          <h4>No services found</h4>
+        </ul>
+      {{/ifNotEmpty}}
+    {{/ifExists}}
+  {{/if}}
+</script>
+
+<!--// recently viewed partial -->
+<script id="recently-viewed-inner-template" type="text/x-handlebars-template">
+  <ul class="card-inner-wrapper">
+    {{#ifNotEmpty data.current.primary}}
+      <span class="subheading light">On Call Now</span>
+      <li class="card-inner border-bottom" data-card-name="{{data.current.primary.0.full_name}}">
+        <img class="card-picture" src="{{data.current.primary.0.photo_url}}" alt="{{data.current.primary.0.full_name}}">
+        <h4><strong><a class="recently-viewed-name" target="_blank" href="mailto:{{data.current.primary.0.user_contacts.email}}">{{data.current.primary.0.full_name}}</a></strong> <span class="badge pull-right" data-role="{{data.current.primary.0.role}}">{{data.current.primary.0.role}}</span></h4>
+
+        {{#if data.current.primary.0.user_contacts.call}}
+          <span class="light"><a href="tel:{{data.current.primary.0.user_contacts.call}}">{{data.current.primary.0.user_contacts.call}}</a></span>
+        {{else}}
+          <span class="error-text">No phone number found!</span>
+        {{/if}}
+        <ul class="border-top card-content">
+          <li class="small light">{{convertUnixTime data.current.primary.0.start}} - {{convertUnixTime data.current.primary.0.end}}</li>
+        </ul>
+      </li>
+    {{else}}
+      <div style="text-align:center;">No on call data found</div>
+    {{/ifNotEmpty}}
+  </ul>
+</script>
+
+<!--// **********************
+  Team Subheader Partial
+*********************** //-->
+
+<script id="team-subheader-template" type="text/x-handlebars-template">
+  <div class="subheader">
+    <div class="container-fluid">
+      <div class="pull-left">
+        {{#isEqual page "info"}}
+          <h3>
+            {{name}}
+            <span class="edit-team-name">
+              <i class="svg-icon svg-icon-pencil" data-toggle="modal" data-target="#team-edit-modal" data-modal-action="oncall.team.updateTeamName" data-modal-title="Update Team Info" data-modal-name="{{#if name}}{{name}}{{else}}{{@key}}{{/if}}" data-modal-email="{{email}}" data-modal-slack="{{slack_channel}}" data-modal-timezone="{{scheduling_timezone}}" data-admin-action="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 8 8" style="fill: currentColor">
+                  <path d="M6 0l-1 1 2 2 1-1-2-2zm-2 2l-4 4v2h2l4-4-2-2z" />
+                </svg>
+              </i>
+            </span>
+          </h3>
+        {{else}}
+          <h3>{{name}}</h3>
+        {{/isEqual}}
+        <h4>
+          {{#if email}}
+            <a target="_blank" href="mailto:{{email}}">{{email}}</a>
+          {{else}}
+            No Email
+          {{/if}}
+        </h4>
+        {% endraw %} {% if slack_instance %} {% raw %}
+        <h4>
+          {{#if slack_channel}}
+            <a href="https://{% endraw %}{{slack_instance}}{% raw %}.slack.com/messages/{{stripHash slack_channel}}/" target="_blank">{{slack_channel}}</a>
+          {{else}}
+            No Slack Channel
+          {{/if}}
+        </h4>
+        {% endraw %} {% endif %} {% raw %}
+      </div>
+      <div class="pull-right" data-admin-action="true">
+        {{#isEqual page "info"}}
+          <button class="btn btn-white add-roster-btn" data-toggle="modal" data-target="#input-modal" data-modal-action="oncall.team.info.addRoster" data-modal-title="Add roster" data-modal-placeholder="Roster Name"> + add roster </button>
+          <button id="#delete-team" class="btn btn-primary" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.deleteTeam" data-modal-title="Delete {{name}}" data-modal-content="Delete {{name}}?"> Delete Team </button>
+        {{/isEqual}}
+      </div>
+    </div>
+  </div>
+  <nav class="subnav">
+    <ul class="container-fluid">
+      <li {{#isEqual page "calendar"}}class="active"{{/isEqual}} href="/team/{{name}}" data-navigo> Calendar </li>
+      <li {{#isEqual page "info"}}class="active"{{/isEqual}} href="/team/{{name}}/info" data-navigo> Team Info </li>
+      <li data-admin-action="true" {{#isEqual page "schedules"}}class="active"{{/isEqual}} href="/team/{{name}}/schedules" data-navigo> Schedule Templates </li>
+      {{#isEqual page "calendar"}}
+        <span class="timezone-display-container pull-right">
+          Display Timezone:
+          <span class="timezone-display dark"></span>
+          <i class="svg-icon svg-icon-question" data-toggle="modal" data-target="#calendar-timezone-modal" title="Learn about calendar timezones">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 10 10">
+              <path d="M2.47 0c-.85 0-1.48.26-1.88.66-.4.4-.54.9-.59 1.28l1 .13c.04-.25.12-.5.31-.69.19-.19.49-.38 1.16-.38.66 0 1.02.16 1.22.34.2.18.28.4.28.66 0 .83-.34 1.06-.84 1.5-.5.44-1.16 1.08-1.16 2.25v.25h1v-.25c0-.83.31-1.06.81-1.5.5-.44 1.19-1.08 1.19-2.25 0-.48-.17-1.02-.59-1.41-.43-.39-1.07-.59-1.91-.59zm-.5 7v1h1v-1h-1z"
+              transform="translate(2)" />
+            </svg>
+          </i>
+        </span>
+      {{/isEqual}}
+      {{#isEqual page "schedules"}}
+        <span class="timezone-display-container pull-right">
+          Team Scheduling Timezone: <span class="dark">{{scheduling_timezone}}</span>
+          <i class="svg-icon svg-icon-question" data-toggle="modal" data-target="#scheduling-timezone-modal" title="Learn about scheduling timezones">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 10 10">
+              <path d="M2.47 0c-.85 0-1.48.26-1.88.66-.4.4-.54.9-.59 1.28l1 .13c.04-.25.12-.5.31-.69.19-.19.49-.38 1.16-.38.66 0 1.02.16 1.22.34.2.18.28.4.28.66 0 .83-.34 1.06-.84 1.5-.5.44-1.16 1.08-1.16 2.25v.25h1v-.25c0-.83.31-1.06.81-1.5.5-.44 1.19-1.08 1.19-2.25 0-.48-.17-1.02-.59-1.41-.43-.39-1.07-.59-1.91-.59zm-.5 7v1h1v-1h-1z"
+              transform="translate(2)" />
+            </svg>
+          </i>
+        </span>
+      {{/isEqual}}
+    </ul>
+  </nav>
+</script>
+
+<!--// **********************
+  Team.calendar Page
+*********************** //-->
+
+<script id="team-calendar-template" type="text/x-handlebars-template">
+  {{#if error}}
+    {{>error-page this}}
+  {{else}}
+    <div class="subheader-wrapper">
+      {{>team-subheader name=name page="calendar"}}
+    </div>
+    <div class="main container-fluid">
+      <div class="col-md-3 col-left-edge">
+        <div id="oncall-now-container">
+          <!--// oncall now render here -->
+        </div>
+        <div id="calendar-types-container">
+          <!--// calendar types render here -->
+        </div>
+        {{#each rosters}}
+          <div class="card-column">
+            <div class="module module-card module-top-edge" data-col-name="{{#if name}}{{name}}{{else}}{{@key}}{{/if}}">
+              <div class="module-heading module-card-heading border-bottom">
+                <h4>
+                  <span>
+                    {{#if name}}
+                      {{name}}
+                    {{else}}
+                      {{@key}}
+                    {{/if}}
+                  </span>
+                </h4>
+              </div>
+              <ul class="card-inner-wrapper">
+                {{#each users}}
+                  {{>card-inner-slim}}
+                {{/each}}
+              </ul>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+      <div class="col-md-9 col-right-edge">
+        <div class="module" id="calendar-container">
+          <!--// calendar renders here -->
+        </div>
+        <div class="calendar-tip">
+          <i class="svg-icon svg-icon-info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22px" height="22px" viewBox="0 0 8 8" style="fill: #ffc41e">
+              <path d="M3 0c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm-1.5 2.5c-.83 0-1.5.67-1.5 1.5h1c0-.28.22-.5.5-.5s.5.22.5.5-1 1.64-1 2.5c0 .86.67 1.5 1.5 1.5s1.5-.67 1.5-1.5h-1c0 .28-.22.5-.5.5s-.5-.22-.5-.5c0-.36 1-1.84 1-2.5 0-.81-.67-1.5-1.5-1.5z" transform="translate(2)" />
+            </svg>
+          </i>
+          Tip: Click and drag on calendar dates to create a new event or <a href="#" data-toggle="modal" data-target="#override-details-modal">substitute an existing event</a>.
+        </div>
+      </div>
+    </div>
+    <!--// Override explanation modal -->
+    <div class="modal fade" id="override-details-modal" tabindex="-1" role="dialog" aria-labelledby="override-details">
+      <div class="modal-dialog" role="document">
+        <form class="modal-form modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h4 class="modal-title">Substitute an event</h4>
+          </div>
+          <div class="modal-body">
+            Use event substitution to override an existing event with your new event. <br />Toggling the substitute option on will provide a list of events of the same role within the time frame specified. <br />Check the event ( or events if they are consecutive ) you want to override and Oncall will split the existing event[s] for you.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!--// timezone explanation modal -->
+    <div class="modal fade" id="calendar-timezone-modal" tabindex="-1" role="dialog" aria-labelledby="calendar-timezone">
+      <div class="modal-dialog" role="document">
+        <form class="modal-form modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h4 class="modal-title">Calendar Timezones</h4>
+          </div>
+          <div class="modal-body">
+            The calendar timezone is set at the user level and what all current events are displayed in. It is also used when creating or editing events on the calendar. If no timezone is set by the user, it will default to system time. <br /><br />
+            The calendar timezone can be set on the user settings page ( click on your avatar > settings ).
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {{/if}}
+</script>
+
+<!--// Card inner slim partial -->
+<script id="card-inner-slim-template" type="text/x-handlebars-template">
+  <li class="card-inner card-inner-slim" data-card-name="{{this.name}}" data-collapsed="true">
+    <img class="card-picture-small" src="{{getUserInfo this @root.users 'photo_url'}}" alt="{{getUserInfo this @root.users 'full_name'}}">
+    <span class="card-inner-user">
+      <strong>{{getUserInfo this @root.users 'full_name'}}</strong>
+    </span>
+    {{#unless this.in_rotation}}
+      <span class="badge badge-gray pull-right">Out Of Rotation</span>
+    {{/unless}}
+    <div class="light small">
+      <i class="svg-icon svg-icon-chevron svg-icon-chevron-down pull-right">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+          <path d="M1.5 0l-1.5 1.5 4 4 4-4-1.5-1.5-2.5 2.5-2.5-2.5z" transform="translate(0 1)" />
+        </svg>
+      </i>
+      <i class="svg-icon svg-icon-chevron svg-icon-chevron-up pull-right">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+          <path d="M4 0l-4 4 1.5 1.5 2.5-2.5 2.5 2.5 1.5-1.5-4-4z" transform="translate(0 1)" />
+        </svg>
+      </i>
+      Call: <a href="tel:{{getUserInfo this @root.users 'contacts.call'}}"> {{getUserInfo this @root.users 'contacts.call'}} </a>
+      <ul class="card-inner-extra">
+        <li> SMS: <a href="tel:{{getUserInfo this @root.users 'contacts.sms'}}"> {{getUserInfo this @root.users 'contacts.sms'}} </a> </li>
+        <li> Slack: <a>{{getUserInfo this @root.users 'contacts.im'}}</a> </li>
+        <li> E-Mail: <a target="_blank" href="mailto:{{getUserInfo this @root.users 'contacts.email'}}"> {{getUserInfo this @root.users 'contacts.email'}} </a> </li>
+      </ul>
+    </div>
+  </li>
+</script>
+
+<!--// Show types on calendar partial -->
+<script id="calendar-types-template" type="text/x-handlebars-template">
+  <div class="module module-card calendar-types module-top-edge">
+    <div class="module-heading module-card-heading border-bottom">
+      <h4>Show on calendar</h4>
+    </div>
+    <ul>
+    {{#each this.roles}}
+      <li>
+        <input type="checkbox" id="show-{{this}}" data-type="{{this}}" value="{{this}}" {{#inArray this ../currentViewRoles}} checked {{/inArray}}> <label for="show-{{this}}">{{this}}</label> <span class="color-swatch" data-type="{{this}}"></span>
+      </li>
+    {{/each}}
+    </ul>
+  </div>
+</script>
+
+<!--// On call now partial -->
+<script id="card-oncall-template" type="text/x-handlebars-template">
+  <div class="module module-card module-top-edge">
+    <div class="module-heading module-card-heading border-bottom">
+      <h4>On Call Now</h4>
+    </div>
+    <ul>
+      {{#ifNotEmpty current.primary}}
+        {{#each current.primary}}
+          <li class="card-inner card-inner-slim border-bottom" data-card-name="{{full_name}}" data-collapsed="false">
+            <img class="card-picture-small" src="{{photo_url}}" alt="{{full_name}}">
+            <span class="card-inner-user">
+              <strong>{{full_name}}</strong>
+            </span>
+            <span class="badge pull-right" data-role="{{role}}">{{role}}</span>
+            <ul class="card-inner-extra light small">
+              <li> Call: {{#if user_contacts.call}} <a href="tel:{{user_contacts.call}}"> {{user_contacts.call}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
+              <li> SMS: {{#if user_contacts.sms}} <a href="tel:{{user_contacts.sms}}"> {{user_contacts.sms}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
+              <li> Slack: <a>{{user_contacts.im}}</a> </li>
+              <li> E-Mail: <a target="_blank" href="mailto:{{user_contacts.email}}"> {{user_contacts.email}} </a> </li>
+            </ul>
+            <ul class="border-top card-content">
+              <li class="small light">
+                {{ convertUnixTime start}}  - <br> {{convertUnixTime end}}
+                <i class="svg-icon svg-icon-chevron svg-icon-chevron-down pull-right">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+                    <path d="M1.5 0l-1.5 1.5 4 4 4-4-1.5-1.5-2.5 2.5-2.5-2.5z" transform="translate(0 1)" />
+                  </svg>
+                </i>
+                <i class="svg-icon svg-icon-chevron svg-icon-chevron-up pull-right">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+                    <path d="M4 0l-4 4 1.5 1.5 2.5-2.5 2.5 2.5 1.5-1.5-4-4z" transform="translate(0 1)" />
+                  </svg>
+                </i>
+              </li>
+            </ul>
+          </li>
+        {{/each}}
+        {{#each current.manager}}
+          <li class="card-inner card-inner-slim border-bottom" data-card-name="{{full_name}}" data-collapsed="true">
+            <img class="card-picture-small" src="{{photo_url}}" alt="{{full_name}}">
+            <span class="card-inner-user">
+              <strong>{{full_name}}</strong>
+            </span>
+            <span class="badge pull-right" data-role="{{role}}">{{role}}</span>
+            <ul class="card-inner-extra light small">
+              <li> SMS: <a href="tel:{{user_contacts.sms}}"> {{user_contacts.sms}} </a> </li>
+              <li> Slack: <a>{{user_contacts.im}}</a> </li>
+              <li> E-Mail: <a target="_blank" href="mailto:{{user_contacts.email}}"> {{user_contacts.email}} </a> </li>
+            </ul>
+            <ul class="border-top card-content">
+              <li class="small light">
+                {{ convertUnixTime start}}  - <br> {{convertUnixTime end}}
+                <i class="svg-icon svg-icon-chevron svg-icon-chevron-down pull-right">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+                    <path d="M1.5 0l-1.5 1.5 4 4 4-4-1.5-1.5-2.5 2.5-2.5-2.5z" transform="translate(0 1)" />
+                  </svg>
+                </i>
+                <i class="svg-icon svg-icon-chevron svg-icon-chevron-up pull-right">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+                    <path d="M4 0l-4 4 1.5 1.5 2.5-2.5 2.5 2.5 1.5-1.5-4-4z" transform="translate(0 1)" />
+                  </svg>
+                </i>
+              </li>
+            </ul>
+          </li>
+        {{/each}}
+      {{else}}
+        <li> No one is on call. </li>
+      {{/ifNotEmpty}}
+    </ul>
+  </div>
+</script>
+
+<!--// **********************
+  Team.schedules Page
+*********************** //-->
+
+<script id="team-schedules-template" type="text/x-handlebars-template">
+  {{#if error}}
+    {{>error-page this}}
+  {{else}}
+    <div class="subheader-wrapper">
+      {{>team-subheader name=name page="schedules"}}
+    </div>
+    <div class="main container-fluid clearfix">
+      <h4 class="clearfix module-heading">
+        <div class="pull-right">
+          <button id="add-schedule" class="btn btn-primary">+ New Schedule</button>
+        </div>
+      </h4>
+      <div class="add-schedule-container">
+      </div>
+      <div class="module schedule-container" data-collapsed="false">
+        <h4 class="module-heading border-bottom">
+          You have <span class="schedule-count"> 0 </span> schedules
+          <i class="svg-icon svg-icon-question" data-toggle="modal" data-target="#schedule-details-modal" title="Learn about schedules">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 10 10">
+              <path d="M2.47 0c-.85 0-1.48.26-1.88.66-.4.4-.54.9-.59 1.28l1 .13c.04-.25.12-.5.31-.69.19-.19.49-.38 1.16-.38.66 0 1.02.16 1.22.34.2.18.28.4.28.66 0 .83-.34 1.06-.84 1.5-.5.44-1.16 1.08-1.16 2.25v.25h1v-.25c0-.83.31-1.06.81-1.5.5-.44 1.19-1.08 1.19-2.25 0-.48-.17-1.02-.59-1.41-.43-.39-1.07-.59-1.91-.59zm-.5 7v1h1v-1h-1z"
+              transform="translate(2)" />
+            </svg>
+          </i>
+          <span class="toggle-schedule-view pull-right">
+            <i class="svg-icon svg-icon-chevron svg-icon-chevron-down pull-right">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+                <path d="M1.5 0l-1.5 1.5 4 4 4-4-1.5-1.5-2.5 2.5-2.5-2.5z" transform="translate(0 1)" />
+              </svg>
+            </i>
+            <i class="svg-icon svg-icon-chevron svg-icon-chevron-up pull-right">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+                <path d="M4 0l-4 4 1.5 1.5 2.5-2.5 2.5 2.5 1.5-1.5-4-4z" transform="translate(0 1)" />
+              </svg>
+            </i>
+          </span>
+        </h4>
+        <div class="module-schedule-wrapper clearfix">
+        {{#each rosters}}
+            {{#each schedules}}
+              {{>module-schedule}}
+            {{/each}}
+        {{/each}}
+        </div>
+      </div>
+      <div class="module" id="calendar-container">
+        <!--// calendar renders here -->
+      </div>
+    </div>
+    <!--// Schedules explanation modal -->
+    <div class="modal fade" id="schedule-details-modal" tabindex="-1" role="dialog" aria-labelledby="schedule-details">
+      <div class="modal-dialog" role="document">
+        <form class="modal-form modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h4 class="modal-title">How scheduling works</h4>
+          </div>
+          <div class="modal-body">
+            A schedule defines how future events should be populated on the calendar based on existing rosters. The current scheduler tries to pick the team member who has not been oncall the longest as the owner of the next event. The scheduler also takes all existing future events, for example vacations, into account to avoid creating conflicting events. <br /><br />
+            We have a background job that checks all the schedules every hour and populates the team calendar for the number of days specified in the "Auto Populate Threshold" setting.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!--// Scheduling timezone modal -->
+    <div class="modal fade" id="scheduling-timezone-modal" tabindex="-1" role="dialog" aria-labelledby="schedule-timezone">
+      <div class="modal-dialog" role="document">
+        <form class="modal-form modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h4 class="modal-title">Team Scheduling Timezones</h4>
+          </div>
+          <div class="modal-body">
+            The scheduling timezone is determined by the team timezone selected when the team is created. This timezone is used by the scheduler when populating the calendar and IS NOT related to the individual user timezones used on the calendar page.<br /><br />
+            Note: You can edit the team timezone by going to team info > clicking the pencil icon. Please note changing this timezone will affect all events created by the scheduler for the entire team.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!--// Populate schedule modal  -->
+    <div class="modal fade" id="populate-schedule-modal" tabindex="-1" role="dialog" aria-labelledby="populate-schedule">
+      <div class="modal-dialog" role="document">
+        <form class="modal-form modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h4 class="modal-title">Populate Schedule</h4>
+          </div>
+          <div class="modal-body">
+            <div class="clearfix">
+              <div class="pull-left">
+                <p>Populating the calendar will re-run the scheduler and generate events from the selected start date onwards. Note: Only existing events generated by this schedule ( highlighted below ) will be replaced. Events generated by other schedules will not be affected.</p>
+                <div>
+                  <label class="light">Populate threshold:</label> <span id="populate-schedule-threshold"></span>
+                </div>
+                <div>
+                  <label class="light"> Populate start time: </label><input type="text" id="populate-schedule-date" class="form-control" placeholder="YYYY/MM/DD">
+                  <button type="button" class="btn btn-primary" id="populate-schedule-btn"> <span class="btn-text">Populate</span> <i class="loader loader-small"></i> </button>
+                </div>
+              </div>
+            </div>
+            <div id="modal-calendar-container" class="border-top"> <i class="loader loader-small"></i> </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  {{/if}}
+</script>
+
+<!-- // schedule view partial -->
+<script id="module-schedule-template" type="text/x-handlebars-template">
+  <div class="module module-card module-schedule" data-role="{{role}}" data-roster="{{roster}}" data-advanced="{{advanced_mode}}" data-id="{{id}}" data-model="{{stringify this}}">
+    <ul class="schedule-details">
+      <li>
+        <label class="light label-col">Roster:</label>
+        <span class="data-col schedule-roster">{{roster}}</span>
+      </li>
+      <li>
+        <label class="light label-col">Role:</label>
+        <span class="data-col schedule-role">{{role}}</span>
+      </li>
+      <li>
+        <label class="light label-col" title="Auto Populate Threshold">Threshold:</label>
+        <span class="data-col schedule-auto-populate-threshold">{{auto_populate_threshold}} Days</span>
+      </li>
+      <li>
+        <label class="light label-col">Rotation:</label>
+        <ul class="data-col">
+          {{#if is_12_hr}}
+            {{#isEqual events.length 7}}
+              {{timeSince events.[0].start 'toString'}} - Weekly (12 hr)
+            {{else}}
+              {{timeSince events.[0].start 'toString'}} - Bi-Weekly (12 hr)
+            {{/isEqual}}
+          {{else}}
+            {{#if advanced_mode}}
+              {{#each events}}
+                {{timeSince start 'toString'}} - {{timeSince end 'toString'}}<br />
+              {{/each}}
+            {{else}}
+              {{#isEqual events.[0].duration 604800000}}
+                {{timeSince events.[0].start 'toString'}} - Weekly
+              {{else}}
+                {{timeSince events.[0].start 'toString'}} - Bi-Weekly
+              {{/isEqual}}
+            {{/if}}
+          {{/if}}
+        </ul>
+      </li>
+    </ul>
+    <div class="schedule-actions">
+      <span class="populate-schedule pull-left" data-toggle="modal" data-target="#populate-schedule-modal">
+        <i class="svg-icon svg-icon-cal grey-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
+            <path d="M0 0v2h7v-2h-7zm0 3v4.91c0 .05.04.09.09.09h6.81c.05 0 .09-.04.09-.09v-4.91h-7zm1 1h1v1h-1v-1zm2 0h1v1h-1v-1zm2 0h1v1h-1v-1zm-4 2h1v1h-1v-1zm2 0h1v1h-1v-1z" />
+          </svg>
+        </i>
+        Populate
+      </span>
+      <span class="edit-schedule-item pull-right">
+        <i class="svg-icon svg-icon-pencil grey-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13px" height="13px" viewBox="0 0 8 8">
+            <path d="M6 0l-1 1 2 2 1-1-2-2zm-2 2l-4 4v2h2l4-4-2-2z" />
+          </svg>
+        </i>
+        Edit
+      </span>
+    </div>
+  </div>
+</script>
+
+<!-- // schedule create partial -->
+<script id="module-schedule-create-template" type="text/x-handlebars-template">
+  <form class="module module-card module-schedule-create" data-advanced="{{#ifExists selected_schedule}}{{selected_schedule.advanced_mode}}{{else}}0{{/ifExists}}" {{#if selected_schedule.id}} data-edit-id="{{selected_schedule.id}}" {{/if}} {{#if selected_schedule.role}} data-role="{{selected_schedule.role}}" {{/if}}>
+    <div class="module-heading module-card-heading border-bottom">
+      <h4>
+        {{#if selected_schedule.id}}
+          Edit schedule {{selected_schedule.id}}
+        {{else}}
+          New Schedule
+        {{/if}}
+        <div class="pull-right">
+          <div class="toggle-input pull-right">
+            <input type="checkbox" class="toggle-advanced" id="toggle-advanced-{{selected_schedule.id}}" {{#if selected_schedule.advanced_mode}} checked {{/if}}>
+            <label for="toggle-advanced-{{selected_schedule.id}}">Advanced</label>
+          </div>
+        </div>
+      </h4>
+    </div>
+    <ul class="schedule-details">
+      <li>
+        <label class="light label-col">Roster:</label>
+        <span class="data-col">
+          <select name="from" class="form-control schedule-roster">
+            {{#each rosters}}
+              <option value="{{@key}}" {{isSelected ../selected_schedule.roster @key}}>{{@key}}</option>
+            {{/each}}
+          </select>
+        </span>
+        <label class="light label-col">Role:</label>
+        <span class="data-col">
+          <select name="from" class="form-control schedule-role">
+            {{#each roles}}
+              <option value="{{this}}" {{isSelected ../selected_schedule.role this}}>{{this}}</option>
+            {{/each}}
+          </select>
+        </span>
+        <label class="light label-col">Auto Populate Threshold:</label>
+        <span class="data-col">
+          <input type="number" class="form-control auto-populate-threshold" value="{{#ifExists selected_schedule.auto_populate_threshold}}{{selected_schedule.auto_populate_threshold}}{{else}}21{{/ifExists}}" placeholder="Days"> Days
+        </span>
+      </li>
+      <ul class="schedule-basic">
+        {{#if selected_schedule.events}}
+          {{#if selected_schedule.is_12_hr}}
+            {{>rotation-item selected_schedule.events.[0] simple=true is_12_hr=true}}
+          {{else}}
+            {{>rotation-item selected_schedule.events.[0] simple=true}}
+          {{/if}}
+        {{else}}
+          {{>rotation-item simple=true}}
+        {{/if}}
+      </ul>
+      <ul class="schedule-advanced">
+        {{#if selected_schedule.events}}
+          {{#each selected_schedule.events}}
+            {{>rotation-item this}}
+          {{/each}}
+        {{else}}
+          {{>rotation-item}}
+        {{/if}}
+      <span class="add-rotation-item light">
+        <i class="svg-icon svg-icon-plus grey-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 8 8"><path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" /></svg>
+        </i>
+        Add another row
+      </span>
+      </ul>
+    </ul>
+    <div class="border-top schedule-actions">
+      <div class="pull-right">
+        <button class="btn btn-primary preview-schedule" type="button"> Preview </button>
+        <button class="btn btn-primary" type="submit" id="save-schedule"><span class="btn-text">Save</span> <i class="loader loader-small"></i> </button>
+        <button class="btn btn-blue delete-schedule-item" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.schedules.deleteScheduleItem" data-modal-title="Your changes are unsaved" data-modal-content="Aborting now will lose unsaved changes."> Cancel </button>
+      </div>
+      <div class="pull-left">
+        {{#if selected_schedule.id}}
+          <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.schedules.deleteScheduleItem" data-modal-title="Delete schedule {{selected_schedule.id}}" data-schedule-id="{{selected_schedule.id}}" data-modal-content="Delete schedule {{selected_schedule.id}}?"> Delete </button>
+        {{/if}}
+      </div>
+    </div>
+  </form>
+</script>
+
+<!-- // rotation item partial -->
+<script id="rotation-item-template" type="text/x-handlebars-template">
+  <li class="rotation-item">
+    <label class="light">Start:</label>
+    <select name="from" class="form-control rotation-start-day">
+      <option data-index="0" {{isSelected startDayIndex 0}}>Sunday</option>
+      <option data-index="1" {{isSelected startDayIndex 1}}>Monday</option>
+      <option data-index="2" {{isSelected startDayIndex 2}}>Tuesday</option>
+      <option data-index="3" {{isSelected startDayIndex 3}}>Wednesday</option>
+      <option data-index="4" {{isSelected startDayIndex 4}}>Thursday</option>
+      <option data-index="5" {{isSelected startDayIndex 5}}>Friday</option>
+      <option data-index="6" {{isSelected startDayIndex 6}}>Saturday</option>
+    </select>
+    <input class="form-control rotation-start-time" value="{{startTime}}" maxlength="5" placeholder="HH:MM" >
+    {{#if simple}}
+      <label class="light">Rotate:</label>
+      <select name="time" class="form-control rotation-end-duration">
+        <option value="7" {{#if totalEvents}} {{isSelected totalEvents 7}} {{else}} {{isSelected duration 7}} {{/if}}>Weekly</option>
+        <option value="14" {{#if totalEvents}} {{isSelected totalEvents 14}} {{else}} {{isSelected duration 14}} {{/if}}>Bi-Weekly</option>
+      </select>
+      <input type="checkbox" id="twelve-hour" {{#if is_12_hr}} checked {{/if}}>
+      <label for="twelve-hour">12 Hour</label>
+    {{else}}
+      <label class="light">Duration:</label>
+      <input type="number" class="form-control rotation-end-val" value="{{#if duration}}{{duration}}{{else}}1{{/if}}">
+      <select name="time" class="form-control rotation-end-duration">
+        <option value="minutes" {{isSelected durationUnit "minutes"}}>Minutes</option>
+        <option value="hours" {{isSelected durationUnit "hours"}}>Hours</option>
+        <option value="days"  {{isSelected durationUnit "days"}} {{#unless duration}}selected{{/unless}}>Days</option>
+        <option value="weeks" {{isSelected durationUnit "weeks"}}>Weeks</option>
+      </select>
+      <span class="remove-rotation-item light">
+        <i class="svg-icon svg-icon-close grey-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 8 8" style="fill:currentColor">
+            <path d="M1.41 0l-1.41 1.41.72.72 1.78 1.81-1.78 1.78-.72.69 1.41 1.44.72-.72 1.81-1.81 1.78 1.81.69.72 1.44-1.44-.72-.69-1.81-1.78 1.81-1.81.72-.72-1.44-1.41-.69.72-1.78 1.78-1.81-1.78-.72-.72z" />
+          </svg>
+        </i>
+      </span>
+    {{/if}}
+  </li>
+</script>
+
+<!--// **********************
+  Team.info Page
+*********************** //-->
+
+<script id="team-info-template" type="text/x-handlebars-template">
+  {{#if error}}
+    {{>error-page this}}
+  {{else}}
+    <div class="subheader-wrapper">
+      {{>team-subheader name=name page="info"}}
+    </div>
+    <div class="main container-fluid clearfix team-info">
+      <aside class="pull-left col-md-3 col-left-edge">
+          <div class="module module-card" data-col-name="admins">
+            <div class="module-heading module-card-heading border-bottom">
+              <span class="light"> Admin </span>
+            </div>
+            <ul class="card-inner-wrapper">
+            {{#if admins}}
+              {{#each admins}}
+                {{>card-inner}}
+              {{/each}}
+            {{/if}}
+            </ul>
+            {{>add-card-item buttonText="+ add admin" placeholder="Username"}}
+          </div>
+          <div class="module module-card" data-col-name="services">
+            <div class="module-heading module-card-heading border-bottom">
+              <span class="light"> Services </span>
+            </div>
+            <ul class="card-inner-wrapper services-inner">
+            {{#if services}}
+              {{#each services}}
+                {{>service-item}}
+              {{/each}}
+            {{/if}}
+            </ul>
+            <!--// {{>add-card-item buttonText="+ add a service" placeholder="Service name" type="services"}} -->
+          </div>
+      </aside>
+      <section class="pull-left col-md-9 col-left-edge card-wrap">
+        {{#each rosters}}
+          {{>card-column}}
+        {{/each}}
+        <div class="card-column" data-admin-action="true">
+          <div class="module module-card">
+            <div class="module-heading module-card-heading border-bottom">
+              <h4>
+                <span class="card-heading">
+                  Add a new roster
+                </span>
+              </h4>
+            </div>
+            <button class="btn btn-blue card-btn add-roster" data-toggle="modal" data-target="#input-modal" data-modal-action="oncall.team.info.addRoster" data-modal-title="Add roster" data-modal-placeholder="Roster Name"> + add roster </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  {{/if}}
+</script>
+
+<!--// card column partial -->
+<script id="card-column-template" type="text/x-handlebars-template">
+  <div class="card-column">
+    <div class="module module-card" data-col-name="{{#if name}}{{name}}{{else}}{{@key}}{{/if}}">
+      <div class="module-heading module-card-heading border-bottom">
+        <span class="remove-card-column" data-admin-action="true" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.info.removeRoster" data-modal-title="Delete roster" data-modal-content="Delete {{#if name}}{{name}}{{else}}{{@key}}{{/if}} roster?">
+          <i class="svg-icon svg-icon-trash grey-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
+              <path d="M3 0c-.55 0-1 .45-1 1h-1c-.55 0-1 .45-1 1h7c0-.55-.45-1-1-1h-1c0-.55-.45-1-1-1h-1zm-2 3v4.81c0 .11.08.19.19.19h4.63c.11 0 .19-.08.19-.19v-4.81h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1z" />
+            </svg>
+          </i>
+        </span>
+        <span class="light card-subheading">Roster</span>
+        <h4>
+          <span class="card-heading">
+            {{#if name}}
+              {{name}}
+            {{else}}
+              {{@key}}
+            {{/if}}
+          </span>
+          <i class="svg-icon svg-icon-pencil grey-icon edit-card-heading" data-admin-action="true" data-toggle="modal" data-target="#input-modal" data-modal-action="oncall.team.info.updateRosterName" data-modal-title="Update Roster Name" data-modal-placeholder="Roster name" data-modal-val="{{#if name}}{{name}}{{else}}{{@key}}{{/if}}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13px" height="13px" viewBox="0 0 8 8">
+              <path d="M6 0l-1 1 2 2 1-1-2-2zm-2 2l-4 4v2h2l4-4-2-2z" />
+            </svg>
+          </i>
+        </h4>
+      </div>
+      <ul class="card-inner-wrapper">
+        {{#if users}}
+          {{#each users}}
+            {{>card-inner}}
+          {{/each}}
+        {{/if}}
+      </ul>
+      {{>add-card-item buttonText="+ add team member" placeholder="Username"}}
+    </div>
+  </div>
+</script>
+
+<!--// card inner template partial -->
+<script id="card-inner-template" type="text/x-handlebars-template">
+  {{#if newItem}}
+    <li class="card-inner border-bottom" data-card-name="{{user.name}}">
+      <img class="card-picture" src="{{user.photo_url}}" alt="{{user.name}}">
+      <strong class="card-inner-user"> {{user.full_name}} </strong>
+      {{#unless admin}}
+        <button class="badge toggle-rotation pull-right" data-in-rotation="true"> <span class="active-text">In Rotation</span> <span class="inactive-text">Out Of Rotation</span> </button>
+      {{/unless}}
+      <ul class="border-top card-content">
+        <li> <a target="_blank" href="mailto:{{user.contacts.email}}"> {{user.contacts.email}} </a> </li>
+        <li> <span class="light"> Call </span> {{#if user.contacts.call}} <a href="tel:{{user.contacts.call}}" target="_blank"> {{user.contacts.call}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
+        <li> <span class="light"> SMS </span> {{#if user.contacts.sms}} <a href="tel:{{user.contacts.sms}}" target="_blank"> {{user.contacts.sms}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
+        <li> <span class="light"> Slack </span> <a> {{user.contacts.im}} <a/> </li>
+        <span class="close remove-card-item" data-admin-action="true" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.info.removeCardItem" data-modal-title="Remove {{user.full_name}}" data-modal-content="Delete {{user.full_name}} from roster?">
+          <i class="svg-icon svg-icon-trash">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
+              <path d="M3 0c-.55 0-1 .45-1 1h-1c-.55 0-1 .45-1 1h7c0-.55-.45-1-1-1h-1c0-.55-.45-1-1-1h-1zm-2 3v4.81c0 .11.08.19.19.19h4.63c.11 0 .19-.08.19-.19v-4.81h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1z" />
+            </svg>
+          </i>
+        </span>
+      </ul>
+    </li>
+  {{else}}
+    <li class="card-inner border-bottom" data-card-name="{{this.name}}">
+      <img class="card-picture" src="{{getUserInfo this @root.users 'photo_url'}}" alt="{{getUserInfo this @root.users 'full_name'}}">
+      <strong class="card-inner-user"> {{getUserInfo this @root.users 'full_name'}} </strong>
+      {{#ifExists this.in_rotation}}
+        <button class="badge toggle-rotation pull-right" data-in-rotation="{{this.in_rotation}}"> <span class="active-text">In Rotation</span> <span class="inactive-text">Out Of Rotation</span> </button>
+      {{/ifExists}}
+      <ul class="border-top card-content">
+        <li> <a target="_blank" href="mailto:{{getUserInfo this @root.users 'contacts.email'}}"> {{getUserInfo this @root.users 'contacts.email'}} </a> </li>
+        <li> <span class="light"> Call </span> <a href="tel:{{getUserInfo this @root.users 'contacts.call'}}"> {{getUserInfo this @root.users 'contacts.call'}} </a> </li>
+        <li> <span class="light"> SMS </span> <a href="tel:{{getUserInfo this @root.users 'contacts.sms'}}"> {{getUserInfo this @root.users 'contacts.sms'}} </a> </li>
+        <li> <span class="light"> Slack </span> <a> {{getUserInfo this @root.users 'contacts.im'}} </a></li>
+        <span class="close remove-card-item" data-admin-action="true" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.info.removeCardItem" data-modal-title="Remove {{getUserInfo this @root.users 'full_name'}}" data-modal-content="Delete {{getUserInfo this @root.users 'full_name'}} from roster?">
+          <i class="svg-icon svg-icon-trash">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
+              <path d="M3 0c-.55 0-1 .45-1 1h-1c-.55 0-1 .45-1 1h7c0-.55-.45-1-1-1h-1c0-.55-.45-1-1-1h-1zm-2 3v4.81c0 .11.08.19.19.19h4.63c.11 0 .19-.08.19-.19v-4.81h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1z" />
+            </svg>
+          </i>
+        </span>
+      </ul>
+    </li>
+  {{/if}}
+</script>
+
+<!--// add card item partial -->
+<script id="add-card-item-template" type="text/x-handlebars-template">
+  <div class="add-item-wrapper" data-view="button" data-admin-action="true">
+    <button class="btn btn-blue card-btn add-card-item"> {{buttonText}} </button>
+    <form class="add-item-form">
+      <span class="error-text"></span>
+      <input type="text" name="add-item-name" class="form-control add-item-name typeahead" placeholder="{{placeholder}}" data-type="{{type}}" />
+      <div class="add-item-actions">
+        <button type="button" class="btn btn-blue cancel-card-item"> Cancel </button>
+        <button class="btn btn-primary save-card-item"> <span class="btn-text">Add</span> <i class="loader loader-small"></i></button>
+      </div>
+    </form>
+  </div>
+</script>
+
+<!--// add service item partial -->
+<script id="service-item-template" type="text/x-handlebars-template">
+  <li class="pill" data-service-name="{{this}}" title="{{this}}">
+    <span>{{this}}</span>
+  </li>
+</script>
+
+<!--// **********************
+  Settings Subheader Partial
+*********************** //-->
+
+<script id="settings-subheader-template" type="text/x-handlebars-template">
+  <div class="subheader">
+    <div class="container-fluid">
+      <h3>User Settings</h3>
+    </div>
+  </div>
+  <nav class="subnav">
+    <ul class="container-fluid">
+      <li {{#isEqual page "settings"}}class="active"{{/isEqual}} href="/user/{{username}}" data-navigo> Settings </li>
+      <li {{#isEqual page "notifications"}}class="active"{{/isEqual}} href="/user/{{username}}/notifications" data-navigo> Notifications </li>
+    </ul>
+  </nav>
+</script>
+
+<!--// **********************
+  Settings Page
+*********************** //-->
+
+<script id="settings-template" type="text/x-handlebars-template">
+  <div class="subheader-wrapper">
+    {{>settings-subheader username=name page="settings"}}
+  </div>
+  <div class="main container-fluid">
+{% endraw %}
+    {{user_setting_note|safe}}
+{% raw %}
+    <form class="module clearfix" id="user-settings-form">
+      <table width="100%">
+        <tr>
+          <td>Profile Picture</td>
+          <td>
+            <span class="profile-picture">
+              <img class="headshot" src="{{photo_url}}" alt="{{name}}">
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td>Name</td>
+          <td>
+            <span>{{full_name}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Display Timezone</td>
+          <td>
+            <select class="form-control" name="time_zone">
+              {{#each timezones}}
+                <option value="{{this}}" {{isSelected ../time_zone this}}>{{this}}</option>
+              {{/each}}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Phone</td>
+          <td>
+            <span>{{contacts.call}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>SMS Number</td>
+          <td>
+            <span>{{contacts.sms}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Email</td>
+          <td>
+            <span>{{contacts.email}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Slack ID</td>
+          <td>
+            <span>{{contacts.im}}</span>
+          </td>
+        </tr>
+      </table>
+      <button type="submit" id="save-settings" class="btn btn-primary btn-sm pull-right"><span class="btn-text">Save Changes</span> <i class="loader loader-small"></i></button>
+    </form>
+  </div>
+</script>
+
+<!--// **********************
+  Notifications Page
+*********************** //-->
+
+<script id="notifications-template" type="text/x-handlebars-template">
+  <div class="subheader-wrapper">
+    {{>settings-subheader username=name page="notifications"}}
+  </div>
+  <div class="main container-fluid">
+    <h3 class="module-heading"> Reminders <button id="add-reminder" class="btn btn-primary pull-right">+ New Reminder</button></h3>
+    <div class="reminder-create-container">
+      <!--// create form renders here -->
+    </div>
+    <div class="module module-notifications-container">
+      <h4 class="module-heading border-bottom"> You have <span class="notification-count"> 0 </span> reminders </h4>
+      <div class="module-notifications-wrapper clearfix" data-type="reminder">
+        {{#each this.notifications}}
+          {{#if this.time_before}}
+            {{>module-notification viewType="reminder" typeMap=../../typeMap}}
+          {{/if}}
+        {{/each}}
+      </div>
+    </div>
+    <h3 class="module-heading"> Notifications <button id="add-notification" class="btn btn-primary pull-right">+ New Notification</button></h3>
+    <div class="notification-create-container">
+      <!--// create form renders here -->
+    </div>
+    <div class="module module-notifications-container">
+      <h4 class="module-heading border-bottom"> You have <span class="notification-count"> 0 </span> notifications </h4>
+      <div class="module-notifications-wrapper clearfix" data-type="notification">
+        {{#each this.notifications}}
+          {{#if this.only_if_involved}}
+            {{>module-notification viewType="notification" typeMap=../../typeMap}}
+          {{/if}}
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</script>
+
+<!-- // notifications/reminders view partial -->
+<script id="module-notification-template" type="text/x-handlebars-template">
+  <div class="module module-card module-notification" data-time="{{time_before}}" data-role="{{role}}" data-team="{{team}}" data-id="{{id}}" data-model="{{stringify this}}">
+    <ul class="notifications-details">
+      {{#if time_before}}
+      <li>
+        <label class="light label-col">Time:</label>
+        <span class="data-col notification-roster">{{scaleSeconds time_before 'duration'}} {{scaleSeconds time_before 'unit'}}</span>
+      </li>
+      {{/if}}
+      <li>
+        <label class="light label-col">Event:</label>
+        <span class="data-col notification-event">{{#if time_before}}Before event{{else}}When event is{{/if}} {{lookup typeMap type}}</span>
+      </li>
+      <li>
+        <label class="light label-col">Team:</label>
+        <span class="data-col">{{team}}</span>
+      </li>
+      <li>
+        <label class="light label-col">Method:</label>
+        <span class="data-col">{{mode}}</span>
+      </li>
+      <li>
+        <label class="light label-col">Roles:</label>
+        <span class="data-col notification-role" title="{{#each roles}} {{this}} {{/each}}">{{#each roles}} {{this}} {{/each}}</span>
+      </li>
+    </ul>
+    <div class="notification-actions border-top">
+      <span class="edit-{{viewType}} pull-right">
+        <i class="svg-icon svg-icon-pencil">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 8 8" style="fill: currentColor">
+            <path d="M6 0l-1 1 2 2 1-1-2-2zm-2 2l-4 4v2h2l4-4-2-2z" />
+          </svg>
+        </i>
+        Edit
+      </span>
+    </div>
+  </div>
+</script>
+
+<!-- // notifications/reminders create partial -->
+<script id="module-notification-create-template" type="text/x-handlebars-template">
+  <form class="module module-card module-notification-create" {{#ifExists selected.id}} data-edit-id="{{selected.id}}" {{/ifExists}} data-type="{{#isEqual createType 'reminder'}}reminder{{else}}notification{{/isEqual}}">
+    <div class="module-heading module-card-heading border-bottom">
+      <h4>
+        {{#if selected.id}}
+          Edit
+        {{else}}
+          Create a new
+        {{/if}}
+        {{#isEqual createType 'notification'}}
+          notification
+        {{else}}
+          reminder {{#ifExists selected.id}} {{selected.id}} {{/ifExists}}
+        {{/isEqual}}
+      </h4>
+    </div>
+    <div class="notification-create-body">
+      {{#isEqual createType 'reminder'}}
+        Remind me via
+        <select class="form-control notification-create-mode" name="mode">
+          {{#each modes}}
+          <option value="{{this}}" {{isSelected this ../selected.mode}}>{{this}}</option>
+          {{/each}}
+        </select>
+        <input type="number" min="1" class="form-control notification-create-time" value="{{#ifExists selected.time_before}}{{scaleSeconds selected.time_before 'duration'}}{{/ifExists}}" name="time_before">
+        <select name="time_before_unit" class="form-control notification-create-unit">
+          <option value="minutes" {{isSelected (scaleSeconds selected.time_before 'unit') "minutes"}}>Minutes</option>
+          <option value="hours" {{isSelected (scaleSeconds selected.time_before 'unit') "hours"}}>Hours</option>
+          <option value="days"  {{isSelected (scaleSeconds selected.time_before 'unit') "days"}} {{#unless selected.time_before}}selected{{/unless}}>Days</option>
+          <option value="weeks" {{isSelected (scaleSeconds selected.time_before 'unit') "weeks"}}>Weeks</option>
+        </select>
+        before my
+        <span class="multi-select notification-create-role">
+          <select class="form-control multi-select-initial">
+            <option>Roles</option>
+          </select>
+          <div class="multi-select-overlay"></div>
+          <ul class="multi-select-options">
+            {{#each roles}}
+            <li>
+              <input type="checkbox" value="{{this}}" id="reminder-create-{{this}}-{{../selected.id}}" {{isCheckedMulti this ../selected.roles}}>
+              <label for="reminder-create-{{this}}-{{../selected.id}}">{{this}}</label>
+            </li>
+            {{/each}}
+          </ul>
+        </span>
+        shift
+        <select class="form-control notification-create-type" name="type">
+          {{#each types}}
+            {{#isEqual is_reminder 1}}
+            <option value="{{name}}" {{isSelected name ../../selected.type}}>{{display}}</option>
+            {{/isEqual}}
+          {{/each}}
+        </select>
+        for
+        <select class="form-control notification-create-team" name="team">
+          {{#each teams}}
+          <option value="{{this}}" {{isSelected this ../selected.team}}>{{this}}</option>
+          {{/each}}
+        </select>
+      {{else}}
+        Notify me via
+        <select class="form-control notification-create-mode" name="mode">
+          {{#each modes}}
+          <option value="{{this}}" {{isSelected this ../selected.mode}}>{{this}}</option>
+          {{/each}}
+        </select>
+        when a
+        <span class="multi-select notification-create-role">
+          <select class="form-control multi-select-initial">
+            <option>Roles</option>
+          </select>
+          <div class="multi-select-overlay"></div>
+          <ul class="multi-select-options">
+            {{#each roles}}
+            <li>
+              <input type="checkbox" value="{{this}}" id="notification-create-{{this}}-{{../selected.id}}" {{isCheckedMulti this ../selected.roles}}>
+              <label for="notification-create-{{this}}-{{../selected.id}}">{{this}}</label>
+            </li>
+            {{/each}}
+          </ul>
+        </span>
+        event is
+        <select class="form-control notification-create-type" name="type">
+          {{#each types}}
+            {{#isEqual is_reminder 0}}
+            <option value="{{name}}" {{isSelected name ../selected.type}}>{{display}}</option>
+            {{/isEqual}}
+          {{/each}}
+        </select>
+        on the
+        <select class="form-control notification-create-team" name="team">
+          {{#each teams}}
+          <option value="{{this}}" {{isSelected this ../selected.team}}>{{this}}</option>
+          {{/each}}
+        </select>
+        calendar <b>if I am involved.</b>
+      {{/isEqual}}
+    </div>
+    <div class="border-top notification-actions clearfix">
+      <div class="pull-right">
+        <button class="btn btn-primary save-notification" type="submit"><span class="btn-text">Save</span> <i class="loader loader-small"></i> </button>
+        <button class="btn btn-blue delete-notification" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.notifications.deleteNotification" data-modal-title="Your changes are unsaved" data-modal-content="Aborting now will lose unsaved changes."> Cancel </button>
+      </div>
+      <div class="pull-left">
+        {{#if selected.id}}
+          <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.notifications.deleteNotification" data-modal-title="Delete notification {{selected.id}}" data-notification-id="{{selected.id}}" data-modal-content="Delete notification {{selected.id}}?"> Delete </button>
+        {{/if}}
+      </div>
+    </div>
+  </form>
+</script>
+
+<!--// **********************
+  Errors Page
+*********************** //-->
+
+<script id="error-page-template" type="text/x-handlebars-template">
+  <div class="main floating-module error-page">
+    <div class="module">
+      <div class="logo-wrapper">
+        <img src="/static/images/oncall_logo_blue.png" width="100" alt="Oncall logo">
+      </div>
+      <div>
+        <h1 class="error-code">{{error_code}}</h1>
+        <div class="error-status">{{error_status}}</div>
+        <div class="error-text">{{error_text}}</div>
+      </div>
+    </div>
+  </div>
+</script>
+{% endraw %}
+{% endblock %}

@@ -1,0 +1,25 @@
+falcon==1.1.0
+falcon-cors
+gevent
+ujson
+sqlalchemy
+PyYAML
+PyMYSQL
+phonenumbers
+jinja2
+streql
+webassets
+beaker
+pycrypto
+importlib
+python-ldap
+ordereddict  # for 26
+pytz
+icalendar
+
+# for dev, also yum install sqlite-devel
+pytest
+pytest-mock
+requests
+gunicorn
+flake8

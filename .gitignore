@@ -1,0 +1,11 @@
+env/
+venv/
+*.egg-info
+*.pyc
+.cache
+.swp
+.swo
+build
+dist
+src/oncall/ui/static/.webassets-cache/
+src/oncall/ui/static/bundles
