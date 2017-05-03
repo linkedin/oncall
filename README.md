@@ -3,8 +3,11 @@ Oncall
 
 Initial setup
 -------------
+### Prerequisites
 
-Install dependencies:
+  * Debian/Ubuntu - `apt-get install libldap2-dev`
+
+### Install
 
 ```
 python setup.py develop
