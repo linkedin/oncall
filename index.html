@@ -1,1 +1,179 @@
-Hello World
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Oncall</title>
+        <meta name="Oncall" content="Oncall landing page">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="fonts.css">
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+        <header class="global-header">
+          <div class="container-fluid cf">
+            <div class="global-brand left">
+              <a tabindex="1" href="/">
+                <span><img id="logo" src="img/oncall_logo.png" alt="Oncall"></span>
+                <span><b>ON</b>CALL</span>
+              </a>
+            </div>
+            <nav class="cf right">
+                <ul class="main-nav right">
+                  <li class="nav-item left"><a href="/docs">Docs</a></li>
+                  <li class="nav-item left"><a href="https://github.com/linkedin/oncall">Github</a></li>
+                </ul>
+            </nav>
+          </div>
+        </header>
+        <div class="main">
+            <section class="splash">
+                <div class="container-fluid cf">
+                    <h3 class="left">
+                        <p>Oncall is the on-call management and scheduling system at LinkedIn. </p>
+                        <p>It offers highly customizable scheduling for on-call shifts, as well as a streamlined UI for editing, swapping, and overriding on-call shifts.</p>
+                    </h3>
+                    <a href="https://github.com/linkedin/oncall"><button type="button" class="right">Get Started</button></a>
+                </div>
+            </section>
+            <section class="module-container container-fluid cf">
+                <h2>Features</h2>
+                <div class="module">
+                    <i class="module-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                          <path d="M0 0v2h7v-2h-7zm0 3v4.91c0 .05.04.09.09.09h6.81c.05 0 .09-.04.09-.09v-4.91h-7zm1 1h1v1h-1v-1zm2 0h1v1h-1v-1zm2 0h1v1h-1v-1zm-4 2h1v1h-1v-1zm2 0h1v1h-1v-1z" />
+                        </svg>
+                    </i>
+                    <h4>Powerful, customizable scheduling</h4>
+                    <ul>
+                        <li>Oncall includes a round-robin scheduler that supports complex scheduling templates and respects conflicting events.</li>
+                    </ul>
+                </div>
+                <div class="module">
+                    <i class="module-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                            <path d="M4 0c-1.1 0-2 .9-2 2 0 1.04-.52 1.98-1.34 2.66-.41.34-.66.82-.66 1.34h8c0-.52-.24-1-.66-1.34-.82-.68-1.34-1.62-1.34-2.66 0-1.1-.89-2-2-2zm-1 7c0 .55.45 1 1 1s1-.45 1-1h-2z" />
+                        </svg>
+                    </i>
+                    <h4>Scalable, comprehensive notification system</h4>
+                    <ul>
+                        <li class="multi-bullet">Shift start reminders ensure users are informed when their shifts begin.</li>
+                        <li class="multi-bullet">Notifications on event create/delete/update let users know immediately when one of their shifts has been changed</li>
+                    </ul>
+                </div>
+                <div class="module">
+                    <i class="module-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                          <path d="M5.88.03c-.18.01-.36.03-.53.09-.27.1-.53.25-.75.47a.5.5 0 1 0 .69.69c.11-.11.24-.17.38-.22.35-.12.78-.07 1.06.22.39.39.39 1.04 0 1.44l-1.5 1.5c-.44.44-.8.48-1.06.47-.26-.01-.41-.13-.41-.13a.5.5 0 1 0-.5.88s.34.22.84.25c.5.03 1.2-.16 1.81-.78l1.5-1.5c.78-.78.78-2.04 0-2.81-.28-.28-.61-.45-.97-.53-.18-.04-.38-.04-.56-.03zm-2 2.31c-.5-.02-1.19.15-1.78.75l-1.5 1.5c-.78.78-.78 2.04 0 2.81.56.56 1.36.72 2.06.47.27-.1.53-.25.75-.47a.5.5 0 1 0-.69-.69c-.11.11-.24.17-.38.22-.35.12-.78.07-1.06-.22-.39-.39-.39-1.04 0-1.44l1.5-1.5c.4-.4.75-.45 1.03-.44.28.01.47.09.47.09a.5.5 0 1 0 .44-.88s-.34-.2-.84-.22z"
+                          />
+                        </svg>
+                    </i>
+                    <h4>REST API built for easy integration</h4>
+                    <ul>
+                        <li>Oncall sports a fully-documented API easily targeted by third-party applications to schedule and modify on-call shifts.</li>
+                    </ul>
+                </div>
+                <div class="module">
+                    <i class="module-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                            <path d="M4 0c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm-2.5 1c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm5 0c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm-2.5 1c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-3.5 1.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm7 0c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm-6 2.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm5 0c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm-2.5 1c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5z"
+                            />
+                        </svg>
+                    </i>
+                    <h4>Native support for follow-the-sun shifts</h4>
+                    <ul>
+                        <li>Sharing on-call shifts across time zones? Built-in support for interleaving 12-hour events make split day/night on-call shifts easy to create and manage.</li>
+                    </ul>
+                </div>
+                <div class="module">
+                    <i class="module-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 8 8">
+                          <path d="M.34 0a.5.5 0 0 0-.34.5v5a.5.5 0 0 0 .5.5h2.5v1h-1c-.55 0-1 .45-1 1h6c0-.55-.45-1-1-1h-1v-1h2.5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.09 0 .5.5 0 0 0-.06 0zm.66 1h6v4h-6v-4z" />
+                        </svg>
+                    </i>
+                    <h4>Clean, intuitive interface</h4>
+                    <ul>
+                        <li>Oncall’s click-and-drag calendar makes creating and editing events easy, and its SPA design is both smooth and performant.</li>
+                    </ul>
+                </div>
+                <div class="module">
+                    <i class="module-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
+                            <path d="M6 0v1h-.5c-.35 0-.56.1-.78.38l-1.41 1.78-1.53-1.78c-.22-.26-.44-.38-.78-.38h-1v1h1c-.05 0 .01.04.03.03l1.63 1.91-1.66 2.06h-1v1h1c.35 0 .56-.1.78-.38l1.53-1.91 1.66 1.91c.22.26.44.38.78.38h.25v1l2-1.5-2-1.5v1h-.22c-.01-.01-.05-.04-.06-.03l-1.75-2.06 1.53-1.91h.5v1l2-1.5-2-1.5z"
+                            />
+                        </svg>
+                    </i>
+                    <h4>Effortless shift substitution and swapping</h4>
+                    <ul>
+                        <li>Built-in UI shortcuts make swapping shifts or substituting in for another’s shift quick and painless.</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="promo-container">
+                <div class="container-fluid">
+                    <ul class="cf">
+                        <li>Trusted By:</li>
+                        <li>
+                            <a href="https://press.linkedin.com/about-linkedin">
+                                <svg preserveAspectRatio="xMinYMin meet" width="150" height="50">
+                                  <g class="scaling-icon" style="fill-opacity: 1">
+                                    <defs>
+                                      <linearGradient id="premium-linkedin-bug-color-gradient" x1="100%" y1="0%" x2="0%" y2="100%">
+                                        <stop class="stop1" offset="0%" stop-color="#C5B583"></stop>
+                                        <stop class="stop2" offset="50%" stop-color="#AF9B62"></stop>
+                                      </linearGradient>
+                                    </defs>
+                                    <g class="logo-34dp">
+                                      <g class="dpi-1">
+                                        <g class="inbug" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                          <path d="M2.8,34 L31.2,34 C32.746,34 34,32.746 34,31.2 L34,2.8 C34,1.254 32.746,0 31.2,0 L2.8,0 C1.254,0 0,1.254 0,2.8 L0,31.2 C0,32.746 1.254,34 2.8,34" class="bug-text-color" fill="#FFFFFF" transform="translate(101.000000, 0.000000)"></path>
+                                          <path d="M103.8,34 L132.2,34 C133.746,34 135,32.746 135,31.2 L135,2.8 C135,1.254 133.746,0 132.2,0 L103.8,0 C102.254,0 101,1.254 101,2.8 L101,31.2 C101,32.746 102.254,34 103.8,34 Z M114,13 L118.75,13 L118.75,15.391 C119.387,14.114 121.242,12.75 123.695,12.75 C128.397,12.75 130,14.875 130,19.922 L130,29 L125,29 L125,20.984 C125,18.328 124.481,16.875 122.542,16.875 C119.921,16.875 119,18.867 119,20.984 L119,29 L114,29 L114,13 Z M106,29 L111,29 L111,13 L106,13 L106,29 Z M111.55,7.5 C111.55,9.184 110.184,10.55 108.5,10.55 C106.816,10.55 105.45,9.184 105.45,7.5 C105.45,5.815 106.816,4.45 108.5,4.45 C110.184,4.45 111.55,5.815 111.55,7.5 Z" class="background" fill="#0073B0"></path>
+                                        </g>
+                                        <g class="linkedin-text">
+                                          <path d="M96,29 L91.67,29 L91.67,27.2 L91.6,27.2 C91.063,28.031 89.232,29.25 87,29.25 C81.542,29.25 79,25.825 79,21 C79,16.208 81.675,12.75 86.5,12.75 C88.842,12.75 90.188,13.625 91,14.8 L91,5 L96,5 L96,29 Z M87.449,16.6 C85.156,16.6 83.8,18.489 83.8,21.124 C83.8,23.763 85.156,25.4 87.449,25.4 C89.781,25.4 91.2,23.763 91.2,21.124 C91.2,18.489 89.75,16.6 87.449,16.6 L87.449,16.6 Z" fill="#000000"></path>
+                                          <path d="M76.4364,26.3439 C75.1574,27.9689 72.6504,29.2499 69.0004,29.2499 C64.0434,29.2499 60.8754,25.9029 60.8754,20.7499 C60.8754,16.3809 63.9694,12.7499 69.3574,12.7499 C73.9244,12.7499 77.1254,15.9579 77.1254,21.0829 C77.1254,22.0829 76.8844,22.9899 76.8844,22.9899 L65.4544,22.9899 L65.4944,23.2219 C65.8754,24.4689 67.1094,25.7499 69.1974,25.7499 C71.0484,25.7499 72.6904,24.8119 73.3824,23.9649 L76.4364,26.3439 Z M72.7164,19.2479 C72.5314,17.5999 71.0744,16.2499 69.2574,16.2499 C67.0344,16.2499 65.5664,17.6849 65.4314,19.2479 L72.7164,19.2479 Z" fill="#000000"></path>
+                                          <polygon fill="#000000" points="45 5 50 5 50 19.532 55.557 13 61.611 13 54.614 20.633 61.725 29 55.932 29 50 21.609 50 29 45 29"></polygon>
+                                          <path d="M26,13 L30.33,13 L30.33,15.242 L30.4,15.242 C31.074,13.961 33.137,12.75 35.6,12.75 C40.729,12.75 42,15.656 42,20.042 L42,29 L37,29 L37,21.109 C37,19.22 36.9,16.769 34.303,16.769 C31.672,16.769 31,18.983 31,21.109 L31,29 L26,29 L26,13 Z" fill="#000000"></path>
+                                          <path d="M20.5,5.125 C22.019,5.125 23.375,6.482 23.375,8 C23.375,9.518 22.019,10.875 20.5,10.875 C18.982,10.875 17.625,9.518 17.625,8 C17.625,6.482 18.982,5.125 20.5,5.125 L20.5,5.125 Z M18,29 L23,29 L23,13 L18,13 L18,29 Z" fill="#000000"></path>
+                                          <polygon fill="#000000" points="0 5 5 5 5 24 15 24 15 29 0 29"></polygon>
+                                        </g>
+                                      </g>
+                                      <g class="dpi-gt1" transform="scale(0.7083)">
+                                        <g class="inbug" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                          <path d="M44.5235,0 L3.6185,0 C1.6625,0 0.0005,1.547 0.0005,3.454 L0.0005,44.545 C0.0005,46.452 1.6625,48 3.6185,48 L44.5235,48 C46.4825,48 48.0005,46.452 48.0005,44.545 L48.0005,3.454 C48.0005,1.547 46.4825,0 44.5235,0" class="bug-text-color" fill="#FFFFFF" transform="translate(143.000000, 0.000000)"></path>
+                                          <path d="M187.5235,0 L146.6185,0 C144.6625,0 143.0005,1.547 143.0005,3.454 L143.0005,44.545 C143.0005,46.452 144.6625,48 146.6185,48 L187.5235,48 C189.4825,48 191.0005,46.452 191.0005,44.545 L191.0005,3.454 C191.0005,1.547 189.4825,0 187.5235,0 Z M162,18 L168.5,18 L168.5,21.266 C169.437,19.388 171.838,17.7 175.445,17.7 C182.359,17.7 184,21.438 184,28.297 L184,41 L177,41 L177,29.859 C177,25.953 176.063,23.75 173.68,23.75 C170.375,23.75 169,26.125 169,29.859 L169,41 L162,41 L162,18 Z M150,41 L157,41 L157,18 L150,18 L150,41 Z M158,10.5 C158,12.985 155.985,15 153.5,15 C151.015,15 149,12.985 149,10.5 C149,8.015 151.015,6 153.5,6 C155.985,6 158,8.015 158,10.5 Z" class="background" fill="#0073B0"></path>
+                                        </g>
+                                        <g class="linkedin-text">
+                                          <path d="M136,41 L130,41 L130,37.5 C128.908,39.162 125.727,41.3 122.5,41.3 C115.668,41.3 111.2,36.975 111.2,30 C111.2,23.594 114.951,17.7 121.5,17.7 C124.441,17.7 127.388,18.272 129,20.5 L129,7 L136,7 L136,41 Z M123.25,23.9 C119.691,23.9 117.9,26.037 117.9,29.5 C117.9,32.964 119.691,35.2 123.25,35.2 C126.81,35.2 129.1,32.964 129.1,29.5 C129.1,26.037 126.81,23.9 123.25,23.9 L123.25,23.9 Z" fill="#000000"></path>
+                                          <path d="M108,37.125 C105.722,40.02 101.156,41.3 96.75,41.3 C89.633,41.3 85.2,36.354 85.2,29 C85.2,21.645 90.5,17.7 97.75,17.7 C103.75,17.7 108.8,21.917 108.8,30 C108.8,31.25 108.6,32 108.6,32 L92,32 L92.111,32.67 C92.51,34.873 94.873,36 97.625,36 C99.949,36 101.689,34.988 102.875,33.375 L108,37.125 Z M101.75,27 C101.797,24.627 99.89,22.7 97.328,22.7 C94.195,22.7 92.189,24.77 92,27 L101.75,27 Z" fill="#000000"></path>
+                                          <polygon fill="#000000" points="63 7 70 7 70 27 78 18 86.75 18 77 28.5 86.375 41 78 41 70 30 70 41 63 41"></polygon>
+                                          <path d="M37,18 L43,18 L43,21.375 C43.947,19.572 47.037,17.7 50.5,17.7 C57.713,17.7 59,21.957 59,28.125 L59,41 L52,41 L52,29.625 C52,26.969 52.152,23.8 48.5,23.8 C44.8,23.8 44,26.636 44,29.625 L44,41 L37,41 L37,18 Z" fill="#000000"></path>
+                                          <path d="M29.5,6.125 C31.813,6.125 33.875,8.189 33.875,10.5 C33.875,12.811 31.813,14.875 29.5,14.875 C27.19,14.875 25.125,12.811 25.125,10.5 C25.125,8.189 27.19,6.125 29.5,6.125 L29.5,6.125 Z M26,41 L33,41 L33,18 L26,18 L26,41 Z" fill="#000000"></path>
+                                          <polygon fill="#000000" points="0 7 7 7 7 34 22 34 22 41 0 41"></polygon>
+                                        </g>
+                                      </g>
+                                    </g>
+                                  </g>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            <!--             <section class="post-content">
+                <div class="container-fluid">
+                    <p class="quote quote-left">""<br /> - Tom</p>
+                    <p class="quote quote-right">""<br /> - Nick</p>
+                </div>
+            </section> -->
+        </div>
+        <footer>
+            <p>© LinkedIn 2017 | <a href="https://github.com/linkedin/iris">GitHub</a></p>
+        </footer>
+    </body>
+</html>

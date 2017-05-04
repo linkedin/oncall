@@ -1,0 +1,8 @@
+[console_scripts]
+build_assets = iris.bin.ui_build_assets:main
+iris = iris.bin.run_server:main
+iris-api = iris.bin.run_server:main
+iris-sender = iris.bin.sender:main
+iris-sync-targets = iris.bin.sync_targets:main
+iris_ctl = iris.bin.iris_ctl:main
+

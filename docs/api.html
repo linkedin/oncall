@@ -1,0 +1,1023 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API &mdash; Oncall 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Oncall 0.0.1 documentation" href="index.html"/>
+        <link rel="prev" title="Welcome to Oncall’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Oncall
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#api-v0-teams">/api/v0/teams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-v0-schedules">/api/v0/schedules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-v0-services">/api/v0/services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-v0-roles">/api/v0/roles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-v0-events">/api/v0/events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-v0-users">/api/v0/users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-v0-notification-types">/api/v0/notification_types</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Oncall</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="api-v0-teams">
+<h2>/api/v0/teams<a class="headerlink" href="#api-v0-teams" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--api-v0-teams-team-oncall-role">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/oncall/{role}</code><a class="headerlink" href="#get--api-v0-teams-team-oncall-role" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/teams/(str:team_name)/oncall/(str:role)</p>
+<p>Get current active event for team based on given role.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team_ops/oncall/primary</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1487426400</span><span class="p">,</span>
+    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1487469600</span><span class="p">,</span>
+    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Foo Icecream&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 123-456-7890&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;foo@example.com&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 123-456-7890&quot;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1487426400</span><span class="p">,</span>
+    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1487469600</span><span class="p">,</span>
+    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Bar Dog&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 123-456-7890&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;bar@example.com&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 123-456-7890&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; no error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-teams-team-admins">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/admins</code><a class="headerlink" href="#get--api-v0-teams-team-admins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of admin users for a team</p>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-teams-team-admins">
+<code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/admins</code><a class="headerlink" href="#post--api-v0-teams-team-admins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add user as team admin</p>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-teams-team-admins-user">
+<code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}/admins/{user}</code><a class="headerlink" href="#delete--api-v0-teams-team-admins-user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete team admin user</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-teams-team-users">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/users</code><a class="headerlink" href="#get--api-v0-teams-team-users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of users for a team</p>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-teams-team-users">
+<code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/users</code><a class="headerlink" href="#post--api-v0-teams-team-users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add user to a team</p>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-teams-team-users-user">
+<code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}/users/{user}</code><a class="headerlink" href="#delete--api-v0-teams-team-users-user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete user from a team</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-teams-team-rosters">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/rosters</code><a class="headerlink" href="#get--api-v0-teams-team-rosters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get roster info(including schedules) for a team</p>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-teams-team-rosters">
+<code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/rosters</code><a class="headerlink" href="#post--api-v0-teams-team-rosters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a roster for a team</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-teams-team-rosters-roster">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}</code><a class="headerlink" href="#get--api-v0-teams-team-rosters-roster" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/teams/(str:team_name)/rosters</p>
+<p>Get user and schedule info for a roster</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/foo-sre/rosters</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;Managers&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2730</span><span class="p">,</span>
+    <span class="nt">&quot;users&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;in_rotation&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;schedules&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;auto_populate_threshold&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nt">&quot;roster&quot;</span><span class="p">:</span> <span class="s2">&quot;Managers&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;advanced_mode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;manager&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;foo-sre&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;events&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="nt">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">604800</span><span class="p">,</span>
+            <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">367200</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1704</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; no error</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--api-v0-teams-team-rosters-roster">
+<code class="descname">PUT </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}</code><a class="headerlink" href="#put--api-v0-teams-team-rosters-roster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change roster name</p>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-teams-team-rosters-roster">
+<code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}</code><a class="headerlink" href="#delete--api-v0-teams-team-rosters-roster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete roster</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-teams-team-rosters-roster-users">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/users</code><a class="headerlink" href="#get--api-v0-teams-team-rosters-roster-users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all users for a team roster</p>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-teams-team-rosters-roster-users">
+<code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/users</code><a class="headerlink" href="#post--api-v0-teams-team-rosters-roster-users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add user to a roster for a team</p>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--api-v0-teams-team-rosters-roster-users-user">
+<code class="descname">PUT </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/users/{user}</code><a class="headerlink" href="#put--api-v0-teams-team-rosters-roster-users-user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put a user into/out of rotation</p>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-teams-team-rosters-roster-users-user">
+<code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/users/{user}</code><a class="headerlink" href="#delete--api-v0-teams-team-rosters-roster-users-user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete user from a roster for a team</p>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-teams-team-rosters-roster-schedules">
+<code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/schedules</code><a class="headerlink" href="#post--api-v0-teams-team-rosters-roster-schedules" title="Permalink to this definition">¶</a></dt>
+<dd><p>See below for sample JSON requests.</p>
+<p>Weekly 7*24 shift that starts at Monday 6PM PST:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;role&#39;</span><span class="o">:</span> <span class="s1">&#39;primary&#39;</span>
+    <span class="s1">&#39;auto_populate_threshold&#39;</span><span class="o">:</span> <span class="mi">21</span><span class="p">,</span>
+    <span class="s1">&#39;events&#39;</span><span class="o">:</span><span class="p">[</span>
+        <span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="o">:</span> <span class="nx">SECONDS_IN_A_DAY</span> <span class="o">+</span> <span class="mi">18</span> <span class="o">*</span> <span class="nx">SECONDS_IN_AN_HOUR</span><span class="p">,</span>
+         <span class="s1">&#39;duration&#39;</span><span class="o">:</span> <span class="nx">SECONDS_IN_A_WEEK</span><span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;advanced_mode&#39;</span><span class="o">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Weekly 7*12 shift that starts at Monday 8AM PST:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;role&#39;</span><span class="o">:</span> <span class="s1">&#39;oncall&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;events&#39;</span><span class="o">:</span><span class="p">[</span>
+        <span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="o">:</span> <span class="nx">SECONDS_IN_A_DAY</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">*</span> <span class="nx">SECONDS_IN_AN_HOUR</span><span class="p">,</span>
+         <span class="s1">&#39;duration&#39;</span><span class="o">:</span> <span class="mi">12</span> <span class="o">*</span> <span class="nx">SECONDS_IN_AN_HOUR</span><span class="p">},</span>
+        <span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="o">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="nx">SECONDS_IN_A_DAY</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">*</span> <span class="nx">SECONDS_IN_AN_HOUR</span><span class="p">,</span>
+         <span class="s1">&#39;duration&#39;</span><span class="o">:</span> <span class="mi">12</span> <span class="o">*</span> <span class="nx">SECONDS_IN_AN_HOUR</span><span class="p">}</span> <span class="p">...</span> <span class="o">*</span><span class="mi">5</span> <span class="nx">more</span><span class="o">*</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;advanced_mode&#39;</span><span class="o">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-teams-team-services">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/services</code><a class="headerlink" href="#get--api-v0-teams-team-services" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of services mapped to a team</p>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-teams-team-services">
+<code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/services</code><a class="headerlink" href="#post--api-v0-teams-team-services" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create team to service mapping</p>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-teams-team-services-service">
+<code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}/services/{service}</code><a class="headerlink" href="#delete--api-v0-teams-team-services-service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete service team mapping</p>
+</dd></dl>
+
+</div>
+<div class="section" id="api-v0-schedules">
+<h2>/api/v0/schedules<a class="headerlink" href="#api-v0-schedules" title="Permalink to this headline">¶</a></h2>
+<dl class="put">
+<dt id="put--api-v0-schedules-schedule_id">
+<code class="descname">PUT </code><code class="descname">/api/v0/schedules/{schedule_id}</code><a class="headerlink" href="#put--api-v0-schedules-schedule_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a schedule</p>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-schedules-schedule_id">
+<code class="descname">DELETE </code><code class="descname">/api/v0/schedules/{schedule_id}</code><a class="headerlink" href="#delete--api-v0-schedules-schedule_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a schedule</p>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-schedules-schedule_id-populate">
+<code class="descname">POST </code><code class="descname">/api/v0/schedules/{schedule_id}/populate</code><a class="headerlink" href="#post--api-v0-schedules-schedule_id-populate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the scheduler on demand from a given point in time. Deletes existing schedule events if applicable.
+Given the <cite>start</cite> param, this will find the first schedule start time after <cite>start</cite>, then populate out
+to the schedule&#8217;s auto_populate_threshold. It will also clear the calendar of any events associated
+with the chosen schedule from the start of the first event it created onward. For example, if <cite>start</cite>
+is Monday, May 1 and the chosen schedule starts on Wednesday, this will create events starting from
+Wednesday, May 3, and delete any events that start after May 3 that are associated with the schedule.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">api/v0/</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful populate</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Validation checks failed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="api-v0-services">
+<h2>/api/v0/services<a class="headerlink" href="#api-v0-services" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--api-v0-services">
+<code class="descname">GET </code><code class="descname">/api/v0/services</code><a class="headerlink" href="#get--api-v0-services" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for services</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-services-service">
+<code class="descname">GET </code><code class="descname">/api/v0/services/{service}</code><a class="headerlink" href="#get--api-v0-services-service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get service id by name</p>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--api-v0-services-service">
+<code class="descname">PUT </code><code class="descname">/api/v0/services/{service}</code><a class="headerlink" href="#put--api-v0-services-service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change name for a service</p>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-services-service">
+<code class="descname">DELETE </code><code class="descname">/api/v0/services/{service}</code><a class="headerlink" href="#delete--api-v0-services-service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a service</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-services-service-teams">
+<code class="descname">GET </code><code class="descname">/api/v0/services/{service}/teams</code><a class="headerlink" href="#get--api-v0-services-service-teams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of team mapped to a service</p>
+</dd></dl>
+
+</div>
+<div class="section" id="api-v0-roles">
+<h2>/api/v0/roles<a class="headerlink" href="#api-v0-roles" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--api-v0-roles">
+<code class="descname">GET </code><code class="descname">/api/v0/roles</code><a class="headerlink" href="#get--api-v0-roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Role search.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/roles?name__startswith=pri</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; id of the role</li>
+<li><strong>id__eq</strong> &#8211; id of the role</li>
+<li><strong>id__gt</strong> &#8211; id greater than</li>
+<li><strong>id__ge</strong> &#8211; id greater than or equal</li>
+<li><strong>id__lt</strong> &#8211; id less than</li>
+<li><strong>id__le</strong> &#8211; id less than or equal</li>
+<li><strong>name</strong> &#8211; role name</li>
+<li><strong>name__eq</strong> &#8211; role name</li>
+<li><strong>name__contains</strong> &#8211; role name contains param</li>
+<li><strong>name__startswith</strong> &#8211; role name starts with param</li>
+<li><strong>name__endswith</strong> &#8211; role name ends with param</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="api-v0-events">
+<h2>/api/v0/events<a class="headerlink" href="#api-v0-events" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--api-v0-events">
+<code class="descname">GET </code><code class="descname">/api/v0/events</code><a class="headerlink" href="#get--api-v0-events" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/events</p>
+<p>Search for events.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/events?team=foo-sre&amp;end__gt=1487466146&amp;role=primary</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1488441600</span><span class="p">,</span>
+    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1489132800</span><span class="p">,</span>
+    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;foo-sre&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;link_id&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;schedule_id&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Foo Icecream&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">187795</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1488441600</span><span class="p">,</span>
+    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1489132800</span><span class="p">,</span>
+    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;foo-sre&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;link_id&quot;</span><span class="p">:</span> <span class="s2">&quot;8a8ae77b8c52448db60c8a701e7bffc2&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;schedule_id&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Bar Apple&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">187795</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>team</strong> &#8211; team name</li>
+<li><strong>user</strong> &#8211; user name</li>
+<li><strong>role</strong> &#8211; role name</li>
+<li><strong>id</strong> &#8211; id of the event</li>
+<li><strong>start__gt</strong> &#8211; start time (unix timestamp) greater than</li>
+<li><strong>start__ge</strong> &#8211; start time (unix timestamp) greater than or equal</li>
+<li><strong>start__lt</strong> &#8211; start time (unix timestamp) less than</li>
+<li><strong>start__le</strong> &#8211; start time (unix timestamp) less than or equal</li>
+<li><strong>end__gt</strong> &#8211; end time (unix timestamp) greater than</li>
+<li><strong>end__ge</strong> &#8211; end time (unix timestamp) greater than or equal</li>
+<li><strong>end__lt</strong> &#8211; end time (unix timestamp) less than</li>
+<li><strong>end__le</strong> &#8211; end time (unix timestamp) less than or equal</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; bad request</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-events">
+<code class="descname">POST </code><code class="descname">/api/v0/events</code><a class="headerlink" href="#post--api-v0-events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint for creating event. Responds with event id for created event</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/v0/events</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1493667700</span><span class="p">,</span>
+    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">149368700</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="mi">1</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Event created</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Event validation checks failed</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Event creation failed: nonexistent role/event/team</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-events-event_id">
+<code class="descname">GET </code><code class="descname">/api/v0/events/{event_id}</code><a class="headerlink" href="#get--api-v0-events-event_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get event by id.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/events/1234</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1428336000</span><span class="p">,</span>
+    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1234</span><span class="p">,</span>
+    <span class="nt">&quot;link_id&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;schedule_id&quot;</span><span class="p">:</span> <span class="mi">4321</span><span class="p">,</span>
+    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1427731200</span><span class="p">,</span>
+    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; Event not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--api-v0-events-event_id">
+<code class="descname">PUT </code><code class="descname">/api/v0/events/{event_id}</code><a class="headerlink" href="#put--api-v0-events-event_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update an event by id; anyone can update any event within the team</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/api/v0/events/1234</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1428336000</span><span class="p">,</span>
+    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1428338000</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;asmith&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;secondary&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful update</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-events-event_id">
+<code class="descname">DELETE </code><code class="descname">/api/v0/events/{event_id}</code><a class="headerlink" href="#delete--api-v0-events-event_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete an event by id, anyone on the team can delete that team&#8217;s events
+<strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/api/v0/events/1234</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful delete</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.4">403 Forbidden</a> &#8211; Delete not allowed; logged in user is not a team member</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; Event not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-events-swap">
+<code class="descname">POST </code><code class="descname">/api/v0/events/swap</code><a class="headerlink" href="#post--api-v0-events-swap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Swap events. Takes an object specifying the 2 events to be swapped. Swap can take either single
+events or event sets, depending on the value of the &#8220;linked&#8221; attribute. If &#8220;linked&#8221; is True,
+the API interprets the &#8220;id&#8221; attribute as a link_id. Otherwise, it&#8217;s assumed to be an event_id.
+Note that this allows swapping a single event with a linked event.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">api/v0/events/swap</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;events&quot;</span><span class="p">:</span>
+    <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;linked&quot;</span><span class="p">:</span> <span class="kc">false</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;da515a45e2b2467bbdc9ea3bc7826d36&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;linked&quot;</span><span class="p">:</span> <span class="kc">true</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful swap</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Validation checks failed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-events-override">
+<code class="descname">POST </code><code class="descname">/api/v0/events/override</code><a class="headerlink" href="#post--api-v0-events-override" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override/substitute existing events. For example, if the current on-call is unexpectedly busy from 3-4, another
+user can override that event for that time period and take over the shift. Override may delete or edit
+existing events, and may create new events. The API&#8217;s response contains the information for all undeleted
+events that were passed in the event_ids param, along with the events created by the override.</p>
+<dl class="docutils">
+<dt>Params:</dt>
+<dd><ul class="first last simple">
+<li><strong>start</strong>: Start time for the event substitution</li>
+<li><strong>end</strong>: End time for event substitution</li>
+<li><strong>event_ids</strong>: List of event ids to override</li>
+<li><strong>user</strong>: User who will be taking over</li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">api/v0/events/override</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1493677400</span><span class="p">,</span>
+    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1493678400</span><span class="p">,</span>
+    <span class="nt">&quot;event_ids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1493678400</span><span class="p">,</span>
+        <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1493677400</span><span class="p">,</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-events-link">
+<code class="descname">POST </code><code class="descname">/api/v0/events/link</code><a class="headerlink" href="#post--api-v0-events-link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint for creating linked events. Responds with event ids for created events.
+Linked events can be swapped in a group, and users are reminded only on the first event of a
+linked series. Linked events have a link_id attribute containing a uuid. All events
+with an equivalent link_id are considered &#8220;linked together&#8221; in a single set. Editing any single event
+in the set will break the link for that event, clearing the link_id field. Otherwise, linked events behave
+the same as any non-linked event.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/api/v0/events/link</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1493667700</span><span class="p">,</span>
+        <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">149368700</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1493677700</span><span class="p">,</span>
+        <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">149387700</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Event created</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Event validation checks failed</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Event creation failed: nonexistent role/event/team</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="api-v0-users">
+<h2>/api/v0/users<a class="headerlink" href="#api-v0-users" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--api-v0-users">
+<code class="descname">GET </code><code class="descname">/api/v0/users</code><a class="headerlink" href="#get--api-v0-users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search users</p>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-users">
+<code class="descname">POST </code><code class="descname">/api/v0/users</code><a class="headerlink" href="#post--api-v0-users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create user</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-users-user_name">
+<code class="descname">GET </code><code class="descname">/api/v0/users/{user_name}</code><a class="headerlink" href="#get--api-v0-users-user_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get user info by name</p>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--api-v0-users-user_name">
+<code class="descname">PUT </code><code class="descname">/api/v0/users/{user_name}</code><a class="headerlink" href="#put--api-v0-users-user_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update user info</p>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-users-user_name">
+<code class="descname">DELETE </code><code class="descname">/api/v0/users/{user_name}</code><a class="headerlink" href="#delete--api-v0-users-user_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete user by name</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-users-user_name-teams">
+<code class="descname">GET </code><code class="descname">/api/v0/users/{user_name}/teams</code><a class="headerlink" href="#get--api-v0-users-user_name-teams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get active teams by user name</p>
+</dd></dl>
+
+</div>
+<div class="section" id="api-v0-notification-types">
+<h2>/api/v0/notification_types<a class="headerlink" href="#api-v0-notification-types" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--api-v0-notification_types">
+<code class="descname">GET </code><code class="descname">/api/v0/notification_types</code><a class="headerlink" href="#get--api-v0-notification_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all notification types and whether they are reminder notifications.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/notification_types</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;oncall_reminder&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;is_reminder&quot;</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to Oncall’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, The Iris team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
