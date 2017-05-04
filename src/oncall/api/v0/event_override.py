@@ -29,7 +29,7 @@ def on_post(req, resp):
 
     .. sourcecode:: http
 
-        POST /v0/events   HTTP/1.1
+        POST api/v0/events/override   HTTP/1.1
         Content-Type: application/json
 
         {
