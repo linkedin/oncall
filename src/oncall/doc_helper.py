@@ -3,6 +3,7 @@
 
 from oncall.app import init_falcon_api
 
+
 config = {'auth': {'debug': True, 'module': 'oncall.auth.modules.debug', 'docs': True},
           'debug': True,
           'header_color': '#3a3a3a',

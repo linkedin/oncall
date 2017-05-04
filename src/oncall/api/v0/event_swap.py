@@ -12,6 +12,36 @@ from ...constants import EVENT_SWAPPED
 
 @login_required
 def on_post(req, resp):
+    """
+    Swap events. Takes an object specifying the 2 events to be swapped. Swap can take either single
+    events or event sets, depending on the value of the "linked" attribute. If "linked" is True,
+    the API interprets the "id" attribute as a link_id. Otherwise, it's assumed to be an event_id.
+    Note that this allows swapping a single event with a linked event.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        POST api/v0/events/swap   HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "events":
+            [
+                {
+                    "id": 1,
+                    "linked": false
+                },
+                {
+                    "id": "da515a45e2b2467bbdc9ea3bc7826d36",
+                    "linked": true
+                }
+            ]
+        }
+
+    :statuscode 200: Successful swap
+    :statuscode 400: Validation checks failed
+    """
     data = load_json_body(req)
 
     try:

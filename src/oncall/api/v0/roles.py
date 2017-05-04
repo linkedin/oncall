@@ -31,6 +31,42 @@ constraints = {
 
 
 def on_get(req, resp):
+    """
+    Role search.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+       GET /api/v0/roles?name__startswith=pri HTTP/1.1
+       Host: example.com
+
+    **Example response:**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            {
+                "id": 1,
+                "name": "primary"
+            }
+        ]
+
+    :query id: id of the role
+    :query id__eq: id of the role
+    :query id__gt: id greater than
+    :query id__ge: id greater than or equal
+    :query id__lt: id less than
+    :query id__le: id less than or equal
+    :query name: role name
+    :query name__eq: role name
+    :query name__contains: role name contains param
+    :query name__startswith: role name starts with param
+    :query name__endswith: role name ends with param
+    """
     fields = req.get_param_as_list('fields', transform=columns.__getitem__)
     cols = ', '.join(fields) if fields else all_columns
     query = 'SELECT %s FROM `role`' % cols
