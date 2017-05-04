@@ -3,7 +3,6 @@
 
 from oncall.app import init_falcon_api
 
-
 config = {'auth': {'debug': True, 'module': 'oncall.auth.modules.debug', 'docs': True},
           'debug': True,
           'header_color': '#3a3a3a',
@@ -11,4 +10,4 @@ config = {'auth': {'debug': True, 'module': 'oncall.auth.modules.debug', 'docs':
           'index_content_setting': {'footer': ''},
           'session': {'encrypt_key': 'abc', 'sign_key': '123'}}
 
-app = init_falcon_api(config) # noqa
+app = init_falcon_api(config)  # noqa

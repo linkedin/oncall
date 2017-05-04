@@ -94,7 +94,21 @@ def on_get(req, resp, team, roster):
 @login_required
 def on_put(req, resp, team, roster):
     """
-    Change roster name
+    Change roster name. Must have team admin privileges.
+
+        **Example request:**
+
+    .. sourcecode:: http
+
+        PUT /api/v0/teams/team-foo/rosters/roster-foo HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "name": "roster-bar",
+        }
+
+    :statuscode 400: Invalid roster name, disallowed characters
+    :statuscode 422: Duplicate roster name for team
     """
     team, roster = unquote(team), unquote(roster)
     data = load_json_body(req)
