@@ -5,7 +5,7 @@ Initial setup
 -------------
 ### Prerequisites
 
-  * Debian/Ubuntu - `apt-get install libldap2-dev`
+  * Debian/Ubuntu - `sudo apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev`
 
 ### Install
 
