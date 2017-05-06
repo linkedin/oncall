@@ -641,6 +641,10 @@
   <div class="module module-card module-schedule" data-role="{{role}}" data-roster="{{roster}}" data-advanced="{{advanced_mode}}" data-id="{{id}}" data-model="{{stringify this}}">
     <ul class="schedule-details">
       <li>
+        <label class="light label-col">ID:</label>
+        <span class="data-col schedule-id">{{id}}</span>
+      </li>
+      <li>
         <label class="light label-col">Roster:</label>
         <span class="data-col schedule-roster">{{roster}}</span>
       </li>
@@ -1123,6 +1127,10 @@
 <script id="module-notification-template" type="text/x-handlebars-template">
   <div class="module module-card module-notification" data-time="{{time_before}}" data-role="{{role}}" data-team="{{team}}" data-id="{{id}}" data-model="{{stringify this}}">
     <ul class="notifications-details">
+      <li>
+        <label class="light label-col">ID:</label>
+        <span class="data-col notification-id">{{id}}</span>
+      </li>
       {{#if time_before}}
       <li>
         <label class="light label-col">Time:</label>
