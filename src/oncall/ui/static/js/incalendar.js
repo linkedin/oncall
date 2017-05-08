@@ -1147,7 +1147,7 @@
               .append('<label class="label-col">User: </label>')
               .append(
                 $('<div class="input-col" />')
-                .append('<input type="text" class="typeahead" id="inc-event-user" name="inc-event-user" placeholder="username" value="' + self.options.user + '" style="width:100px" /> ')
+                .append('<input type="text" class="typeahead" data-type="team_users" id="inc-event-user" name="inc-event-user" placeholder="username" value="' + self.options.user + '" style="width:100px" /> ')
               )
             )
             .append('<label class="label-col">Start: </label>')

@@ -39,6 +39,16 @@ def on_get(req, resp):
         cursor.execute(query, (keyword, keyword))
         data['users'] = [{'full_name': r[0], 'name': r[1]} for r in cursor]
 
+    if 'team_users' in fields:
+        filter = '%s%%' % keyword
+        team = req.get_param('team', required=True)
+        query = '''SELECT `user`.`full_name`, `user`.`name`
+                   FROM `team_user` JOIN `user` ON `team_user`.`user_id` = `user`.`id`
+                   WHERE `team_user`.`team_id` = (SELECT `id` FROM `team` WHERE `name` = %s)
+                   AND (`name` LIKE %s OR `full_name` LIKE %s)'''
+        cursor.execute(query, (team, filter, filter))
+        data['users'] = [{'full_name': r[0], 'name': r[1]} for r in cursor]
+
     cursor.close()
     connection.close()
     resp.body = dumps(data)
