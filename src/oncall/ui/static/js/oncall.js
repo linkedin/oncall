@@ -820,9 +820,9 @@ var oncall = {
               },
               onModalOpen: function($modal){
                 if ($modal.hasClass('inc-create-event-modal')) {
-                  oncall.typeahead.init(null, function(){$modal.find('#inc-role').trigger('change')});
+                  oncall.typeahead.init(null, function(){$modal.find('#inc-role').trigger('change')}, self.data.teamName);
                 } else {
-                  oncall.typeahead.init();
+                  oncall.typeahead.init(null, null, self.data.teamName);
                 }
               },
               onEventDetailsModalOpen: function($modal, $calendar, $eventItem, evt){
@@ -2326,7 +2326,7 @@ var oncall = {
       url: '/api/v0/',
       field: 'input.typeahead'
     },
-    init: function(urlType, changeCallback){
+    init: function(urlType, changeCallback, team){
       var $field = $(this.data.field),
           self = this;
 
@@ -2353,11 +2353,15 @@ var oncall = {
             $(this).attr('value', $(this).val());
           });
         } else {
+          var url = self.data.url + 'search?fields=' + type + '&keyword=%QUERY';
+          if (team) {
+            url += '&team=' + team;
+          }
           results = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             remote: {
-              url: self.data.url + 'search?fields=users&keyword=%QUERY',
+              url: url,
               wildcard: '%QUERY',
               transform: function(response) {
                 return response.users
