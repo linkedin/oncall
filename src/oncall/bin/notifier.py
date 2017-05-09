@@ -13,7 +13,7 @@ from gevent import queue, spawn, sleep
 
 from oncall import db, metrics
 from oncall.messengers import init_messengers, send_message
-from oncall.bin import reminder, user_validator
+from oncall.notifier import reminder, user_validator
 
 # logging
 logger = logging.getLogger()
