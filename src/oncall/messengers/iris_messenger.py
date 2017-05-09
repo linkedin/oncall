@@ -3,15 +3,14 @@
 
 
 from oncall.constants import EMAIL_SUPPORT, SMS_SUPPORT, CALL_SUPPORT
-from iris.client import IrisClient
+from irisclient import IrisClient
 
 
 class iris_messenger(object):
     supports = frozenset([EMAIL_SUPPORT, SMS_SUPPORT, CALL_SUPPORT])
 
     def __init__(self, config):
-        self.config = config
-        self.iris_client = IrisClient(config['application'], config['iris_api_key'])
+        self.iris_client = IrisClient(config['application'], config['iris_api_key'], config['api_host'])
 
     def send(self, message):
         self.iris_client.notification(role='user', target=message['user'], priority=message.get('priority'),

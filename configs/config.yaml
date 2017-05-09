@@ -53,8 +53,14 @@ notifications:
     - "email"
 
 reminder:
+  activated: True
   polling_interval: 360
   default_timezone: 'US/Pacific'
+
+user_validator:
+  activated: True
+  subject: 'Warning: Missing phone number in Oncall'
+  body: 'You are scheduled for an on-call shift in the future, but have no phone number recorded. Please update your information in Oncall.'
 
 slack_instance: foobar
 header_color: '#3a3a3a'
