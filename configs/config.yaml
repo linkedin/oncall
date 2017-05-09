@@ -20,7 +20,7 @@ session:
   encrypt_key: 'abc'
   sign_key: '123'
 auth:
-  debug: True
+  debug: False
   module: 'oncall.auth.modules.debug'
 notifier:
   skipsend: True
@@ -64,3 +64,9 @@ user_validator:
 
 slack_instance: foobar
 header_color: '#3a3a3a'
+iris_plan_integration:
+  activated: True
+  app: oncall
+  api_key: magic
+  api_host: http://localhost:16649
+  plan_url: '/v0/applications/oncall/plans'

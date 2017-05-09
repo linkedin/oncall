@@ -818,6 +818,34 @@ nav.subnav li.active {
   font-style: italic;
 }
 
+#oncall-now-heading h4 {
+  display: inline-block;
+}
+
+body[data-authenticated="false"] #escalate-btn {
+  display: none;
+}
+
+#escalate-description {
+  height: 100px;
+  resize: vertical;
+}
+
+.text-actions > span {
+  cursor: pointer;
+  color: #000;
+  opacity: .3;
+  font-weight: bold;
+}
+
+.text-actions > span .grey-icon {
+  opacity: 1;
+}
+
+.text-actions > span:hover {
+  opacity: .5;
+}
+
 /* Teams.info */
 
 .module-card .badge.toggle-rotation {
@@ -990,21 +1018,6 @@ div[data-admin="false"] .team-info .toggle-rotation {
   border-top: 5px solid #FDE3D2;
   padding-top: 10px;
   margin-top: 10px;
-}
-
-.module-schedule .schedule-actions > span {
-  cursor: pointer;
-  color: #000;
-  opacity: .3;
-  font-weight: bold;
-}
-
-.module-schedule .schedule-actions > span .grey-icon {
-  opacity: 1;
-}
-
-.module-schedule .schedule-actions > span:hover {
-  opacity: .5;
 }
 
 .module-schedule[data-role="secondary"] .schedule-actions {

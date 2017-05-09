@@ -7,7 +7,7 @@ from ujson import dumps as json_dumps
 from ...utils import load_json_body, invalid_char_reg, subscribe_notifications, create_audit
 from ...constants import TEAM_CREATED
 
-from ... import db
+from ... import db, iris
 from ...auth import login_required
 
 constraints = {
@@ -23,7 +23,8 @@ constraints = {
 
 
 def on_get(req, resp):
-    query = 'SELECT `name`, `email`, `slack_channel`, `scheduling_timezone` FROM `team`'
+
+    query = 'SELECT `name`, `email`, `slack_channel`, `scheduling_timezone`, `iris_plan` FROM `team`'
     if 'active' not in req.params:
         req.params['active'] = True
 
@@ -70,13 +71,21 @@ def on_post(req, resp):
         raise HTTPBadRequest('invalid slack channel',
                              'slack channel name needs to start with #')
     email = data.get('email')
+    iris_plan = data.get('iris_plan')
+
+    # validate Iris plan if provided and Iris is configured
+    if iris_plan is not None and iris.client is not None:
+        plan_resp = iris.client.get(iris.client.url + 'plans?name=%s&active=1' % iris_plan)
+        if plan_resp.status_code != 200 or plan_resp.json() == []:
+            raise HTTPBadRequest('invalid iris escalation plan', 'no iris plan named %s exists' % iris_plan)
 
     connection = db.connect()
     cursor = connection.cursor()
     try:
         cursor.execute('''
-            INSERT INTO `team` (`name`, `slack_channel`, `email`, `scheduling_timezone`)
-            VALUES (%s, %s, %s, %s)''', (team_name, slack, email, scheduling_timezone))
+            INSERT INTO `team` (`name`, `slack_channel`, `email`, `scheduling_timezone`, `iris_plan`)
+            VALUES (%s, %s, %s, %s, %s)''', (team_name, slack, email, scheduling_timezone, iris_plan))
+
         team_id = cursor.lastrowid
         query = '''
             INSERT INTO `team_user` (`team_id`, `user_id`)
