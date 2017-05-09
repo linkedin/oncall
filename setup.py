@@ -31,6 +31,7 @@ setup(
         'pycrypto',
         'python-ldap',
         'pytz',
+        'irisclient',
     ],
     entry_points={
         'console_scripts': [
