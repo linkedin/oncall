@@ -82,7 +82,9 @@
     this.options = $.extend( {}, defaults, options );
     this.options.today = this._createMoment(this.options.today);
     this.options.startDate = this._createMoment(this.options.startDate);
-    this.options.currentViewRoles = this.options.currentViewRoles || this.options.roles.slice(0); // set current view roles to match roles if no options are passed in and no local storage data is found
+    // set current view roles to match roles if no options are passed in and no
+    // local storage data is found
+    this.options.currentViewRoles = this.options.currentViewRoles || this.options.roles.slice(0);
     this._defaults = defaults;
     this._name = pluginName;
     this.init();
@@ -115,7 +117,8 @@
       this.options.onRender(this.$el);
     },
     _createMoment: function (date, format) {
-      // date can be moment object or string with matching format passed in. See http://momentjs.com/docs/#/parsing/string-format/
+      // date can be moment object or string with matching format passed in.
+      // See http://momentjs.com/docs/#/parsing/string-format/
       // tz optional, will create the date under specified TZ. TZ data is managed in moment-tz-data.js
       var format = format || this.options.dateFormat + ' ' + this.options.timeFormat;
 
@@ -124,7 +127,8 @@
           console.error('Requires moment.js and moment-timezone.js to apply timezone values');
         }
         if (format === 'x' || format === 'X') {
-          // if date format is unix, create a unit based date then shift timezone, otherwise create the date with timezone offset
+          // if date format is unix, create a unit based date then shift
+          // timezone, otherwise create the date with timezone offset
           return moment(date, format).tz(this.options.timezone);
         }
         return moment.tz(date, format, this.options.timezone);
@@ -320,13 +324,13 @@
           )
         ).appendTo($head);
 
-        //build body
+        // build body
         for (var i = 0; i < colCount; i++) {
           $el = $('<div class="inc-row inc-week-row" />').addClass(function(){ return today.isSame(startDate, 'd') ? 'today': '' });
           bodyStr = '<td class="inc-week-day">' + days[i] + '<br />' + startDate.format('M/D/YYYY') + '</td>';
 
           for(var j = 0, k = 1; j < weekColCt; j++) {
-            bodyStr += '<td class="inc-node inc-week-hour ' + (today.isSame(startDate.clone().hour(j), 'h') ? 'current-hour': '' )+ '" data-date="' + startDate.format('YYYY/M/D') + '" data-time="' + (j < 10 ? '0' + j : j) + ':00"></td>';
+            bodyStr += '<td class="inc-node inc-week-hour ' + (today.isSame(startDate.clone().hour(j), 'h') ? 'current-hour' : '') + '" data-date="' + startDate.format('YYYY/M/D') + '" data-time="' + (j < 10 ? '0' + j : j) + ':00"></td>';
           }
 
           $el.append(
@@ -574,7 +578,8 @@
             $parentRow = $this.parents('.inc-row'),
             options = {
               top: ( ($parentRow.position().top + $this.outerHeight() + 320) > $(window).height() - $calendar.offset().top) && ($parentRow.position().top - 310 > $calendar.offset().top) ? $parentRow.position().top - 310 : ($parentRow.position().top + $this.outerHeight() - 10),
-              left: (e.clientX + self.options.modalWidth) >= $(document).width() ? e.clientX - $parentRow.offset().left - self.options.modalWidth : e.clientX - $parentRow.offset().left, // place modal on right of click event if there's room, otherwise place on left of click event.
+              // place modal on right of click event if there's room, otherwise place on left of click event.
+              left: (e.clientX + self.options.modalWidth) >= $(document).width() ? e.clientX - $parentRow.offset().left - self.options.modalWidth : e.clientX - $parentRow.offset().left,
               title: 'Add a new event'
             }
 

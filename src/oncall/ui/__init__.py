@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
-# Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
+# Copyright (c) LinkedIn Corporation.
+# All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
 from __future__ import absolute_import
@@ -20,7 +21,9 @@ assets_env = AssetsEnvironment(path.join(STATIC_ROOT, 'static'),
                                url='/static')
 
 assets_env.register('libs', Bundle(
-    'js/jquery-2.1.4.min.js', 'js/handlebars.min.js', 'js/bootstrap.min.js', 'js/moment.js', 'js/moment-timezone.js', 'js/moment-tz-data.js', 'js/typeahead.js',
+    'js/jquery-2.1.4.min.js', 'js/handlebars.min.js', 'js/bootstrap.min.js',
+    'js/moment.js', 'js/moment-timezone.js', 'js/moment-tz-data.js',
+    'js/typeahead.js',
     output='bundles/libs.js'))
 assets_env.register('oncall_js', Bundle(
     'js/navigo.js', 'js/incalendar.js', 'js/oncall.js',
@@ -40,13 +43,15 @@ jinja2_env.assets_environment = assets_env
 
 _filename_ascii_strip_re = re.compile(r'[^A-Za-z0-9_.-]')
 
-mimes = {'.css': 'text/css',
-         '.jpg': 'image/jpeg',
-         '.js': 'text/javascript',
-         '.png': 'image/png',
-         '.svg': 'image/svg+xml',
-         '.ttf': 'application/octet-stream',
-         '.woff': 'application/font-woff'}
+mimes = {
+    '.css': 'text/css',
+    '.jpg': 'image/jpeg',
+    '.js': 'text/javascript',
+    '.png': 'image/png',
+    '.svg': 'image/svg+xml',
+    '.ttf': 'application/octet-stream',
+    '.woff': 'application/font-woff'
+}
 
 
 INDEX_CONTENT_SETTING = {
@@ -116,6 +121,9 @@ def init(application, config):
     HEADER_COLOR = config.get('header_color', '#3a3a3a')
 
     application.add_sink(index, '/')
-    application.add_route('/static/bundles/{filename}', StaticResource('/static/bundles'))
-    application.add_route('/static/images/{filename}', StaticResource('/static/images'))
-    application.add_route('/static/fonts/{filename}', StaticResource('/static/fonts'))
+    application.add_route('/static/bundles/{filename}',
+                          StaticResource('/static/bundles'))
+    application.add_route('/static/images/{filename}',
+                          StaticResource('/static/images'))
+    application.add_route('/static/fonts/{filename}',
+                          StaticResource('/static/fonts'))
