@@ -420,7 +420,7 @@ var oncall = {
 
       if (query) {
         this.getData.call(this, query);
-        $form.find('.search-input').val(query.query);
+        $form.find('.search-input').val(decodeURIComponent(query.query));
       }
 
       services = new Bloodhound({
