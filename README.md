@@ -26,14 +26,15 @@ Setup app config by editing configs/config.yaml.
 Run
 ---
 
-```
+```bash
 make serve
+# or oncall-dev ./configs/config.yaml
 ```
 
 
 Test
 ---
 
-```
+```bash
 make test
 ```
