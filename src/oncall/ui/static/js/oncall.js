@@ -803,10 +803,16 @@ var oncall = {
                 for (var i = 0; i < events.length; i++) {
                   var evt = events[i],
                       userData = self.data.teamData.users[evt.user];
-                  // #TODO: Fix after full name from API is sorted out. in the mean time, replaces the username of the event with full name for display.
+                  // #TODO: Fix after full name from API is sorted out. in the
+                  // mean time, replaces the full name of the event with full
+                  // name from teamData for display.
                   if (!evt.full_name && userData.full_name) {
                     evt.full_name = userData.full_name;
-                    self.data.$calendar.find('.inc-event[data-id="' + evt.id + '"]').find('.inc-event-name').text(userData.full_name);
+                  }
+                  if (evt.full_name) {
+                    self.data.$calendar.find('.inc-event[data-id="' + evt.id + '"]')
+                                       .find('.inc-event-name')
+                                       .text(evt.full_name);
                   }
                 }
               },
