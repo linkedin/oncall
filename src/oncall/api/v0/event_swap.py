@@ -58,15 +58,12 @@ def on_post(req, resp):
             if ev['linked']:
                 cursor.execute('SELECT `id`, `start`, `end`, `team_id`, `user_id`, `role_id`, '
                                '`link_id` FROM `event` WHERE `link_id` = %s', ev['id'])
-                if cursor.rowcount == 0:
-                    raise HTTPNotFound()
-                events[i] = cursor.fetchall()
             else:
                 cursor.execute('SELECT `id`, `start`, `end`, `team_id`, `user_id`, `role_id`, '
                                '`link_id` FROM `event` WHERE `id` = %s', ev['id'])
-                if cursor.rowcount == 0:
-                    raise HTTPNotFound()
-                events[i] = cursor.fetchall()
+            if cursor.rowcount == 0:
+                raise HTTPNotFound()
+            events[i] = cursor.fetchall()
 
         events_0, events_1 = events
         events = events_0 + events_1
