@@ -1854,6 +1854,7 @@ var oncall = {
         this.getData();
       },
       events: function(){
+        router.updatePageLinks();
         this.data.$page.on('submit', this.data.form, this.saveNotification.bind(this));
         this.data.$page.on('click', this.data.addNotification, this.addNotification.bind(this));
         this.data.$page.on('click', this.data.addReminder, this.addReminder.bind(this));
@@ -1882,6 +1883,7 @@ var oncall = {
             notificationData.roles = oncall.data.roles;
             notificationData.modes = oncall.data.modes;
             notificationData.teams = teamsData[0];
+            notificationData.name = oncall.data.user; // using key `name` instead of `username` here because thats what API returns for /users
             self.data.notificationData = notificationData;
             self.renderPage.call(self, notificationData);
           });
