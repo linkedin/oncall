@@ -1,7 +1,6 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-#!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
 import time
@@ -26,10 +25,10 @@ def test_events(team, user, role):
     user.add_to_team(user_name_2, team_name)
     user.add_to_team(user_name_2, team_name_2)
 
-    start, end = int(time.time()) + 100, int(time.time()+36000)
+    start, end = int(time.time()) + 100, int(time.time() + 36000)
 
     def clean_up():
-        re = requests.get(api_v0('events?team='+team_name))
+        re = requests.get(api_v0('events?team=' + team_name))
         for ev in re.json():
             requests.delete(api_v0('events/%d' % ev['id']))
 
@@ -78,7 +77,7 @@ def test_events(team, user, role):
     }
 
     # test get events by team
-    re = requests.get(api_v0('events?team__eq='+team_name))
+    re = requests.get(api_v0('events?team__eq=' + team_name))
     assert re.status_code == 200
     events = re.json()
     assert isinstance(events, list)
@@ -86,7 +85,7 @@ def test_events(team, user, role):
     assert events[0] == sample_ev
 
     # test get events by users
-    re = requests.get(api_v0('events?user__eq='+user_name))
+    re = requests.get(api_v0('events?user__eq=' + user_name))
     assert re.status_code == 200
     events = re.json()
     assert isinstance(events, list)
@@ -102,8 +101,10 @@ def test_events(team, user, role):
         'role': role_name,
     })
     ev_id2 = re.json()
-    re = requests.post(api_v0('events/swap'), json={'events': [{'id': ev_id, 'linked': False},
-                                                               {'id': ev_id2, 'linked': False}]})
+    re = requests.post(api_v0('events/swap'), json={
+        'events': [{'id': ev_id, 'linked': False},
+                   {'id': ev_id2, 'linked': False}]
+    })
     assert re.status_code == 200
     # verify users swapped
     re = requests.get(api_v0('events?id__eq=%d' % ev_id))
@@ -111,8 +112,10 @@ def test_events(team, user, role):
     assert re.json()[0]['user'] == user_name_2
 
     # test update event
-    re = requests.put(api_v0('events/%d' % ev_id), json={'start': start - 5, 'end': end - 5, 'user': user_name_2,
-                                                         'role': role_name_2})
+    re = requests.put(api_v0('events/%d' % ev_id), json={
+        'start': start - 5, 'end': end - 5, 'user': user_name_2,
+        'role': role_name_2
+    })
     assert re.status_code == 200
     re = requests.get(api_v0('events/%d' % ev_id))
     assert re.status_code == 200
@@ -123,8 +126,10 @@ def test_events(team, user, role):
     assert new_event['role'] == role_name_2
 
     # test invalid event update
-    re = requests.put(api_v0('events/%d' % ev_id), json={'start': end, 'end': start, 'user': user_name_2,
-                                                         'role': role_name_2, 'team': team_name_2})
+    re = requests.put(api_v0('events/%d' % ev_id), json={
+        'start': end, 'end': start, 'user': user_name_2,
+        'role': role_name_2, 'team': team_name_2
+    })
     assert re.status_code == 400
 
     # test delete event
@@ -136,6 +141,36 @@ def test_events(team, user, role):
     assert set(re.json()) == set([])
 
     clean_up()
+
+
+@prefix('test_invalid_event_swap')
+def test_invalid_event_swap(team, user, role, event):
+    team_name = team.create()
+    user_name = user.create()
+    role_name = role.create()
+    user.add_to_team(user_name, team_name)
+
+    start = int(time.time()) + 100
+
+    ev1 = event.create({'start': start,
+                        'end': start + 1000,
+                        'user': user_name,
+                        'team': team_name,
+                        'role': role_name})
+
+    # test swap with invalid event id
+    re = requests.post(api_v0('events/swap'), json={
+        'events': [{'id': ev1, 'linked': False},
+                   {'id': None, 'linked': False}]
+    })
+    assert re.status_code == 400
+
+    # test swap without event id
+    re = requests.post(api_v0('events/swap'), json={
+        'events': [{'id': ev1, 'linked': False},
+                   {'linked': False}]
+    })
+    assert re.status_code == 400
 
 
 @prefix('test_v0_linked_swap')
@@ -152,24 +187,24 @@ def test_api_v0_linked_swap(team, user, role, event):
 
     # User 1 linked events
     ev1 = event.create({'start': start,
-                        'end': start+1000,
+                        'end': start + 1000,
                         'user': user_name,
                         'team': team_name,
                         'role': role_name})
-    ev2 = event.create({'start': start+1000,
-                        'end': start+2000,
+    ev2 = event.create({'start': start + 1000,
+                        'end': start + 2000,
                         'user': user_name,
                         'team': team_name,
                         'role': role_name})
 
     # User 2 linked events
-    ev3 = event.create({'start': start+2000,
-                        'end': end-1000,
+    ev3 = event.create({'start': start + 2000,
+                        'end': end - 1000,
                         'user': user_name_2,
                         'team': team_name,
                         'role': role_name})
-    ev4 = event.create({'start': end-1000,
-                        'end': end+1000,
+    ev4 = event.create({'start': end - 1000,
+                        'end': end + 1000,
                         'user': user_name_2,
                         'team': team_name,
                         'role': role_name})
@@ -177,8 +212,10 @@ def test_api_v0_linked_swap(team, user, role, event):
     link_id_1 = event.link([ev1, ev2])
     link_id_2 = event.link([ev3, ev4])
 
-    re = requests.post(api_v0('events/swap'), json={'events': [{'id': link_id_1, 'linked': True},
-                                                               {'id': link_id_2, 'linked': True}]})
+    re = requests.post(api_v0('events/swap'), json={
+        'events': [{'id': link_id_1, 'linked': True},
+                   {'id': link_id_2, 'linked': True}]
+    })
     assert re.status_code == 200
 
     # Check users have swappec
@@ -207,27 +244,29 @@ def test_api_v0_link_event_swap(team, user, role, event):
 
     # User 1 linked events
     ev1 = event.create({'start': start,
-                        'end': start+1000,
+                        'end': start + 1000,
                         'user': user_name,
                         'team': team_name,
                         'role': role_name})
-    ev2 = event.create({'start': start+1000,
-                        'end': start+2000,
+    ev2 = event.create({'start': start + 1000,
+                        'end': start + 2000,
                         'user': user_name,
                         'team': team_name,
                         'role': role_name})
 
     # User 2 single event
-    ev3 = event.create({'start': start+2000,
-                        'end': end-1000,
+    ev3 = event.create({'start': start + 2000,
+                        'end': end - 1000,
                         'user': user_name_2,
                         'team': team_name,
                         'role': role_name})
 
     link_id = event.link([ev1, ev2])
 
-    re = requests.post(api_v0('events/swap'), json={'events': [{'id': link_id, 'linked': True},
-                                                               {'id': ev3, 'linked': False}]})
+    re = requests.post(api_v0('events/swap'), json={
+        'events': [{'id': link_id, 'linked': True},
+                   {'id': ev3, 'linked': False}]
+    })
     assert re.status_code == 200
 
     # Check users have swapped
@@ -251,10 +290,10 @@ def test_events_link(team, user, role):
     user.add_to_team(user_name, team_name)
     user.add_to_team(user_name_2, team_name)
 
-    start, end = int(time.time()), int(time.time()+36000)
+    start, end = int(time.time()), int(time.time() + 36000)
 
     def clean_up():
-        re = requests.get(api_v0('events?team='+team_name))
+        re = requests.get(api_v0('events?team=' + team_name))
         for ev in re.json():
             requests.delete(api_v0('events/%d' % ev['id']))
 
