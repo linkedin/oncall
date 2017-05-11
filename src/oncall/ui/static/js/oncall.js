@@ -13,13 +13,7 @@ var oncall = {
     logoutUrl: '/logout',
     user: $('body').attr('data-user'),
     userUrl: '/api/v0/users/',
-    roles: [
-      'primary',
-      'secondary',
-      'manager',
-      'shadow',
-      'vacation'
-    ],
+    roles: null,  // will be fetched from API
     modes: [
       'email',
       'sms',
@@ -75,6 +69,13 @@ var oncall = {
       this.data.userInfoPromise.resolve();
     }
     Handlebars.registerPartial('error-page', this.data.errorTemplate);
+
+    $.get('/api/v0/roles').done(function(data){
+      self.data.roles = data;
+      self.data.roles.sort(function(a, b) {
+          return a.display_order - b.display_order;
+      });
+    });
   },
   login: function(e){
     e.preventDefault();
@@ -154,7 +155,6 @@ var oncall = {
     $.get(this.data.userUrl + this.data.user + '/upcoming', { limit: limit }).done(function(data){
       self.renderUpcomingShifts.call(self, data);
     });
-    // self.renderUpcomingShifts([{"end":1492369200,"num_events":0,"link_id":null,"start":1492282800,"schedule_id":2560,"role":"primary","user":"sebrahim","full_name":"Saif Ebrahim","team":"SaifTestTeam","id":259987},{"end":1493233200,"num_events":0,"link_id":null,"start":1492974000,"schedule_id":2548,"role":"primary","user":"sebrahim","full_name":"Saif Ebrahim","team":"SaifTestTeam","id":266854},{"end":1493578800,"num_events":0,"link_id":null,"start":1493492400,"schedule_id":2560,"role":"primary","user":"sebrahim","full_name":"Saif Ebrahim","team":"SaifTestTeam","id":266845}]);
   },
   renderUpcomingShifts: function(data){
     var $upcomingShifts = $('#upcoming-shifts');
@@ -803,10 +803,16 @@ var oncall = {
                 for (var i = 0; i < events.length; i++) {
                   var evt = events[i],
                       userData = self.data.teamData.users[evt.user];
-                  // #TODO: Fix after full name from API is sorted out. in the mean time, replaces the username of the event with full name for display.
+                  // #TODO: Fix after full name from API is sorted out. in the
+                  // mean time, replaces the full name of the event with full
+                  // name from teamData for display.
                   if (!evt.full_name && userData.full_name) {
                     evt.full_name = userData.full_name;
-                    self.data.$calendar.find('.inc-event[data-id="' + evt.id + '"]').find('.inc-event-name').text(userData.full_name);
+                  }
+                  if (evt.full_name) {
+                    self.data.$calendar.find('.inc-event[data-id="' + evt.id + '"]')
+                                       .find('.inc-event-name')
+                                       .text(evt.full_name);
                   }
                 }
               },
@@ -839,7 +845,7 @@ var oncall = {
               team: self.data.teamName,
               roles: oncall.data.roles
             }
-          )
+          );
         });
 
       },

@@ -9,7 +9,8 @@ from ...utils import load_json_body
 
 columns = {
     'id': '`role`.`id` as `id`',
-    'name': '`role`.`name` as `name`'
+    'name': '`role`.`name` as `name`',
+    'display_order': '`role`.`display_order` as `display_order`',
 }
 
 all_columns = ', '.join(columns.values())
@@ -51,7 +52,8 @@ def on_get(req, resp):
         [
             {
                 "id": 1,
-                "name": "primary"
+                "name": "primary",
+                "display_order": 1
             }
         ]
 
