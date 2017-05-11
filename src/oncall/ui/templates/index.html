@@ -436,7 +436,10 @@
     <ul>
     {{#each this.roles}}
       <li>
-        <input type="checkbox" id="show-{{this}}" data-type="{{this}}" value="{{this}}" {{#inArray this ../currentViewRoles}} checked {{/inArray}}> <label for="show-{{this}}">{{this}}</label> <span class="color-swatch" data-type="{{this}}"></span>
+        <input type="checkbox" id="show-{{this.name}}" data-type="{{this.name}}"
+        value="{{this.name}}" {{#inArray this.name ../currentViewRoles}} checked {{/inArray}}>
+        <label for="show-{{this.name}}">{{this.name}}</label>
+        <span class="color-swatch" data-type="{{this.name}}"></span>
       </li>
     {{/each}}
     </ul>
@@ -734,7 +737,9 @@
         <span class="data-col">
           <select name="from" class="form-control schedule-role">
             {{#each roles}}
-              <option value="{{this}}" {{isSelected ../selected_schedule.role this}}>{{this}}</option>
+              <option value="{{this.name}}" {{isSelected ../selected_schedule.role this.name}}>
+                {{this.name}}
+              </option>
             {{/each}}
           </select>
         </span>
@@ -1151,7 +1156,9 @@
       </li>
       <li>
         <label class="light label-col">Roles:</label>
-        <span class="data-col notification-role" title="{{#each roles}} {{this}} {{/each}}">{{#each roles}} {{this}} {{/each}}</span>
+        <span class="data-col notification-role" title="{{#each roles}} {{this.name}} {{/each}}">
+          {{#each roles}} {{this.name}} {{/each}}
+        </span>
       </li>
     </ul>
     <div class="notification-actions border-top">
@@ -1208,8 +1215,10 @@
           <ul class="multi-select-options">
             {{#each roles}}
             <li>
-              <input type="checkbox" value="{{this}}" id="reminder-create-{{this}}-{{../selected.id}}" {{isCheckedMulti this ../selected.roles}}>
-              <label for="reminder-create-{{this}}-{{../selected.id}}">{{this}}</label>
+              <input type="checkbox" value="{{this.name}}"
+                     id="reminder-create-{{this.name}}-{{../selected.id}}"
+                     {{isCheckedMulti this.name ../selected.roles}}>
+              <label for="reminder-create-{{this.name}}-{{../selected.id}}">{{this.name}}</label>
             </li>
             {{/each}}
           </ul>
@@ -1244,8 +1253,10 @@
           <ul class="multi-select-options">
             {{#each roles}}
             <li>
-              <input type="checkbox" value="{{this}}" id="notification-create-{{this}}-{{../selected.id}}" {{isCheckedMulti this ../selected.roles}}>
-              <label for="notification-create-{{this}}-{{../selected.id}}">{{this}}</label>
+              <input type="checkbox" value="{{this.name}}"
+                     id="notification-create-{{this.name}}-{{../selected.id}}"
+                     {{isCheckedMulti this.name ../selected.roles}}>
+              <label for="notification-create-{{this.name}}-{{../selected.id}}">{{this.name}}</label>
             </li>
             {{/each}}
           </ul>

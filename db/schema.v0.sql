@@ -90,8 +90,16 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`roster` (
 CREATE TABLE IF NOT EXISTS `oncall-api`.`role` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
+  `display_order` INT UNSIGNED NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_unique` (`name` ASC));
+
+INSERT INTO `role` (`name`, `display_order`)
+VALUES ('primary', 1),
+       ('secondary', 2),
+       ('shadow', 3),
+       ('manager', 4),
+       ('vacation', 5);
 
 -- -----------------------------------------------------
 -- Table `oncall-api`.`schedule`

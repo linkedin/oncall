@@ -13,13 +13,7 @@ var oncall = {
     logoutUrl: '/logout',
     user: $('body').attr('data-user'),
     userUrl: '/api/v0/users/',
-    roles: [
-      'primary',
-      'secondary',
-      'manager',
-      'shadow',
-      'vacation'
-    ],
+    roles: null,  // will be fetched from API
     modes: [
       'email',
       'sms',
@@ -75,6 +69,13 @@ var oncall = {
       this.data.userInfoPromise.resolve();
     }
     Handlebars.registerPartial('error-page', this.data.errorTemplate);
+
+    $.get('/api/v0/roles').done(function(data){
+      self.data.roles = data;
+      self.data.roles.sort(function(a, b) {
+          return a.display_order - b.display_order;
+      });
+    });
   },
   login: function(e){
     e.preventDefault();
@@ -844,7 +845,7 @@ var oncall = {
               team: self.data.teamName,
               roles: oncall.data.roles
             }
-          )
+          );
         });
 
       },

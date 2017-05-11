@@ -22,7 +22,12 @@
           drag: true,
           modalWidth: 400,
           eventHeight: 22,
-          roles: ['primary', 'secondary', 'vacation'],
+          roles: [
+            {'name': 'primary', 'display_order': 1},
+            {'name': 'secondary', 'display_order': 2},
+            {'name': 'vacation', 'display_order': 3}
+          ],
+          roleOrder: {},
           currentViewRoles: null,
           user: null,
           timezone: null,
@@ -84,7 +89,19 @@
     this.options.startDate = this._createMoment(this.options.startDate);
     // set current view roles to match roles if no options are passed in and no
     // local storage data is found
-    this.options.currentViewRoles = this.options.currentViewRoles || this.options.roles.slice(0);
+    if (!this.options.currentViewRoles) {
+      this.options.currentViewRoles = [];
+      for (var i = 0; i < this.options.roles.length; i++) {
+          var roleEntry = this.options.roles[i];
+          this.options.currentViewRoles.push(roleEntry.name);
+          this.options.roleOrder[roleEntry.name] = roleEntry.display_order;
+      }
+    } else {
+      for (var i = 0; i < this.options.roles.length; i++) {
+          var roleEntry = this.options.roles[i];
+          this.options.roleOrder[roleEntry.name] = roleEntry.display_order;
+      }
+    }
     this._defaults = defaults;
     this._name = pluginName;
     this.init();
@@ -499,11 +516,13 @@
     getCalendarOption: function (option) {
       return this.options[option];
     },
-    getDSTOffset: function (event) {
+    getDSTOffset: function (ev) {
+      var isStartDST = ev.startDateObj.isDST(),
+          isEndDST = ev.endDateObj.isDST();
       // checks event start and end to return the offset for daylight savings time in hours
-      if (event.startDateObj.isDST() && !event.endDateObj.isDST()) {
+      if (isStartDST && !isEndDST) {
         return -1;
-      } else if (!event.startDateObj.isDST() && event.endDateObj.isDST()) {
+      } else if (!isStartDST && isEndDST) {
         return 1;
       } else {
         return null;
@@ -638,11 +657,12 @@
 
       self.$el.addClass('loading-events');
       $.get(url, params).done(function(data){
-        self.options.events = data.map(function(i){
-         i.start = i.start * 1000;
-         i.end = i.end * 1000;
-         return i;
-        });
+        for (var i = 0; i < data.length; i++) {
+          var ev = data[i];
+          ev.start = ev.start * 1000;
+          ev.end = ev.end * 1000;
+        }
+        self.options.events = data;
         self.addCalendarEvents();
         self.options.onEventGet(data, self.$calendar);
       }).always(function(){
@@ -684,6 +704,15 @@
         // pixel to hour ratio, dividing width of calendar by number of hours in week
         pxHrRatio = calWidth / 168;
       }
+
+      // sort event array so events with the same role are lined up together
+      events.sort(function(a, b) {
+          var diff = self.options.roleOrder[a.role] - self.options.roleOrder[b.role];
+          if (diff === 0) {
+            diff = a.start - b.start;
+          }
+          return diff;
+      });
 
       for (var i = 0; i < events.length; i++) {
         evt = events[i];
@@ -1023,7 +1052,7 @@
               var options = '';
 
               for (var i = 0, item; i < self.options.roles.length; i++) {
-                item = self.options.roles[i];
+                item = self.options.roles[i].name;
                 if (!role) { role = item }
                 options += '<option value="' + item + '" '  + (item === role ? 'selected': '') + '>' + item + '</option>';
               }
@@ -1196,7 +1225,8 @@
                 var options = '';
 
                 for (var i = 0; i < self.options.roles.length; i++) {
-                  options += '<option value="' + self.options.roles[i] + '">' + self.options.roles[i] + '</option>';
+                  var roleName = self.options.roles[i].name;
+                  options += '<option value="' + roleName + '">' + roleName + '</option>';
                 }
 
                 return options;
@@ -1391,7 +1421,7 @@
                 var options = '';
 
                 for (var i = 0, item; i < self.options.roles.length; i++) {
-                  item = self.options.roles[i];
+                  item = self.options.roles[i].name;
                   options += '<option value="' + item + '"' + (evt.role === item ? 'selected' : '') + '>' + item + '</option>';
                 }
 
