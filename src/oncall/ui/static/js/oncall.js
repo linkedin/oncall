@@ -154,7 +154,6 @@ var oncall = {
     $.get(this.data.userUrl + this.data.user + '/upcoming', { limit: limit }).done(function(data){
       self.renderUpcomingShifts.call(self, data);
     });
-    // self.renderUpcomingShifts([{"end":1492369200,"num_events":0,"link_id":null,"start":1492282800,"schedule_id":2560,"role":"primary","user":"sebrahim","full_name":"Saif Ebrahim","team":"SaifTestTeam","id":259987},{"end":1493233200,"num_events":0,"link_id":null,"start":1492974000,"schedule_id":2548,"role":"primary","user":"sebrahim","full_name":"Saif Ebrahim","team":"SaifTestTeam","id":266854},{"end":1493578800,"num_events":0,"link_id":null,"start":1493492400,"schedule_id":2560,"role":"primary","user":"sebrahim","full_name":"Saif Ebrahim","team":"SaifTestTeam","id":266845}]);
   },
   renderUpcomingShifts: function(data){
     var $upcomingShifts = $('#upcoming-shifts');
