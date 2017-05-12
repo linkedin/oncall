@@ -103,7 +103,17 @@ class RawPathPatcher(object):
 
 
 def init(config):
-    logging.basicConfig(level=logging.INFO)
+    if not config.get('debug', False):
+        security_headers.append(
+            ('Content-Security-Policy',
+             # unsafe-eval is required for handlebars without precompiled templates
+             'default-src \'self\' \'unsafe-eval\'; '
+             'font-src \'self\' data: blob; img-src data: uri https: http:; '
+             'style-src \'unsafe-inline\' https: http:;'))
+        logging.basicConfig(level=logging.INFO)
+    else:
+        logging.basicConfig(level=logging.DEBUG)
+
     db.init(config['db'])
     constants.init(config)
     init_falcon_api(config)
@@ -120,13 +130,6 @@ def init(config):
     }
     application = SessionMiddleware(application, session_opts)
     application = RawPathPatcher(application)
-
-    if not config.get('debug', False):
-        security_headers.append(
-            ('Content-Security-Policy',
-             # unsafe-eval is required for handlebars without precompiled templates
-             'default-src \'self\' \'unsafe-eval\'; font-src \'self\' data: blob; img-src data:'
-             ' uri https: http:; style-src \'unsafe-inline\' https: http:;'))
 
 
 def get_wsgi_app():

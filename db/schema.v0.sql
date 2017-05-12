@@ -1,10 +1,10 @@
-CREATE SCHEMA IF NOT EXISTS `oncall-api` DEFAULT CHARACTER SET utf8 ;
-USE `oncall-api`;
+CREATE SCHEMA IF NOT EXISTS `oncall` DEFAULT CHARACTER SET utf8 ;
+USE `oncall`;
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`team`
+-- Table `team`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`team` (
+CREATE TABLE IF NOT EXISTS `team` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `slack_channel` VARCHAR(255),
@@ -15,9 +15,9 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`team` (
   UNIQUE INDEX `name_unique` (`name` ASC));
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`user`
+-- Table `user`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`user` (
+CREATE TABLE IF NOT EXISTS `user` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `active` BOOL DEFAULT 1 NOT NULL,
@@ -29,9 +29,9 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`user` (
   UNIQUE INDEX `username_unique` (`name` ASC));
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`team_user`
+-- Table `team_user`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`team_user` (
+CREATE TABLE IF NOT EXISTS `team_user` (
   `team_id` BIGINT(20) UNSIGNED NOT NULL,
   `user_id` BIGINT(20) UNSIGNED NOT NULL,
   INDEX `team_member_team_id_idx` (`team_id` ASC),
@@ -39,19 +39,19 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`team_user` (
   PRIMARY KEY (`team_id`, `user_id`),
   CONSTRAINT `team_user_team_id_fk`
     FOREIGN KEY (`team_id`)
-    REFERENCES `oncall-api`.`team` (`id`)
+    REFERENCES `team` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `team_user_user_id_fk`
     FOREIGN KEY (`user_id`)
-    REFERENCES `oncall-api`.`user` (`id`)
+    REFERENCES `user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`team_admin`
+-- Table `team_admin`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`team_admin` (
+CREATE TABLE IF NOT EXISTS `team_admin` (
   `team_id` BIGINT(20) UNSIGNED NOT NULL,
   `user_id` BIGINT(20) UNSIGNED NOT NULL,
   INDEX `team_member_team_id_idx` (`team_id` ASC),
@@ -59,19 +59,19 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`team_admin` (
   PRIMARY KEY (`team_id`, `user_id`),
   CONSTRAINT `team_admin_team_id_fk`
     FOREIGN KEY (`team_id`)
-    REFERENCES `oncall-api`.`team` (`id`)
+    REFERENCES `team` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `team_admin_user_id_fk`
     FOREIGN KEY (`user_id`)
-    REFERENCES `oncall-api`.`user` (`id`)
+    REFERENCES `user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`roster`
+-- Table `roster`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`roster` (
+CREATE TABLE IF NOT EXISTS `roster` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `team_id` BIGINT(20) UNSIGNED NOT NULL,
@@ -80,14 +80,14 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`roster` (
   UNIQUE INDEX `roster_team_id_name_unique` (`name` ASC, `team_id` ASC),
   CONSTRAINT `roster_team_id_fk`
     FOREIGN KEY (`team_id`)
-    REFERENCES `oncall-api`.`team` (`id`)
+    REFERENCES `team` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE);
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`role`
+-- Table `role`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`role` (
+CREATE TABLE IF NOT EXISTS `role` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `display_order` INT UNSIGNED NOT NULL DEFAULT 1,
@@ -102,9 +102,9 @@ VALUES ('primary', 1),
        ('vacation', 5);
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`schedule`
+-- Table `schedule`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`schedule` (
+CREATE TABLE IF NOT EXISTS `schedule` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `team_id` BIGINT(20) UNSIGNED NOT NULL,
   `roster_id` BIGINT(20) UNSIGNED NOT NULL,
@@ -121,24 +121,24 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`schedule` (
   INDEX `schedule_team_id_idx` (`team_id` ASC),
   CONSTRAINT `schedule_roster_id_fk`
     FOREIGN KEY (`roster_id`)
-    REFERENCES `oncall-api`.`roster` (`id`)
+    REFERENCES `roster` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `schedule_role_id_fk`
     FOREIGN KEY (`role_id`)
-    REFERENCES `oncall-api`.`role` (`id`)
+    REFERENCES `role` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `schedule_team_id_fk`
     FOREIGN KEY (`team_id`)
-    REFERENCES `oncall-api`.`team` (`id`)
+    REFERENCES `team` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE);
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`schedule_events`
+-- Table `schedule_events`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`schedule_event` (
+CREATE TABLE IF NOT EXISTS `schedule_event` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `schedule_id` BIGINT(20) UNSIGNED NOT NULL,
   -- seconds since Sunday 12 midnight ('schedule epoch')
@@ -154,9 +154,9 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`schedule_event` (
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`event`
+-- Table `event`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`event` (
+CREATE TABLE IF NOT EXISTS `event` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `team_id` BIGINT(20) UNSIGNED NOT NULL,
   `role_id` INT UNSIGNED NOT NULL,
@@ -175,52 +175,52 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`event` (
   INDEX `event_link_id_idx` (`link_id` ASC),
   CONSTRAINT `event_user_id_fk`
     FOREIGN KEY (`user_id`)
-    REFERENCES `oncall-api`.`user` (`id`)
+    REFERENCES `user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `event_role_id_fk`
     FOREIGN KEY (`role_id`)
-    REFERENCES `oncall-api`.`role` (`id`)
+    REFERENCES `role` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `event_team_id_fk`
     FOREIGN KEY (`team_id`)
-    REFERENCES `oncall-api`.`team` (`id`)
+    REFERENCES `team` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE);
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`service`
+-- Table `service`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`service` (
+CREATE TABLE IF NOT EXISTS `service` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_unique` (`name` ASC));
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`team_service`
+-- Table `team_service`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`team_service` (
+CREATE TABLE IF NOT EXISTS `team_service` (
   `team_id` BIGINT(20) UNSIGNED NOT NULL,
   `service_id` BIGINT(20) UNSIGNED NOT NULL,
   PRIMARY KEY (`team_id`, `service_id`),
   INDEX `team_service_service_id_fk_idx` (`service_id` ASC),
   CONSTRAINT `team_service_team_id_fk`
     FOREIGN KEY (`team_id`)
-    REFERENCES `oncall-api`.`team` (`id`)
+    REFERENCES `team` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `team_service_service_id_fk`
     FOREIGN KEY (`service_id`)
-    REFERENCES `oncall-api`.`service` (`id`)
+    REFERENCES `service` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`roster_user`
+-- Table `roster_user`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`roster_user` (
+CREATE TABLE IF NOT EXISTS `roster_user` (
   `roster_id` BIGINT(20) UNSIGNED NOT NULL,
   `user_id` BIGINT(20) UNSIGNED NOT NULL,
   `in_rotation` BOOLEAN NOT NULL DEFAULT 1,
@@ -228,27 +228,27 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`roster_user` (
   INDEX `roster_user_user_id_fk_idx` (`user_id` ASC),
   CONSTRAINT `roster_user_user_id_fk`
     FOREIGN KEY (`user_id`)
-    REFERENCES `oncall-api`.`user` (`id`)
+    REFERENCES `user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `roster_user_roster_id_fk`
     FOREIGN KEY (`roster_id`)
-    REFERENCES `oncall-api`.`roster` (`id`)
+    REFERENCES `roster` (`id`)
     ON DELETE CASCADE);
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`contact_mode`
+-- Table `contact_mode`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`contact_mode` (
+CREATE TABLE IF NOT EXISTS `contact_mode` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`user_contact`
+-- Table `user_contact`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`user_contact` (
+CREATE TABLE IF NOT EXISTS `user_contact` (
   `user_id` bigint(20) unsigned NOT NULL,
   `mode_id` int(11) NOT NULL,
   `destination` varchar(255) NOT NULL,
@@ -261,9 +261,9 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`user_contact` (
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`audit`
+-- Table `audit`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`audit` (
+CREATE TABLE IF NOT EXISTS `audit` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `owner_name` VARCHAR(255) NOT NULL,
   `team_name` VARCHAR(255) NOT NULL,
@@ -274,9 +274,9 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`audit` (
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`session`
+-- Table `session`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`session` (
+CREATE TABLE IF NOT EXISTS `session` (
   `id` CHAR(40) NOT NULL,
   `csrf_token` CHAR(32) NOT NULL,
   `time_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -284,9 +284,9 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`session` (
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`notification_type`
+-- Table `notification_type`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`notification_type` (
+CREATE TABLE IF NOT EXISTS `notification_type` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
   `subject` TEXT NOT NULL,
@@ -297,9 +297,9 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`notification_type` (
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`notification_setting`
+-- Table `notification_setting`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`notification_setting` (
+CREATE TABLE IF NOT EXISTS `notification_setting` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT(20) UNSIGNED NOT NULL,
   `team_id` BIGINT(20) UNSIGNED NOT NULL,
@@ -317,9 +317,9 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`notification_setting` (
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`setting_role`
+-- Table `setting_role`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`setting_role` (
+CREATE TABLE IF NOT EXISTS `setting_role` (
   `setting_id` BIGINT(20) UNSIGNED NOT NULL,
   `role_id` INT UNSIGNED NOT NULL,
   PRIMARY KEY(`setting_id`, `role_id`),
@@ -330,9 +330,9 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`setting_role` (
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`notification_queue`
+-- Table `notification_queue`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`notification_queue` (
+CREATE TABLE IF NOT EXISTS `notification_queue` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT(20) UNSIGNED NOT NULL,
   `send_time` BIGINT(20) UNSIGNED NOT NULL,
@@ -348,17 +348,17 @@ CREATE TABLE IF NOT EXISTS `oncall-api`.`notification_queue` (
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`notifier_state`
+-- Table `notifier_state`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`notifier_state` (
+CREATE TABLE IF NOT EXISTS `notifier_state` (
   `last_window_end` BIGINT(20) UNSIGNED NOT NULL,
   PRIMARY KEY (`last_window_end`)
 );
 
 -- -----------------------------------------------------
--- Table `oncall-api`.`application`
+-- Table `application`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `oncall-api`.`application` (
+CREATE TABLE IF NOT EXISTS `application` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` CHAR(255) NOT NULL,
   `key` varchar(64) NOT NULL,
