@@ -34,8 +34,8 @@ assets_env.register('css_libs', Bundle(
 assets_env.register('oncall_css', Bundle(
     'css/oncall.css', 'css/incalendar.css', output='bundles/oncall.css'))
 
-log = logging.getLogger('webassets')
-log.addHandler(logging.StreamHandler())
+logger = logging.getLogger('webassets')
+logger.addHandler(logging.StreamHandler())
 
 jinja2_env = Jinja2Environment(extensions=[AssetsExtension], autoescape=True)
 jinja2_env.loader = FileSystemLoader(path.join(STATIC_ROOT, 'templates'))
@@ -76,7 +76,7 @@ def index(req, resp):
 
 
 def build_assets():
-    CommandLineEnvironment(assets_env, log).build()
+    CommandLineEnvironment(assets_env, logger).build()
 
 
 def secure_filename(filename):
@@ -105,11 +105,6 @@ class StaticResource(object):
 
 
 def init(application, config):
-    # Only build assets in debug mode. For production, assets needs to be
-    # handled out of band to avoid race condition between python workers.
-    if config.get('debug'):
-        build_assets()
-
     index_content_cfg = config.get('index_content_setting')
     if index_content_cfg:
         for k in index_content_cfg:
