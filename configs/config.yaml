@@ -10,7 +10,7 @@ db:
       scheme: mysql+pymysql
       user: root
       host: 127.0.0.1
-      database: oncall-api
+      database: oncall
       charset: utf8
       echo: True
     str: "%(scheme)s://%(user)s@%(host)s/%(database)s?charset=%(charset)s"
@@ -37,7 +37,8 @@ index_content_setting:
   footer: |
     <ul>
       <li>Oncall © LinkedIn 2017</li>
-      <li><a href="mailto:HELP_EMAIL_ADDRESS" target="_blank">Feedback</a></li>
+      <li>Feedback</li>
+      <li><a href="http://oncall.tools" target="_blank">About</a></li>
     </ul>
 
 notifications:
