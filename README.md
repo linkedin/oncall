@@ -26,10 +26,12 @@ Setup app config by editing configs/config.yaml.
 Run
 ---
 
-```bash
-make serve
-# or oncall-dev ./configs/config.yaml
-```
+One of the following commands:
+
+* `goreman start`
+* `procman start`
+* `make serve`
+* `oncall-dev ./configs/config.yaml`
 
 
 Test
