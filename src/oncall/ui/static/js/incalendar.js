@@ -1053,8 +1053,7 @@
 
               for (var i = 0, item; i < self.options.roles.length; i++) {
                 item = self.options.roles[i].name;
-                if (!role) { role = item }
-                options += '<option value="' + item + '" '  + (item === role ? 'selected': '') + '>' + item + '</option>';
+                options += '<option value="' + item + '" '  + (item === fromEvent.role ? 'selected': '') + '>' + item + '</option>';
               }
 
               return options;
