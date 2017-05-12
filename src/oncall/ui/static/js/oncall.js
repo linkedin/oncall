@@ -370,7 +370,7 @@ var oncall = {
           error: true,
           error_code: error.status,
           error_status: error.statusText,
-          error_text: name + ' team not found'
+          error_text: name + ' user not found'
         }
         self.renderPage(data);
       });
