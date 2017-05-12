@@ -13,6 +13,7 @@ var oncall = {
     logoutUrl: '/logout',
     user: $('body').attr('data-user'),
     userUrl: '/api/v0/users/',
+    rolesUrl: '/api/v0/roles/',
     roles: null,  // will be fetched from API
     modes: [
       'email',
@@ -32,7 +33,8 @@ var oncall = {
     userTimezone: null,
     userInfo: null,
     csrfKey: 'csrf-key',
-    userInfoPromise: $.Deferred()
+    userInfoPromise: $.Deferred(),
+    rolesPromise: $.Deferred()
   },
   callbacks: {
     onLogin: function (data){
@@ -62,20 +64,13 @@ var oncall = {
     this.events.call(this);
     this.registerHandlebarHelpers();
     this.modal.init(this);
-    this.multiSelect.init();
     if (this.data.user && this.data.user !== 'None') {
       this.getUserInfo().done(this.getUpcomingShifts.bind(this));
     } else {
       this.data.userInfoPromise.resolve();
     }
+    this.getRoles();
     Handlebars.registerPartial('error-page', this.data.errorTemplate);
-
-    $.get('/api/v0/roles').done(function(data){
-      self.data.roles = data;
-      self.data.roles.sort(function(a, b) {
-          return a.display_order - b.display_order;
-      });
-    });
   },
   login: function(e){
     e.preventDefault();
@@ -147,6 +142,15 @@ var oncall = {
       .find('.profile-picture').removeClass('placeholder').attr('src', data.photo_url)
       .end()
       .find('.user-settings-link').attr('href', '/user/' + data.name);
+  },
+  getRoles: function(){
+    var self = this;
+    $.get(this.data.rolesUrl).done(function(data){
+      self.data.roles = data.sort(function(a, b) {
+        return a.display_order - b.display_order;
+      });
+      self.data.rolesPromise.resolve();
+    });
   },
   getUpcomingShifts: function(){
     var self = this,
@@ -791,7 +795,7 @@ var oncall = {
         self.events();
         self.data.$calendar = $(self.data.calendar);
         // wait for user info data before creating calendar for timezone reasons
-        oncall.data.userInfoPromise.done(function(){
+        $.when(oncall.data.rolesPromise, oncall.data.userInfoPromise).done(function(){
           $(self.data.timezoneDisplay).text(oncall.data.userTimezone || 'System time');
 
           self.data.$calendar.incalendar(
@@ -1858,6 +1862,7 @@ var oncall = {
         Handlebars.registerPartial('module-notification', this.data.moduleNotificationTemplate);
         Handlebars.registerPartial('module-notification-create', this.data.moduleNotificationCreateTemplate);
         this.getData();
+        oncall.multiSelect.init();
       },
       events: function(){
         router.updatePageLinks();
@@ -1875,7 +1880,8 @@ var oncall = {
             // Get data needed to render notifications.
             $.get(this.data.url + oncall.data.user + '/notifications'),
             $.get(this.data.url + oncall.data.user + '/teams'),
-            $.get(this.data.typesUrl)
+            $.get(this.data.typesUrl),
+            oncall.data.rolesPromise
           ).done(function(notificationData, teamsData, types){
             types[0].map(function(i){
               if (typeof(self.data.typeMap[i.name]) !== 'undefined') {
@@ -1920,7 +1926,7 @@ var oncall = {
 
         notificationData.selected = data;
         notificationData.createType = 'notification';
-        $container.prepend(template(notificationData));
+        $container.html(template(notificationData));
       },
       addReminder: function(e, data){
         var template = Handlebars.compile(this.data.moduleNotificationCreateTemplate),
@@ -1929,7 +1935,7 @@ var oncall = {
 
         notificationData.selected = data;
         notificationData.createType = 'reminder';
-        $container.prepend(template(notificationData));
+        $container.html(template(notificationData));
       },
       formatNotificationData: function($form){
         var self = this,
@@ -2415,8 +2421,8 @@ var oncall = {
       initialVal: null
     },
     init: function(){
-      this.data.$page.on('click', this.data.overlay, this.toggleOptions.bind(this));
-      this.data.$page.on('change', this.data.options + ' input[type="checkbox"]', this.updateSelectVal.bind(this));
+      this.data.$page.off('click.multiSelect').on('click.multiSelect', this.data.overlay, this.toggleOptions.bind(this));
+      this.data.$page.off('change.multiSelect').on('change.multiSelect', this.data.options + ' input[type="checkbox"]', this.updateSelectVal.bind(this));
     },
     toggleOptions: function(e){
       var self = this,
