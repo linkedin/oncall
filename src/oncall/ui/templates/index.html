@@ -235,7 +235,7 @@
           <h3>
             {{name}}
             <span class="edit-team-name">
-              <i class="svg-icon svg-icon-pencil" data-toggle="modal" data-target="#team-edit-modal" data-modal-action="oncall.team.updateTeamName" data-modal-title="Update Team Info" data-modal-name="{{#if name}}{{name}}{{else}}{{@key}}{{/if}}" data-modal-email="{{email}}" data-modal-slack="{{slack_channel}}" data-modal-timezone="{{scheduling_timezone}}" data-admin-action="true">
+              <i class="svg-icon svg-icon-pencil" data-toggle="modal" data-target="#team-edit-modal" data-modal-action="oncall.team.updateTeamName" data-modal-title="Update Team Info" data-modal-name="{{#if name}}{{name}}{{else}}{{@key}}{{/if}}" data-modal-email="{{email}}" data-modal-slack="{{slack_channel}}" data-modal-timezone="{{scheduling_timezone}}" data-modal-irisplan="{{iris_plan}}" data-admin-action="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 8 8" style="fill: currentColor">
                   <path d="M6 0l-1 1 2 2 1-1-2-2zm-2 2l-4 4v2h2l4-4-2-2z" />
                 </svg>
@@ -449,8 +449,16 @@
 <!--// On call now partial -->
 <script id="card-oncall-template" type="text/x-handlebars-template">
   <div class="module module-card module-top-edge">
-    <div class="module-heading module-card-heading border-bottom">
-      <h4>On Call Now</h4>
+    <div class="module-heading module-card-heading border-bottom text-actions" id="oncall-now-heading">
+      <h4>On Call Now </h4>
+      {{#if showEscalate}}
+      <span class="pull-right" data-toggle="modal" data-target="#team-escalate-modal" id="escalate-btn">
+        <svg class="svg-icon grey-icon magic" xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 10 10">
+          <path d="M4 0c-1.1 0-2 .9-2 2 0 1.04-.52 1.98-1.34 2.66-.41.34-.66.82-.66 1.34h8c0-.52-.24-1-.66-1.34-.82-.68-1.34-1.62-1.34-2.66 0-1.1-.89-2-2-2zm-1 7c0 .55.45 1 1 1s1-.45 1-1h-2z" />
+        </svg>
+        Escalate
+      </span>
+      {{/if}}
     </div>
     <ul>
       {{#ifNotEmpty current.primary}}
@@ -517,6 +525,32 @@
         <li> No one is on call. </li>
       {{/ifNotEmpty}}
     </ul>
+  </div>
+  <!-- Team Escalation modal -->
+  <div class="modal fade" id="team-escalate-modal" tabindex="-1" role="dialog" aria-labelledby="team-escalate">
+    <div class="modal-dialog" role="document">
+      <form class="modal-form modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          <h4 class="modal-title">Escalate</h4>
+        </div>
+        <div class="modal-body">
+          <p>
+            Escalating to the team will trigger an Iris incident with the provided description below, with your name
+            associated as the requester. This incident will trigger an escalation following the Iris plan configured
+            for this team, which is currently: <b>{{ iris_plan }}.</b>
+          </p>
+          <p>
+            <label class="light" for="escalate-description"> Description: </label>
+            <textarea name="escalate_description" id="escalate-description" class="form-control" placeholder="Description"></textarea>
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary modal-cta" id="escalate-btn" data-dismiss="modal"><span class="btn-text">Escalate</span> <i class="loader loader-small"></i></button>
+        </div>
+      </form>
+    </div>
   </div>
 </script>
 
@@ -684,7 +718,7 @@
         </ul>
       </li>
     </ul>
-    <div class="schedule-actions">
+    <div class="schedule-actions text-actions">
       <span class="populate-schedule pull-left" data-toggle="modal" data-target="#populate-schedule-modal">
         <i class="svg-icon svg-icon-cal grey-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">

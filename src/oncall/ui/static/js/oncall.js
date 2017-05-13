@@ -13,8 +13,10 @@ var oncall = {
     logoutUrl: '/logout',
     user: $('body').attr('data-user'),
     userUrl: '/api/v0/users/',
+    irisSettingsUrl: '/api/v0/iris_settings',
     rolesUrl: '/api/v0/roles/',
     roles: null,  // will be fetched from API
+    irisSettings: null,
     modes: [
       'email',
       'sms',
@@ -34,6 +36,7 @@ var oncall = {
     userInfo: null,
     csrfKey: 'csrf-key',
     userInfoPromise: $.Deferred(),
+    irisSettingsPromise: $.Deferred(),
     rolesPromise: $.Deferred()
   },
   callbacks: {
@@ -48,8 +51,12 @@ var oncall = {
     var self = this;
 
     $.ajaxSetup({
-      cache: 'true',
-      headers: {'X-CSRF-TOKEN': localStorage.getItem(this.data.csrfKey)}
+      cache: 'true'
+    });
+    $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+      if (! options.crossDomain) {
+        jqXHR.setRequestHeader('X-CSRF-TOKEN', localStorage.getItem(oncall.data.csrfKey));
+      }
     });
 
     $(document).ajaxError(function(event, jqxhr, settings, thrownError){
@@ -63,7 +70,10 @@ var oncall = {
     this.defineRoutes();
     this.events.call(this);
     this.registerHandlebarHelpers();
-    this.modal.init(this);
+    this.getIrisSettings();
+    this.data.irisSettingsPromise.done(function() {
+      self.modal.init(self);
+    });
     if (this.data.user && this.data.user !== 'None') {
       this.getUserInfo().done(this.getUpcomingShifts.bind(this));
     } else {
@@ -87,7 +97,6 @@ var oncall = {
       var data = JSON.parse(data),
           token = data.csrf_token;
 
-      $.ajaxSetup({headers: {'X-CSRF-TOKEN': token}});
       localStorage.setItem(self.data.csrfKey, token);
 
       self.data.userInfo = data;
@@ -129,6 +138,13 @@ var oncall = {
       self.data.userTimezone = data.time_zone;
       self.data.userInfoPromise.resolve();
       self.renderUserInfo.call(self, data);
+    });
+  },
+  getIrisSettings: function (){
+    var self = this;
+    return $.get(this.data.irisSettingsUrl).done(function(data){
+      self.data.irisSettings = data;
+      self.data.irisSettingsPromise.resolve();
     });
   },
   renderUserInfo: function(data){
@@ -733,11 +749,13 @@ var oncall = {
         $calendar: null,
         url: '/api/v0/teams/',
         pageSource: $('#team-calendar-template').html(),
+        escalateModalTemplate: $('#team-escalate-modal'),
         cardColumnTemplate: $('#card-column-template').html(),
         cardInnerTemplate: $('#card-inner-slim-template').html(),
         cardOncallTemplate: $('#card-oncall-template').html(),
         addCardTemplate: $('#add-card-item-template').html(),
         calendarTypesTemplate: $('#calendar-types-template').html(),
+        escalateModal: '#team-escalate-modal',
         cardExtra: '.card-inner[data-collapsed]',
         cardExtraChevron: '.card-inner[data-collapsed] .svg-icon-chevron',
         timezoneDisplay: '.timezone-display',
@@ -754,7 +772,7 @@ var oncall = {
         this.getData(name);
         oncall.callbacks.onLogin = function(){
           self.init(name);
-        }
+        };
         oncall.callbacks.onLogout = function(){
           self.checkIfAdmin();
           self.data.$calendar.incalendar('updateCalendarOption', 'user', null);
@@ -851,7 +869,6 @@ var oncall = {
             }
           );
         });
-
       },
       checkIfAdmin: function(){
         var data = this.data.teamData;
@@ -869,8 +886,16 @@ var oncall = {
       renderTeamSummary: function(data){
         var template = Handlebars.compile(this.data.cardOncallTemplate),
             $container = this.data.$page.find('#oncall-now-container');
-
-        $container.html(template(data));
+            self = this;
+        data.showEscalate = oncall.data.user && this.data.teamData.iris_plan;
+        oncall.data.irisSettingsPromise.done(function(){
+          data.showEscalate = data.showEscalate && oncall.data.irisSettings.activated;
+          if (data.showEscalate) {
+            data.iris_plan = self.data.teamData.iris_plan;
+          }
+          $container.html(template(data));
+          self.setupEscalateModal();
+        });
       },
       renderCalendarTypes: function(incalendar){
         var template = Handlebars.compile(this.data.calendarTypesTemplate),
@@ -930,6 +955,46 @@ var oncall = {
           .append('<label class="label-col">Slack</label>')
           .append('<span class="data-col">' + userData.contacts.im + '</span>')
         )
+      },
+      setupEscalateModal: function(){
+        var $modal = $(this.data.escalateModal),
+            $modalForm = $modal.find('.modal-form'),
+            $modalInput = $modalForm.find('.create-input'),
+            $modalBtn = $modal.find('#escalate-btn'),
+            $cta = $modal.find('.modal-cta'),
+            self = this;
+
+        $modal.on('shown.bs.modal', function(e){
+          $modalInput.trigger('focus');
+        });
+
+        $modalBtn.on('click', function(e){
+          $cta.addClass('loading disabled').prop('disabled', true);
+          e.preventDefault();
+          $modal.find('.alert').remove();
+
+          $.ajax({
+            type: 'POST',
+            url: self.data.url + self.data.teamName + '/iris_escalate',
+            contentType: 'application/json',
+            dataType: 'html',
+            data: JSON.stringify({description:$modalForm.find('#escalate-description').val()})
+          }).done(function(data){
+            $modal.modal('hide');
+            oncall.alerts.removeAlerts();
+            oncall.alerts.createAlert('Escalated incident to ' + self.data.teamName + ' successfully, using the ' + self.data.teamData.iris_plan + ' Iris plan.', 'success');
+          }).fail(function(data){
+            var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Escalation failed.';
+            oncall.alerts.createAlert(error, 'danger');
+          }).always(function(){
+            $cta.removeClass('loading disabled').prop('disabled', false);
+          });
+        });
+
+        $modal.on('hide.bs.modal', function(){
+          $modal.find('.alert').remove();
+          $modalForm[0].reset();
+        });
       }
     },
     info: {
@@ -2140,6 +2205,7 @@ var oncall = {
           $teamEmail = $modalForm.find('#team-email'),
           $teamSlack = $modalForm.find('#team-slack'),
           $teamTimezone = $modalForm.find('#team-timezone'),
+          $teamIrisPlan = $modalForm.find('#team-irisplan'),
           self = this,
           $btn,
           action;
@@ -2151,6 +2217,30 @@ var oncall = {
         $teamName.val($btn.attr('data-modal-name'));
         $teamEmail.val($btn.attr('data-modal-email'));
         $teamSlack.val($btn.attr('data-modal-slack'));
+        $teamIrisPlan.val($btn.attr('data-modal-irisplan'));
+
+        results = new Bloodhound({
+          datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+          queryTokenizer: Bloodhound.tokenizers.whitespace,
+          remote: {
+            url: oncall.data.irisSettings.api_host + oncall.data.irisSettings.plan_url
+              + '?name__startswith=%QUERY&fields=name',
+            wildcard: '%QUERY'
+          }
+        });
+        $('#team-irisplan').typeahead(null, {
+          hint: true,
+          async: true,
+          highlight: true,
+          source: results,
+          display: 'name',
+          templates: {
+            empty: '<div>&nbsp; No plans found. </div>'
+          }
+        }).on('typeahead:select', function(){
+          $(this).attr('value', $(this).val());
+        });
+
         if ($btn.attr('data-modal-timezone')) {
           $teamTimezone.val($btn.attr('data-modal-timezone'));
         }

@@ -71,3 +71,11 @@ def init(application, config):
 
     from . import upcoming_shifts
     application.add_route('/api/v0/users/{user_name}/upcoming', upcoming_shifts)
+
+    # Optional Iris integration
+    from . import iris_settings
+    application.add_route('/api/v0/iris_settings', iris_settings)
+    from ... import iris
+    if iris.client and config.get('iris_plan_integration', {}).get('activated'):
+        from . import team_iris_escalate
+        application.add_route('/api/v0/teams/{team}/iris_escalate', team_iris_escalate)

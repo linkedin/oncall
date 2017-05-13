@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS `team` (
   `email` VARCHAR(255),
   `scheduling_timezone` VARCHAR(255),
   `active` BOOLEAN NOT NULL DEFAULT TRUE,
+  `iris_plan` VARCHAR(255),
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_unique` (`name` ASC));
 

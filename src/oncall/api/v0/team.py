@@ -5,7 +5,7 @@ from urllib import unquote
 from falcon import HTTPNotFound, HTTPBadRequest, HTTPError
 from ujson import dumps as json_dumps
 
-from ... import db
+from ... import db, iris
 from .users import get_user_data
 from .rosters import get_roster_by_team_id
 from ...auth import login_required, check_team_auth
@@ -13,7 +13,7 @@ from ...utils import load_json_body, invalid_char_reg, create_audit
 from ...constants import TEAM_DELETED, TEAM_EDITED
 
 
-cols = set(['name', 'slack_channel', 'email', 'scheduling_timezone'])
+cols = set(['name', 'slack_channel', 'email', 'scheduling_timezone', 'iris_plan'])
 
 
 def populate_team_users(cursor, team_dict):
@@ -60,7 +60,7 @@ def on_get(req, resp, team):
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
-    cursor.execute('SELECT `id`, `name`, `email`, `slack_channel`, `scheduling_timezone` '
+    cursor.execute('SELECT `id`, `name`, `email`, `slack_channel`, `scheduling_timezone`, `iris_plan` '
                    'FROM `team` WHERE `name`=%s AND `active` = %s', (team, active))
     results = cursor.fetchall()
     if not results:
@@ -96,6 +96,13 @@ def on_put(req, resp, team):
         if invalid_char:
             raise HTTPBadRequest('invalid team name',
                                  'team name contains invalid character "%s"' % invalid_char.group())
+
+    if 'iris_plan' in data:
+        iris_plan = data['iris_plan']
+        plan_resp = iris.client.get(iris.client.url + 'plans?name=%s&active=1' % iris_plan)
+        if plan_resp.status_code != 200 or plan_resp.json() == []:
+            raise HTTPBadRequest('invalid iris escalation plan', 'no iris plan named %s exists' % iris_plan)
+
     set_clause = ', '.join(['`{0}`=%s'.format(d) for d in data_cols if d in cols])
     query_params = tuple(data[d] for d in data_cols) + (team,)
     try:

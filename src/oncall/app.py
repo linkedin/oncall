@@ -11,7 +11,7 @@ import re
 from beaker.middleware import SessionMiddleware
 from falcon_cors import CORS
 
-from . import db, constants
+from . import db, constants, iris
 
 import logging
 logger = logging.getLogger('oncall.app')
@@ -116,6 +116,8 @@ def init(config):
 
     db.init(config['db'])
     constants.init(config)
+    if 'iris_plan_integration' in config:
+        iris.init(config['iris_plan_integration'])
     init_falcon_api(config)
 
     global application

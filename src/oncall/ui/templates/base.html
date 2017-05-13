@@ -144,6 +144,12 @@
                 <option value="UTC">UTC</option>
               </select>
             </p>
+            {%  if iris_plan_settings.activated %}
+            <p>
+              <label for="team-irisplan"> Team Iris Escalation Plan:</label>
+              <input type="text" data-type="plans" name="iris_plan" class="form-control" id="team-irisplan" placeholder="Plan Name" />
+            </p>
+            {% endif %}
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>

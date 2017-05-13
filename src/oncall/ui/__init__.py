@@ -61,6 +61,7 @@ INDEX_CONTENT_SETTING = {
 
 SLACK_INSTANCE = None
 HEADER_COLOR = None
+IRIS_PLAN_SETTINGS = None
 
 
 def index(req, resp):
@@ -71,6 +72,7 @@ def index(req, resp):
         slack_instance=SLACK_INSTANCE,
         user_setting_note=INDEX_CONTENT_SETTING['user_setting_note'],
         header_color=HEADER_COLOR,
+        iris_plan_settings=IRIS_PLAN_SETTINGS,
         footer=INDEX_CONTENT_SETTING['footer']
     )
 
@@ -112,8 +114,10 @@ def init(application, config):
 
     global SLACK_INSTANCE
     global HEADER_COLOR
+    global IRIS_PLAN_SETTINGS
     SLACK_INSTANCE = config.get('slack_instance')
     HEADER_COLOR = config.get('header_color', '#3a3a3a')
+    IRIS_PLAN_SETTINGS = config.get('iris_plan_integration')
 
     application.add_sink(index, '/')
     application.add_route('/static/bundles/{filename}',
