@@ -59,8 +59,7 @@ var oncall = {
       }
     });
 
-    $(document).ajaxError(function(event, jqxhr, settings, thrownError){
-      var error;
+    $(document).ajaxError(function(event, jqxhr){
       if (jqxhr.status === 401 && jqxhr.responseText && JSON.parse(jqxhr.responseText).title === 'Invalid Session') {
         self.logout.call(self);
         oncall.alerts.createAlert('Session Expired. Please login again.', 'danger');
@@ -92,7 +91,7 @@ var oncall = {
       url: url,
       type: 'POST',
       data: $form.serialize(),
-      dataType: 'html',
+      dataType: 'html'
     }).done(function(data){
       var data = JSON.parse(data),
           token = data.csrf_token;
@@ -108,13 +107,12 @@ var oncall = {
       self.getUpcomingShifts();
       $form[0].reset();
       self.callbacks.onLogin(data);
-    }).fail(function(data){
+    }).fail(function(){
       oncall.alerts.createAlert('Invalid username or password.', 'danger');
     });
   },
   logout: function(){
     var url = this.data.logoutUrl,
-        $container = this.data.$body.find('.user-info-container'),
         self = this;
 
     $.ajax({
@@ -229,12 +227,12 @@ var oncall = {
         oncall.callbacks.onLogout = $.noop;
         self.dashboard.init(params.name);
       },
-      'user/:user/': function(params){
+      'user/:user/': function(){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.settings.init();
       },
-      'user/:user/notifications': function(params){
+      'user/:user/notifications': function(){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.settings.notifications.init();
@@ -303,7 +301,7 @@ var oncall = {
       pageSource: $('#browse-teams-template').html(),
       browseCardTemplate: $('#browse-card-template').html()
     },
-    init: function(name){
+    init: function(){
       Handlebars.registerPartial('browse-card', this.data.browseCardTemplate);
       this.getData();
     },
@@ -356,16 +354,13 @@ var oncall = {
     getData: function(name){
       var url = this.data.url + name,
           teamsUrl = url + '/teams',
-          self = this,
-          results = {
-            user: name
-          };
+          self = this;
 
       $.get(teamsUrl, function(data){
         var pageModel = {
           data: data,
           name: name
-        }
+        };
         self.renderPage.call(self, pageModel);
         $.get(url, self.renderUserDetails.bind(self));
         for (var i = 0; i < data.length; i++) {
@@ -376,7 +371,7 @@ var oncall = {
               var model = {
                 data: response,
                 name: team
-              }
+              };
               self.renderCardInner.call(self, model);
             });
           })(i);
@@ -387,7 +382,7 @@ var oncall = {
           error_code: error.status,
           error_status: error.statusText,
           error_text: name + ' user not found'
-        }
+        };
         self.renderPage(data);
       });
     },
@@ -455,7 +450,7 @@ var oncall = {
                 keys = Object.keys(resp.services);
 
             servicesCt = keys.length;
-            for (var i = 0, item; i < keys.length; i++) {
+            for (var i = 0; i < keys.length; i++) {
               newResp.push({
                 team: resp.services[keys[i]],
                 service: keys[i]
@@ -488,7 +483,7 @@ var oncall = {
         limit: typeaheadLimit,
         source: teams,
         templates: {
-          header: function(resp){
+          header: function(){
             return '<h4> Teams </h4>';
           },
           suggestion: function(resp){
@@ -513,7 +508,7 @@ var oncall = {
         displayKey: 'team',
         source: services,
         templates: {
-          header: function(resp){
+          header: function(){
             return '<h4> Services </h4>';
           },
           suggestion: function(resp){
@@ -540,7 +535,7 @@ var oncall = {
       .on('typeahead:render', function(){
         router.updatePageLinks();
       })
-      .on('typeahead:selected', function(e, item){
+      .on('typeahead:selected', function(){
         router.navigate('/team/' + $(this).val());
       });
     },
@@ -549,8 +544,7 @@ var oncall = {
       router.updatePageLinks();
     },
     getData: function(query) {
-      var self = this,
-          param = {
+      var param = {
             keyword: query.query
           };
       if (query.fields !== "all") {
@@ -571,13 +565,13 @@ var oncall = {
               var model = {
                 data: response,
                 name: team
-              }
+              };
               self.renderCardInner.call(self, model);
             }).fail(function(response){
               var model = {
                 data: response,
                 name: team
-              }
+              };
               self.renderCardInner.call(self, model);
             });
           })(i);
@@ -631,8 +625,7 @@ var oncall = {
       this.data.route = route;
     },
     createTeam: function($modal, $caller, $form) {
-      var self = this,
-          url = this.data.url,
+      var url = this.data.url,
           $modalBody = $modal.find('.modal-body'),
           $cta = $modal.find('.modal-cta'),
           name = $form.find('#team-name').val(),
@@ -719,8 +712,7 @@ var oncall = {
       });
     },
     deleteTeam: function($modal, $caller){
-      var $card = $caller.parents('.module-card'),
-          $modalBody = $modal.find('.modal-body'),
+      var $modalBody = $modal.find('.modal-body'),
           $cta = $modal.find('.modal-cta'),
           url = this.data.url + this.data.teamName,
           self = this;
@@ -731,7 +723,7 @@ var oncall = {
         type: 'DELETE',
         url: url,
         dataType: 'html'
-      }).done(function(e){
+      }).done(function(){
         $modal.modal('hide');
         oncall.recentlyViewed.deleteItem(self.data.teamName);
         router.navigate('/');
@@ -797,12 +789,11 @@ var oncall = {
             error_code: error.status,
             error_status: error.statusText,
             error_text: name + ' team not found'
-          }
+          };
           self.renderPage(data);
         });
       },
       getTeamSummary: function(){
-        var self = this;
         $.getJSON(this.data.url + this.data.teamName + '/summary', this.renderTeamSummary.bind(this));
       },
       renderPage: function(data){
@@ -910,7 +901,6 @@ var oncall = {
         .html(template(rolesModel))
         .on('change', '.calendar-types input[type="checkbox"]', function(){
           var type = $(this).attr('data-type'),
-              action = $(this).prop('checked') ? 'show' : 'hide',
               activeTypesArray = [];
 
           $(this).parents('.calendar-types').find('input[type="checkbox"]:checked').each(function(){
@@ -925,7 +915,7 @@ var oncall = {
         var $this = $(e.target),
             $card = $this.parents(this.data.cardExtra);
 
-        $card.attr('data-collapsed', $card.attr('data-collapsed') === "true" ? false : true);
+        $card.attr('data-collapsed', $card.attr('data-collapsed') !== "true");
       },
       renderEventUserDetails: function($modal, $calendar, $eventItem, evt) {
         // #TODO: Leverage this to create whole modal
@@ -964,7 +954,7 @@ var oncall = {
             $cta = $modal.find('.modal-cta'),
             self = this;
 
-        $modal.on('shown.bs.modal', function(e){
+        $modal.on('shown.bs.modal', function(){
           $modalInput.trigger('focus');
         });
 
@@ -979,7 +969,7 @@ var oncall = {
             contentType: 'application/json',
             dataType: 'html',
             data: JSON.stringify({description:$modalForm.find('#escalate-description').val()})
-          }).done(function(data){
+          }).done(function(){
             $modal.modal('hide');
             oncall.alerts.removeAlerts();
             oncall.alerts.createAlert('Escalated incident to ' + self.data.teamName + ' successfully, using the ' + self.data.teamData.iris_plan + ' Iris plan.', 'success');
@@ -1030,7 +1020,7 @@ var oncall = {
         }
         oncall.callbacks.onLogin = function(){
           self.checkIfAdmin();
-        }
+        };
         oncall.callbacks.onLogout = function(){
           self.checkIfAdmin();
         }
@@ -1055,7 +1045,7 @@ var oncall = {
             error_code: error.status,
             error_status: error.statusText,
             error_text: name + ' team not found'
-          }
+          };
           self.renderPage(data);
         });
       },
@@ -1163,7 +1153,7 @@ var oncall = {
           type: 'DELETE',
           url: url,
           dataType: 'html'
-        }).done(function(e){
+        }).done(function(){
           $modal.modal('hide');
           $column.remove();
         }).fail(function(data){
@@ -1208,16 +1198,16 @@ var oncall = {
           dataType: 'html',
           data: JSON.stringify({name: item})
         }).done(function(data){
-          var data = JSON.parse(data);
+          data = JSON.parse(data);
 
           if (roster === 'services') {
             $cardWrapper.append(pillTemplate(item));
           } else {
             var blankModel = {
               newItem: true,
-              admin: roster === 'admins' ? true : false,
+              admin: roster === 'admins',
               user: data
-            }
+            };
 
             if (!data.contacts.call) {
               oncall.alerts.createAlert('Warning: ' + data.full_name + ' does not have a phone number in the database! Please ask them to update it through Cinco/LDAP.', 'danger', this.data.$page);
@@ -1257,7 +1247,7 @@ var oncall = {
           type: 'DELETE',
           url: url,
           dataType: 'html'
-        }).done(function(e){
+        }).done(function(){
           $modal.modal('hide');
           if (roster === 'services') {
             $pill.remove();
@@ -1273,12 +1263,11 @@ var oncall = {
       },
       toggleRotation: function(e){
         var $this = $(e.currentTarget),
-            self = this,
             $card = $this.parents('.module-card'),
             roster = $card.attr('data-col-name'),
             user = $this.parents('.card-inner').attr('data-card-name'),
             url = this.data.url + this.data.teamName + '/rosters/' + roster + '/users/' + user,
-            method = $this.attr('data-in-rotation') === 'true' ? false : true;
+            method = $this.attr('data-in-rotation') !== 'true';
 
         $this.addClass('loading disabled').prop('disabled', true);
 
@@ -1365,7 +1354,7 @@ var oncall = {
               var item = data.rosters[i];
               for (var k = 0; k < item.schedules.length; k++) {
                 var schedule = item.schedules[k];
-                schedule.is_12_hr = !schedule.advanced_mode && schedule.events.length > 1 ? true : false;
+                schedule.is_12_hr = !schedule.advanced_mode && schedule.events.length > 1;
                 for (var j = 0, eventItem; j < schedule.events.length; j++) {
                   eventItem = schedule.events[j];
                   eventItem.start = eventItem.start * 1000;
@@ -1397,7 +1386,7 @@ var oncall = {
             error_code: error.status,
             error_status: error.statusText,
             error_text: name + ' team not found'
-          }
+          };
           self.renderPage(data);
         });
       },
@@ -1551,7 +1540,7 @@ var oncall = {
               start: startVal,
               end: startVal + endVal,
               duration: endVal
-            }
+            };
             event.displayString = self.formatScheduleEventDisplay(event);
             events.push(event);
           } else {
@@ -1568,7 +1557,7 @@ var oncall = {
                   start: startVal + (msPerDay * n),
                   end: startVal + ms12Hr + (msPerDay * n),
                   duration: ms12Hr
-                }
+                };
                 event.displayString = self.formatScheduleEventDisplay(event);
                 events.push(event);
               }
@@ -1583,7 +1572,7 @@ var oncall = {
                 start: startVal,
                 end: startVal + endVal,
                 duration: endVal
-              }
+              };
               event.displayString = self.formatScheduleEventDisplay(event);
               events.push(event);
             }
@@ -1653,7 +1642,7 @@ var oncall = {
                 delete i.role;
                 return i;
               })
-            }
+            };
 
         if (events.length) {
           $cta.addClass('loading disabled').prop('disabled', true);
@@ -1724,7 +1713,7 @@ var oncall = {
             type: 'DELETE',
             url: url,
             dataType: 'html'
-          }).done(function(e){
+          }).done(function(){
             self.data.events = self.data.events.filter(function(i){
               // remove events with the parent ID matching schedule ID
               return i.parentId !== id;
@@ -1751,15 +1740,14 @@ var oncall = {
       },
       toggleScheduleView: function(){
         var $this = $(this).parents('[data-collapsed]');
-        $this.attr('data-collapsed', $this.attr('data-collapsed') === "true" ? false : true);
+        $this.attr('data-collapsed', $this.attr('data-collapsed') !== "true");
       },
-      renderPopulateScheduleModal: function(e){
+      renderPopulateScheduleModal: function(){
         var self = this,
             $modal = $(self.data.populateSchedulesModal),
             $modalDate = $modal.find('#populate-schedule-date'),
             $modalThreshold = $modal.find('#populate-schedule-threshold'),
             $modalBtn = $modal.find('#populate-schedule-btn'),
-            $modalTitle = $modal.find('.modal-title'),
             $calContainer = $modal.find('#modal-calendar-container'),
             scheduleData,
             scheduleId,
@@ -1785,7 +1773,7 @@ var oncall = {
           $modal.attr('data-schedule-id', scheduleId);
           $modalThreshold.text(threshold + ' Days');
           $modalDate.val(now.format('YYYY/MM/DD'));
-        }).on('hidden.bs.modal', function(e){
+        }).on('hidden.bs.modal', function(){
           $(this).find('.alert').remove();
         });
 
@@ -1850,7 +1838,7 @@ var oncall = {
       router.updatePageLinks();
       this.data.$page.on('submit', this.data.$form, this.updateSettings.bind(this));
     },
-    getData: function(e){
+    getData: function(){
       if (oncall.data.user) {
         $.get(this.data.url + oncall.data.user, this.renderPage.bind(this));
       } else {
@@ -2003,8 +1991,7 @@ var oncall = {
         $container.html(template(notificationData));
       },
       formatNotificationData: function($form){
-        var self = this,
-            type = $form.data('type'),
+        var type = $form.data('type'),
             msPerMinute = 60 * 1000,
             msPerHour = msPerMinute * 60,
             msPerDay = msPerHour * 24,
@@ -2116,7 +2103,7 @@ var oncall = {
             type: 'DELETE',
             url: url,
             dataType: 'html'
-          }).done(function(e){
+          }).done(function(){
             $modal.modal('hide');
             $form.remove();
             $moduleNotification.remove();
@@ -2148,7 +2135,6 @@ var oncall = {
     setupConfirmModal: function(){
       var $modal = this.data.$confirmActionModal,
           $modalForm = $modal.find('.modal-form'),
-          $modalInput = $modalForm.find('.create-input'),
           self = this,
           $btn,
           action;
@@ -2182,7 +2168,7 @@ var oncall = {
           $modalInput.attr('placeholder', $btn.attr('data-modal-placeholder'));
         }
         $modalInput.val($btn.attr('data-modal-val'));
-      }).on('shown.bs.modal', function(e){
+      }).on('shown.bs.modal', function(){
         $modalInput.trigger('focus');
       });
 
@@ -2244,7 +2230,7 @@ var oncall = {
         if ($btn.attr('data-modal-timezone')) {
           $teamTimezone.val($btn.attr('data-modal-timezone'));
         }
-      }).on('shown.bs.modal', function(e){
+      }).on('shown.bs.modal', function(){
         $modalForm.find('#team-name').trigger('focus');
       });
 
@@ -2556,6 +2542,6 @@ var oncall = {
       });
     }
   }
-}
+};
 
 oncall.init();
