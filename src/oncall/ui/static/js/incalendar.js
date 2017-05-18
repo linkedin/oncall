@@ -984,11 +984,11 @@
     },
     _renderSwapOptions: function ($modal, user, role, toLinked) {
       var self = this,
-          role = role || $modal.find('#inc-swap-role').val(),
           $fromEvent = $modal.find('.inc-swap-from-event'),
           fromUser = $fromEvent.attr('data-user'),
           fromId = parseInt($fromEvent.attr('data-id')),
           fromEvent = self.options.events.filter(function(i){ return i.id === fromId })[0],
+          role = role || fromEvent.role,
           fromLinkId = fromEvent.link_id,
           fromLinkedEvents,
           fromLinked = $modal.find('#toggle-swap-linked-from').prop('checked'),
@@ -1050,10 +1050,9 @@
             $('<select class="input-col" id="inc-swap-role" name="inc-swap-role" />')
             .append(function(){
               var options = '';
-
               for (var i = 0, item; i < self.options.roles.length; i++) {
                 item = self.options.roles[i].name;
-                options += '<option value="' + item + '" '  + (item === fromEvent.role ? 'selected': '') + '>' + item + '</option>';
+                options += '<option value="' + item + '" '  + (item === role ? 'selected': '') + '>' + item + '</option>';
               }
 
               return options;
