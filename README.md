@@ -1,5 +1,8 @@
-Oncall
+Oncall [![Gitter chat](https://badges.gitter.im/irisoncall/Lobby.png)](https://gitter.im/irisoncall/Lobby)
 ======
+
+<img src="https://github.com/linkedin/oncall/raw/master/src/oncall/ui/static/images/oncall_logo_blue.png" width="100">
+
 
 Initial setup
 -------------
