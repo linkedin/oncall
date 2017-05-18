@@ -50,7 +50,7 @@ def on_post(req, resp, team, roster):
     connection = db.connect()
     cursor = connection.cursor()
     cursor.execute('''(SELECT `id` FROM `team` WHERE `name`=%s)
-                      UNION
+                      UNION ALL
                       (SELECT `id` FROM `user` WHERE `name`=%s)''', (team, user_name))
     results = [r[0] for r in cursor]
     if len(results) < 2:
