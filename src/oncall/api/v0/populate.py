@@ -16,7 +16,7 @@ from pytz import timezone, utc
 def on_post(req, resp, schedule_id):
     """
     Run the scheduler on demand from a given point in time. Deletes existing schedule events if applicable.
-    Given the `start` param, this will find the first schedule start time after `start`, then populate out
+    Given the ``start`` param, this will find the first schedule start time after ``start``, then populate out
     to the schedule's auto_populate_threshold. It will also clear the calendar of any events associated
     with the chosen schedule from the start of the first event it created onward. For example, if `start`
     is Monday, May 1 and the chosen schedule starts on Wednesday, this will create events starting from

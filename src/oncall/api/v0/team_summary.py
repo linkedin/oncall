@@ -8,6 +8,105 @@ from falcon import HTTPNotFound
 
 
 def on_get(req, resp, team):
+    '''
+    Endpoint to get a summary of the team's oncall information. Returns an object
+    containing the fields ``current`` and ``next``, which then contain information
+    on the current and next on-call shifts for this team. ``current`` and ``next``
+    are objects keyed by role (if an event of that role exists), with values of
+    lists of event/user information. This list will have multiple elements if
+    multiple events with the same role are currently occurring, or if multiple
+    events with the same role are starting next in the future at the same time.
+
+    If no event with a given role exists, that role is excluded from the ``current``
+    or ``next`` object. If no events exist, the ``current`` and ``next`` objects
+    will be empty objects.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        GET api/v0/teams/team-foo/summary   HTTP/1.1
+        Content-Type: application/json
+
+    **Example response:**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        {
+            "current": {
+                "manager": [
+                    {
+                        "end": 1495760400,
+                        "full_name": "John Doe",
+                        "photo_url": "example.image.com",
+                        "role": "manager",
+                        "start": 1495436400,
+                        "user_contacts": {
+                            "call": "+1 111-111-1111",
+                            "email": "jdoe@example.com",
+                            "im": "jdoe",
+                            "sms": "+1 111-111-1111"
+                        },
+                        "user_id": 1234
+                    }
+                ],
+                "primary": [
+                    {
+                        "end": 1495760400,
+                        "full_name": "Adam Smith",
+                        "photo_url": "example.image.com",
+                        "role": "primary",
+                        "start": 1495350000,
+                        "user_contacts": {
+                            "call": "+1 222-222-2222",
+                            "email": "asmith@example.com",
+                            "im": "asmith",
+                            "sms": "+1 222-222-2222"
+                        },
+                        "user_id": 1235
+                    }
+                ]
+            },
+            "next": {
+                "manager": [
+                    {
+                        "end": 1496127600,
+                        "full_name": "John Doe",
+                        "photo_url": "example.image.com",
+                        "role": "manager",
+                        "start": 1495436400,
+                        "user_contacts": {
+                            "call": "+1 111-111-1111",
+                            "email": "jdoe@example.com",
+                            "im": "jdoe",
+                            "sms": "+1 111-111-1111"
+                        },
+                        "user_id": 1234
+                    }
+                ],
+                "primary": [
+                    {
+                        "end": 1495760400,
+                        "full_name": "Adam Smith",
+                        "photo_url": "example.image.com",
+                        "role": "primary",
+                        "start": 1495350000,
+                        "user_contacts": {
+                            "call": "+1 222-222-2222",
+                            "email": "asmith@example.com",
+                            "im": "asmith",
+                            "sms": "+1 222-222-2222"
+                        },
+                        "user_id": 1235
+                    }
+                ]
+            }
+        }
+
+    '''
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
 

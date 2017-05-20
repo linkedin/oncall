@@ -60,7 +60,63 @@ def get_roster_by_team_id(cursor, team_id, params=None):
 
 def on_get(req, resp, team):
     """
-    Get roster info(including schedules) for a team
+    Get roster info for a team. Returns a JSON object with roster names
+    as keys, and info as values. This info includes the roster id, any
+    schedules associated with the rosters, and roster users (along
+    with their status as in/out of rotation).
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+       GET /api/v0/teams/team-foo/rosters  HTTP/1.1
+       Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+            {
+                "roster-foo": {
+                    "id": 2923,
+                    "schedules": [
+                        {
+                            "advanced_mode": 0,
+                            "auto_populate_threshold": 30,
+                            "events": [
+                                {
+                                    "duration": 604800,
+                                    "start": 266400
+                                }
+                            ],
+                            "id": 1788,
+                            "role": "primary",
+                            "role_id": 1,
+                            "roster": "roster-foo",
+                            "roster_id": 2923,
+                            "team": "team-foo",
+                            "team_id": 2122,
+                            "timezone": "US/Pacific"
+                        }
+                    ],
+                    "users": [
+                        {
+                            "in_rotation": true,
+                            "name": "jdoe"
+                        },
+                        {
+                            "in_rotation": true,
+                            "name": "asmith"
+                        }
+                    ]
+                }
+            }
+
+    :statuscode 422: Invalid team
+
     """
     team = unquote(team)
     connection = db.connect()
@@ -84,6 +140,28 @@ def on_get(req, resp, team):
 def on_post(req, resp, team):
     """
     Create a roster for a team
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        POST /v0/teams/team-foo/rosters  HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "name": "roster-foo",
+        }
+
+    **Example response:**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 Created
+        Content-Type: application/json
+
+
+    :statuscode 201: Succesful roster creation
+    :statuscode 422: Invalid character in roster name/Duplicate roster name
     """
     team = unquote(team)
     data = load_json_body(req)

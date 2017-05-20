@@ -71,7 +71,16 @@ def validate_simple_schedule(events):
 
 def get_schedules(filter_params, dbinfo=None, fields=None):
     """
-    Get schedule data for a request
+    Helper function to get schedule data for a request.
+
+    :param filter_params: dict mapping constraint keys with values. Valid constraints are
+    defined in the global ``constraints`` dict.
+    :param dbinfo: optional. If provided, defines (connection, cursor) to use in DB queries.
+    Otherwise, this creates its own connection/cursor.
+    :param fields: optional. If provided, defines which schedule fields to return. Valid
+    fields are defined in the global ``columns`` dict. Defaults to all fields. Invalid
+    fields raise a 400 Bad Request.
+    :return:
     """
     events = False
     from_clause = ['`schedule`']
@@ -133,9 +142,13 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
 
 
 def insert_schedule_events(schedule_id, events, cursor):
+    """
+    Helper to insert schedule events for a schedule
+    """
     insert_events = '''INSERT INTO `schedule_event` (`schedule_id`, `start`, `duration`)
                        VALUES (%(schedule)s, %(start)s, %(duration)s)'''
-    # Merge consecutive events for db storage
+    # Merge consecutive events for db storage. This creates an equivalent, simpler
+    # form of the schedule for the scheduler.
     raw_events = sorted(events, key=lambda e: e['start'])
     new_events = []
     for e in raw_events:
@@ -149,6 +162,71 @@ def insert_schedule_events(schedule_id, events, cursor):
 
 
 def on_get(req, resp, team, roster):
+    """
+    Get schedules for a given roster. Information on schedule attributes is detailed
+    in the schedules POST endpoint documentation. Schedules can be filtered with
+    the following parameters passed in the query string:
+
+    :query id: id of the schedule
+    :query id__eq: id of the schedule
+    :query id__gt: id greater than
+    :query id__ge: id greater than or equal
+    :query id__lt: id less than
+    :query id__le: id less than or equal
+    :query name: schedule name
+    :query name__eq: schedule name
+    :query name__contains: schedule name contains param
+    :query name__startswith: schedule name starts with param
+    :query name__endswith: schedule name ends with param
+    :query role: schedule role name
+    :query role__eq: schedule role name
+    :query role__contains: schedule role name contains param
+    :query role__startswith: schedule role name starts with param
+    :query role__endswith: schedule role name ends with param
+    :query team: schedule team name
+    :query team__eq: schedule team name
+    :query team__contains: schedule team name contains param
+    :query team__startswith: schedule team name starts with param
+    :query team__endswith: schedule team name ends with param
+    :query team_id: id of the schedule's team
+    :query roster_id: id of the schedule's roster
+
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v0/teams/team-foo/rosters/roster-foo/schedules  HTTP/1.1
+        Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            {
+                "advanced_mode": 1,
+                "auto_populate_threshold": 30,
+                "events": [
+                    {
+                        "duration": 259200,
+                        "start": 0
+                    }
+                ],
+                "id": 2065,
+                "role": "primary",
+                "role_id": 1,
+                "roster": "roster-foo",
+                "roster_id": 2922,
+                "team": "team-foo",
+                "team_id": 2121,
+                "timezone": "US/Pacific"
+            }
+        ]
+    """
     team = unquote(team)
     roster = unquote(roster)
     fields = req.get_param_as_list('fields')
@@ -169,7 +247,37 @@ required_params = frozenset(['events', 'role', 'advanced_mode'])
 @login_required
 def on_post(req, resp, team, roster):
     '''
+    Schedule create endpoint. Schedules are templates for the auto-scheduler to follow that define
+    how it should populate a certain period of time. This template is followed repeatedly to
+    populate events on a team's calendar. Schedules are associated with a roster, which defines
+    the pool of users that the scheduler selects from. Similarly, the schedule's role indicates
+    the role that the populated events shoud have. The ``auto_populate_threshold`` parameter
+    defines how far into the future the scheduler populates.
+
+    Finally, each schedule has a list of events, each defining ``start`` and ``duration``. ``start``
+    represents an offset from Sunday at 00:00 in the team's scheduling timezone, in seconds. For
+    example, denote DAY and HOUR as the number of seconds in a day/hour, respectively. An
+    event with ``start`` of (DAY + 9 * HOUR) starts on Monday, at 9:00 am. Duration is also given
+    in seconds.
+
+    The scheduler will start at Sunday 00:00 in the team's scheduling timezone, choose a user,
+    and populate events on the calendar according to the offsets defined in the events list.
+    It then repeats this process, moving to the next Sunday 00:00 after the events it has
+    created.
+
+    ``advanced_mode`` acts as a hint to the frontend on how the schedule should be displayed,
+    defining whether the advanced mode toggle on the schedule edit action should be set on or off.
+    Because of how the frontend displays simple schedules, a schedule can only have advanced_mode = 0
+    if its events have one of 4 formats:
+
+    1. One event that is one week long
+    2. One event that is two weeks long
+    3. Seven events that are 12 hours long
+    4. Fourteen events that are 12 hours long
+
     See below for sample JSON requests.
+
+    Assume these schedules' team defines US/Pacific as its scheduling timezone.
 
     Weekly 7*24 shift that starts at Monday 6PM PST:
 
@@ -199,6 +307,40 @@ def on_post(req, resp, team, roster):
             ],
             'advanced_mode': 1
         }
+
+    **Example Request**
+
+    .. sourcecode:: http
+
+        POST /v0/teams/team-foo/rosters/roster-foo/schedules   HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "advanced_mode": 0,
+            "auto_populate_threshold": "21",
+            "events": [
+                {
+                    "duration": 604800,
+                    "start": 129600
+                }
+            ],
+            "role": "primary",
+        }
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 OK
+        Content-Type: application/json
+
+        {
+            "id": 2221
+        }
+
+    :statuscode 201: Successful schedule create. Response contains created schedule's id.
+    :statuscode 400: Missing required parameters
+    :statuscode 422: Invalid roster specified
     '''
     data = load_json_body(req)
     data['team'] = unquote(team)

@@ -26,7 +26,38 @@ constraints = {
 
 def on_get(req, resp):
     """
-    Search for services
+    Find services, filtered by params
+
+    :query id: id of the service
+    :query id__eq: id of the service
+    :query id__gt: id greater than
+    :query id__ge: id greater than or equal
+    :query id__lt: id less than
+    :query id__le: id less than or equal
+    :query name: service name
+    :query name__eq: service name
+    :query name__contains: service name contains param
+    :query name__startswith: service name starts with param
+    :query name__endswith: service name ends with param
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v0/services?name__startswith=service  HTTP/1.1
+        Host: example.com
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            "service-foo"
+        ]
     """
     query = 'SELECT `name` FROM `service`'
 

@@ -13,6 +13,55 @@ all_params = required_params | other_params
 
 
 def on_get(req, resp, user_name):
+    '''
+    Get all notification settings for a user by name.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+       GET /api/v0/users/jdoe/notifications  HTTP/1.1
+       Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            {
+                "id": 21830,
+                "mode": "email",
+                "only_if_involved": null,
+                "roles": [
+                    "primary",
+                    "secondary",
+                    "shadow",
+                    "manager"
+                ],
+                "team": "team-foo",
+                "time_before": 86400,
+                "type": "oncall_reminder"
+            },
+            {
+                "id": 21831,
+                "mode": "email",
+                "only_if_involved": null,
+                "roles": [
+                    "primary",
+                    "secondary",
+                    "shadow",
+                    "manager"
+                ],
+                "team": "team-foo",
+                "time_before": 604800,
+                "type": "oncall_reminder"
+            }
+        ]
+
+    '''
     query = '''SELECT `team`.`name` AS `team`, `role`.`name` AS `role`, `contact_mode`.`name` AS `mode`,
                       `notification_type`.`name` AS `type`, `notification_setting`.`time_before`,
                       `notification_setting`.`only_if_involved`, `notification_setting`.`id`
@@ -44,6 +93,69 @@ def on_get(req, resp, user_name):
 
 @login_required
 def on_post(req, resp, user_name):
+    '''
+    Endpoint to create notification settings for a user. Responds with an object denoting the created
+    setting's id. Requests to create notification settings must define the following:
+
+    - team
+    - roles
+    - mode
+    - type
+
+    Users will be notified via ``$mode`` if a ``$type`` action occurs on the ``$team`` calendar that
+    modifies events having a role contained in ``$roles``. In addition to these parameters,
+    notification settings must define one of ``time_before`` and ``only_if_involved``, depending
+    on whether the notification type is a reminder or a notification. Reminders define a ``time_before``
+    and reference the start/end time of an event that user is involved in. There are two reminder
+    types: "oncall_reminder" and "offcall_reminder", referencing the start and end of on-call events,
+    respectively. ``time_before`` is specified in seconds and denotes how far in advance the user
+    should be reminded of an event.
+
+    Notifications are event-driven, and created when a team's calendar is modified. By default,
+    the notification types are:
+
+    - event_created
+    - event_edited
+    - event_deleted
+    - event_swapped
+    - event_substituted
+
+    Non-reminder settings must define ``only_if_involved`` which determines whether the user will
+    be notified on all actions of the given typ or only on ones in which they are involved. Note
+    that ``time_before`` must not be specified for a non-reminder setting, and ``only_if_involved``
+    must not be specified for reminder settings.
+
+    An authoritative list of notification types can be obtained from the /api/v0/notification_types
+    GET endpoint, which also details whether the type is a reminder. This will obtain all
+    notification type data from the database, and is an absolute source of truth for Oncall.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        POST api/v0/events   HTTP/1.1
+        Content-Type: application/json
+
+            {
+                "team": "team-foo",
+                "roles": ["primary", "secondary"],
+                "mode": "email",
+                "type": "event_created",
+                "only_if_involved": true
+            }
+
+    **Example response:**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 Created
+        Content-Type: application/json
+
+            {
+                "id": 1234
+            }
+
+    '''
     check_user_auth(user_name, req)
     data = load_json_body(req)
 

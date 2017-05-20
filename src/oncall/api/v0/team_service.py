@@ -12,7 +12,16 @@ from ... import db
 @login_required
 def on_delete(req, resp, team, service):
     """
-    Delete service team mapping
+    Delete service team mapping. Only allowed for team admins.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        DELETE /api/v0/teams/team-foo/services/service-foo HTTP/1.1
+
+    :statuscode 200: Successful delete
+    :statuscode 404: Team-service mapping not found
     """
     team = unquote(team)
     check_team_auth(team, req)

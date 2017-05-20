@@ -7,6 +7,46 @@ from ujson import dumps as json_dumps
 
 
 def on_get(req, resp, user_name):
+    '''
+    Endpoint for retrieving a user's upcoming shifts. Groups linked events into a single
+    entity, with the number of events indicated in the ``num_events`` attribute. Non-linked
+    events have ``num_events = 0``. Returns a list of event information for each of that
+    user's upcoming shifts. Results can be filtered with the query string params below:
+
+    :query limit: The number of shifts to retrieve. Default is unlimited
+    :query role: Filters results to return only shifts with the provided roles.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+       GET /api/v0/users/jdoe/upcoming  HTTP/1.1
+       Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            {
+                "end": 1496264400,
+                "full_name": "John Doe",
+                "id": 169877,
+                "link_id": "7b3b96279bb24de8ac3fb7dbf06e5d1e",
+                "num_events": 7,
+                "role": "primary",
+                "schedule_id": 1788,
+                "start": 1496221200,
+                "team": "team-foo",
+                "user": "jdoe"
+            }
+        ]
+
+
+    '''
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
     role = req.get_param('role', None)

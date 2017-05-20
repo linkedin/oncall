@@ -6,6 +6,40 @@ from ... import db
 
 
 def on_get(req, resp, service, role):
+    '''
+    Get the current user on-call for a given service/role. Returns event start/end, contact info,
+    and user name.
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v0/services/service-foo/oncall/primary  HTTP/1.1
+        Host: example.com
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            {
+                "contacts": {
+                    "call": "+1 111-111-1111",
+                    "email": "jdoe@example.com",
+                    "im": "jdoe",
+                    "sms": "+1 111-111-1111"
+                },
+                "end": 1495695600,
+                "start": 1495263600,
+                "user": "John Doe"
+            }
+        ]
+
+    '''
     get_oncall_query = '''SELECT `user`.`full_name` AS `user`, `event`.`start`, `event`.`end`,
                               `contact_mode`.`name` AS `mode`, `user_contact`.`destination`
                           FROM `service` JOIN `team_service` ON `service`.`id` = `team_service`.`service_id`

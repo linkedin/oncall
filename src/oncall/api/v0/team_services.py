@@ -13,6 +13,25 @@ from ... import db
 def on_get(req, resp, team):
     """
     Get list of services mapped to a team
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v0/teams/team-foo/services  HTTP/1.1
+        Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            "service-foo",
+            "service-bar"
+        ]
     """
     team = unquote(team)
     connection = db.connect()
@@ -31,7 +50,31 @@ def on_get(req, resp, team):
 @login_required
 def on_post(req, resp, team):
     """
-    Create team to service mapping
+    Create team to service mapping. Takes an object defining "name", then maps
+    that service to the team specified in the URL. Note that this endpoint does
+    not create a service; it expects this service to already exist.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        POST api/v0/teams/team-foo/services   HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "name": "service-foo",
+        }
+
+    **Example response:**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 Created
+        Content-Type: application/json
+
+    :statuscode 201: Successful create
+    :statuscode 422: Mapping creation failed; Possible errors: Invalid service/team name,
+                     service already mapped to the team, service mapped to another team
     """
     team = unquote(team)
     check_team_auth(team, req)
@@ -50,7 +93,7 @@ def on_post(req, resp, team):
         if claimed_team:
             raise HTTPError('422 Unprocessable Entity',
                             'IntegrityError',
-                            'service "%s" alread claimed by team "%s"' % (service, claimed_team[0]))
+                            'service "%s" already claimed by team "%s"' % (service, claimed_team[0]))
 
         cursor.execute('''INSERT INTO `team_service` (`team_id`, `service_id`)
                           VALUES (

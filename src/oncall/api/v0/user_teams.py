@@ -8,7 +8,27 @@ from falcon import HTTPNotFound
 
 def on_get(req, resp, user_name):
     """
-    Get active teams by user name
+    Get active teams by user name. Note that this does not return any deleted teams that
+    this user is a member of.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+       GET /api/v0/users/jdoe/teams  HTTP/1.1
+       Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            "team-foo",
+            "team-bar"
+        ]
     """
     connection = db.connect()
     cursor = connection.cursor()

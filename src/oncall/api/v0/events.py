@@ -67,7 +67,7 @@ def on_get(req, resp):
     """
     http:get:: /api/v0/events
 
-    Search for events.
+    Search for events. Allows filtering based on a number of parameters, detailed below.
 
     **Example request**:
 
@@ -80,33 +80,33 @@ def on_get(req, resp):
 
     .. sourcecode:: http
 
-       HTTP/1.1 200 OK
-       Content-Type: application/json
+        HTTP/1.1 200 OK
+        Content-Type: application/json
 
-       [
-         {
-           "start": 1488441600,
-           "end": 1489132800,
-           "team": "foo-sre",
-           "link_id": null,
-           "schedule_id": null,
-           "role": "primary",
-           "user": "foo",
-           "full_name": "Foo Icecream",
-           "id": 187795
-         },
-         {
-           "start": 1488441600,
-           "end": 1489132800,
-           "team": "foo-sre",
-           "link_id": "8a8ae77b8c52448db60c8a701e7bffc2",
-           "schedule_id": 123,
-           "role": "primary",
-           "user": "bar",
-           "full_name": "Bar Apple",
-           "id": 187795
-         }
-       ]
+        [
+            {
+                "start": 1488441600,
+                "end": 1489132800,
+                "team": "foo-sre",
+                "link_id": null,
+                "schedule_id": null,
+                "role": "primary",
+                "user": "foo",
+                "full_name": "Foo Icecream",
+                "id": 187795
+            },
+            {
+                "start": 1488441600,
+                "end": 1489132800,
+                "team": "foo-sre",
+                "link_id": "8a8ae77b8c52448db60c8a701e7bffc2",
+                "schedule_id": 123,
+                "role": "primary",
+                "user": "bar",
+                "full_name": "Bar Apple",
+                "id": 187795
+            }
+        ]
 
     :query team: team name
     :query user: user name
@@ -120,6 +120,21 @@ def on_get(req, resp):
     :query end__ge: end time (unix timestamp) greater than or equal
     :query end__lt: end time (unix timestamp) less than
     :query end__le: end time (unix timestamp) less than or equal
+    :query role: role name
+    :query role__eq: role name
+    :query role__contains: role name contains param
+    :query role__startswith: role name starts with param
+    :query role__endswith: role name ends with param
+    :query team: team name
+    :query team__eq: team name
+    :query team__contains: team name contains param
+    :query team__startswith: team name starts with param
+    :query team__endswith: team name ends with param
+    :query user: user name
+    :query user__eq: user name
+    :query user__contains: user name contains param
+    :query user__startswith: user name starts with param
+    :query user__endswith: user name ends with param
 
     :statuscode 200: no error
     :statuscode 400: bad request
@@ -157,13 +172,22 @@ def on_get(req, resp):
 @login_required
 def on_post(req, resp):
     """
-    Endpoint for creating event. Responds with event id for created event
+    Endpoint for creating event. Responds with event id for created event. Events must
+    specify the following parameters:
+
+    - start: Unix timestamp for the event start time (seconds)
+    - end: Unix timestamp for the event end time (seconds)
+    - user: Username for the event's user
+    - team: Name for the event's team
+    - role: Name for the event's role
+
+    All of these parameters are required.
 
     **Example request:**
 
     .. sourcecode:: http
 
-        POST /v0/events   HTTP/1.1
+        POST api/v0/events   HTTP/1.1
         Content-Type: application/json
 
         {

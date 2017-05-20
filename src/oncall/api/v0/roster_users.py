@@ -14,7 +14,25 @@ from ...constants import ROSTER_USER_ADDED
 
 def on_get(req, resp, team, roster):
     """
-    Get all users for a team roster
+    http:get:: /api/v0/teams/team-foo/rosters/roster-foo/users
+
+    Get all users for a team's roster
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v0/teams/team-foo/rosters/roster-foo/users  HTTP/1.1
+        Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        ["jdoe", "asmith"]
     """
     team, roster = unquote(team), unquote(roster)
     connection = db.connect()
@@ -36,7 +54,47 @@ def on_get(req, resp, team, roster):
 @login_required
 def on_post(req, resp, team, roster):
     """
-    Add user to a roster for a team
+    Add user to a roster for a team. On successful creation, returns that user's information.
+    This includes id, contacts, etc, similar to the /api/v0/users GET endpoint.
+
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        POST /v0/teams/team-foo/rosters/roster-foo/users   HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "name": "jdoe"
+        }
+
+    **Example response:**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        {
+            "active": 1,
+            "contacts": {
+                "email": "jdoe@example.com",
+                "im": "jdoe",
+                "sms": "+1 111-111-1111",
+                "call": "+1 111-111-1111"
+            },
+            "full_name": "John Doe",
+            "id": 1,
+            "name": "jdoe",
+            "photo_url": "example.image.com",
+            "time_zone": "US/Pacific"
+        }
+
+    :statuscode 201: Roster user added
+    :statuscode 400: Missing "name" parameter
+    :statuscode 422: Invalid team/user or user is already in roster.
+
     """
     team, roster = unquote(team), unquote(roster)
     data = load_json_body(req)

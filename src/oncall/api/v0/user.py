@@ -11,7 +11,49 @@ from .users import columns, get_user_data
 
 def on_get(req, resp, user_name):
     """
-    Get user info by name
+    Get user info by name. Retrieved fields can be filtered with the ``fields``
+    query parameter. Valid fields:
+
+    - id - user id
+    - name - username
+    - contacts - user contact information
+    - full_name - user's full name
+    - time_zone - user's preferred display timezone
+    - photo_url - URL of user's thumbnail photo
+    - active - bool indicating whether the user is active in Oncall. Users can
+      be marked inactive after leaving the company to preserve past event information.
+
+    If no ``fields`` is provided, the endpoint defaults to returning all fields.
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+       GET /api/v0/users/jdoe  HTTP/1.1
+       Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        {
+            "active": 1,
+            "contacts": {
+                "call": "+1 111-111-1111",
+                "email": "jdoe@example.com",
+                "im": "jdoe",
+                "sms": "+1 111-111-1111"
+            },
+            "full_name": "John Doe",
+            "id": 1234,
+            "name": "jdoe",
+            "photo_url": "image.example.com",
+            "time_zone": "US/Pacific"
+        }
+
     """
     # Format request to filter query on user name
     req.params['name'] = user_name
@@ -25,6 +67,15 @@ def on_get(req, resp, user_name):
 def on_delete(req, resp, user_name):
     """
     Delete user by name
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        DELETE /api/v0/users/jdoe HTTP/1.1
+
+    :statuscode 200: Successful delete
+    :statuscode 404: User not found
     """
     check_user_auth(user_name, req)
     connection = db.connect()
@@ -38,7 +89,38 @@ def on_delete(req, resp, user_name):
 @login_required
 def on_put(req, resp, user_name):
     """
-    Update user info
+    Update user info. Allows edits to:
+
+    - contacts
+    - name
+    - full_name
+    - time_zone
+    - photo_url
+    - active
+
+    Takes an object specifying the new values of these attributes. ``contacts`` acts
+    slightly differently, specifying an object with the contact mode as key and new
+    values for that contact mode as values. Any contact mode not specified will be
+    unchanged. Similarly, any field not specified in the PUT will be unchanged.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        PUT /api/v0/users/jdoe  HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "contacts": {
+                "call": "+1 222-222-2222",
+                "email": "jdoe@example2.com"
+            }
+            "name": "johndoe",
+            "full_name": "Johnathan Doe",
+        }
+
+    :statuscode 204: Successful edit
+    :statuscode 404: User not found
     """
     contacts_query = '''INSERT INTO user_contact (`user_id`, `mode_id`, `destination`) VALUES
                            ((SELECT `id` FROM `user` WHERE `name` = %(user)s),

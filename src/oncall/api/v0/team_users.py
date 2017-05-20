@@ -13,7 +13,28 @@ constraints = {'active': '`team`.`active` = %s'}
 
 def on_get(req, resp, team):
     """
-    Get list of users for a team
+    Get list of usernames for all team members. A user is a member of a team when
+    he/she is a team admin or a member of one of the team's rosters. Accepts an
+    ``active`` parameter in the query string that filters inactive (deleted) teams.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        GET /api/v0/teams/team-foo/users   HTTP/1.1
+        Content-Type: application/json
+
+    **Example response:**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            "jdoe",
+            "asmith"
+        ]
     """
     query = '''SELECT `user`.`name` FROM `user`
                JOIN `team_user` ON `team_user`.`user_id`=`user`.`id`
@@ -37,7 +58,7 @@ def on_get(req, resp, team):
 @login_required
 def on_post(req, resp, team):
     """
-    Add user to a team
+    Add user to a team. Deprecated; used only for testing purposes.
     """
     check_team_auth(team, req)
     data = load_json_body(req)

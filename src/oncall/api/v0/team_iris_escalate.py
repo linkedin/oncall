@@ -9,7 +9,23 @@ from requests import ConnectionError
 def on_post(req, resp, team):
     '''
     Escalate to a team using the team's configured Iris plan. Configured in the
-    'iris_plan_integration' section of the configuration file.
+    'iris_plan_integration' section of the configuration file. If iris plan integration
+    is not activated, this endpoint will be disabled.
+
+        **Example request:**
+
+    .. sourcecode:: http
+
+        POST /v0/events   HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "description": "Something bad happened!",
+        }
+
+    :statuscode 200: Incident created
+    :statuscode 400: Escalation failed, missing description/No escalation plan specified
+    for team/Iris client error.
     '''
     data = load_json_body(req)
 

@@ -12,7 +12,16 @@ from ...constants import ADMIN_DELETED
 @login_required
 def on_delete(req, resp, team, user):
     """
-    Delete team admin user
+    Delete team admin user. Removes admin from the team if he/she is not a member of any roster.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        DELETE /api/v0/teams/team-foo/admins/jdoe HTTP/1.1
+
+    :statuscode 200: Successful delete
+    :statuscode 404: Team admin not found
     """
     check_team_auth(team, req)
     connection = db.connect()

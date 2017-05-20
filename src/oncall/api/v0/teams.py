@@ -23,6 +23,42 @@ constraints = {
 
 
 def on_get(req, resp):
+    '''
+    http:get:: /api/v0/teams
+
+    Search for team names. Allows filtering based on a number of parameters, detailed below.
+    Returns list of matching team names. If "active" parameter is unspecified, defaults to
+    True (only displaying undeleted teams)
+
+    :query name: team name
+    :query name__eq: team name
+    :query name__contains: team name contains param
+    :query name__startswith: team name starts with param
+    :query name__endswith: team name ends with param
+    :query id: team id
+    :query id__eq: team id
+    :query active: team active/deleted (1 and 0, respectively)
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+       GET /api/v0/teams?name__startswith=team-  HTTP/1.1
+       Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            "team-foo",
+            "team-bar"
+        ]
+
+    '''
 
     query = 'SELECT `name`, `email`, `slack_channel`, `scheduling_timezone`, `iris_plan` FROM `team`'
     if 'active' not in req.params:
@@ -50,6 +86,48 @@ def on_get(req, resp):
 
 @login_required
 def on_post(req, resp):
+    '''
+    Endpoint for team creation. The user who creates the team is automatically added as a
+    team admin. Because of this, this endpoint cannot be called using an API key, otherwise
+    a team would have no admins, making many team operations impossible.
+
+    Teams can specify a number of attributes, detailed below:
+
+    - name: the team's name. Teams must have unique names.
+    - email: email address for the team.
+    - slack_channel: slack channel for the team. Must start with '#'
+    - iris_plan: Iris escalation plan that incidents created from the Oncall UI will follow.
+
+    If iris plan integration is not activated, this attribute can still be set, but its
+    value is not used.
+
+    Teams must specify ``name`` and ``scheduling_timezone``; other parameters are optional.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        POST api/v0/teams   HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "name": "team-foo",
+            "scheduling_timezone": "US/Pacific",
+            "email": "team-foo@example.com",
+            "slack_channel": "#team-foo",
+        }
+
+    **Example response:**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 201 Created
+        Content-Type: application/json
+
+    :statuscode 201: Successful create
+    :statuscode 400: Error in creating team. Possible errors: API key auth not allowed, invalid attributes, missing required attributes
+    :statuscode 422: Duplicate team name
+    '''
     if 'user' not in req.context:
         # ban API auth because we don't know who to set as team admin
         raise HTTPBadRequest('invalid login', 'API key auth is not allowed for team creation')
