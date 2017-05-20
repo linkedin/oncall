@@ -1,0 +1,11 @@
+[Unit]
+Description=Socket for uWSGI app oncall
+
+[Socket]
+ListenStream=/home/oncall/var/run/uwsgi.sock
+SocketUser=oncall
+SocketGroup=oncall
+SocketMode=0660
+
+[Install]
+WantedBy=sockets.target

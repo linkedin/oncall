@@ -13,8 +13,9 @@ with open('src/oncall/__init__.py', 'r') as fd:
 setup(
     name='oncall',
     version=version,
-    packages=['oncall'],
     package_dir={'': 'src'},
+    packages=setuptools.find_packages('src'),
+    include_package_data=True,
     install_requires=[
         'falcon==1.1.0',
         'falcon-cors',

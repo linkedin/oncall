@@ -1,0 +1,74 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+debug: True
+oncall_host: http://localhost:8080
+metrics: dummy
+db:
+  conn:
+    kwargs:
+      scheme: mysql+pymysql
+      user: root
+      password: '1234'
+      host: mysql
+      database: oncall
+      charset: utf8
+      echo: True
+    str: "%(scheme)s://%(user)s:%(password)s@%(host)s/%(database)s?charset=%(charset)s"
+  kwargs:
+    pool_recycle: 3600
+session:
+  encrypt_key: 'abc'
+  sign_key: '123'
+auth:
+  debug: False
+  module: 'oncall.auth.modules.debug'
+notifier:
+  skipsend: True
+healthcheck_path: /tmp/status
+messengers:
+  - type: dummy
+    application: oncall
+    iris_api_key: magic
+
+# allow_origins_list:
+#   - http://www.example.com
+
+index_content_setting:
+  footer: |
+    <ul>
+      <li>Oncall © LinkedIn 2017</li>
+      <li>Feedback</li>
+      <li><a href="http://oncall.tools" target="_blank">About</a></li>
+    </ul>
+
+notifications:
+  default_roles:
+    - "primary"
+    - "secondary"
+    - "shadow"
+    - "manager"
+  default_times:
+    - 86400
+    - 604800
+  default_modes:
+    - "email"
+
+reminder:
+  activated: True
+  polling_interval: 360
+  default_timezone: 'US/Pacific'
+
+user_validator:
+  activated: True
+  subject: 'Warning: Missing phone number in Oncall'
+  body: 'You are scheduled for an on-call shift in the future, but have no phone number recorded. Please update your information in Oncall.'
+
+slack_instance: foobar
+header_color: '#3a3a3a'
+iris_plan_integration:
+  activated: True
+  app: oncall
+  api_key: magic
+  api_host: http://localhost:16649
+  plan_url: '/v0/applications/oncall/plans'

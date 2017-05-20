@@ -1,0 +1,43 @@
+prod:
+    plugins: python,logfile
+    chdir: /home/oncall/source/src
+    socket: /home/oncall/var/run/uwsgi.sock
+    chmod-socket: 666
+    master: True
+    # set the following two settings if you are running under root
+    # uid: 1000
+    # gid: 1000
+    workers: 12
+    master-fifo: /home/oncall/var/run/uwsgi_master_fifo
+    touch-reload: /home/oncall/var/run/uwsgi_touch_reload
+    stats: /home/oncall/var/run/uwsgi_stats.sock
+    pidfile: /home/oncall/var/run/uwsgi.pid
+    module: oncall.app:get_wsgi_app()
+    virtualenv: /home/oncall/env
+    pyargv: /home/oncall/config/config.yaml
+    buffer-size: 32768
+
+    # Enable memory reporting
+    memory-report: true
+
+    # Logging
+    logformat: '%(ltime) [%(status)] %(method) %(uri) %(addr) [%(uagent)] RT:%(msecs) REF:%(referer) SZ:%(size) %(proto)'
+    log-4xx: true
+    log-5xx: true
+    log-x-forwarded-for: true
+    log-slow: 1500
+
+    # access log
+    req-logger: file:/home/oncall/var/log/uwsgi/access.log
+
+    # error log
+    logger: file:/home/oncall/var/log/uwsgi/error.log
+
+    # put timestamp in the error log
+    logdate: true
+
+    # control nginx and oncall scheduler/notifier
+    attach-daemon2:
+      - cmd=/usr/sbin/nginx -c /home/oncall/daemons/nginx.conf,pidfile=/home/oncall/var/run/nginx.pid
+      - cmd=/home/oncall/env/bin/oncall-notifier /home/oncall/config/config.yaml
+      - cmd=/home/oncall/env/bin/oncall-scheduler /home/oncall/config/config.yaml

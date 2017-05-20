@@ -1,0 +1,68 @@
+variables:
+    app_name: "oncall"
+    app_version: ""
+    git_tag: "master"
+
+builders:
+    - type: "docker"
+      image: "ubuntu:16.04"
+      changes:
+        - 'EXPOSE 8080'
+        - 'CMD ["sudo", "-EHu", "oncall", "bash", "-c", "source /home/oncall/env/bin/activate && python /home/oncall/entrypoint.py"]'
+      commit: True
+
+provisioners:
+  - type: "shell"
+    inline:
+      - mkdir /tmp/repo
+
+  - type: "file"
+    source: "../../src"
+    destination: "/tmp/repo"
+
+  - type: "file"
+    source: "../../setup.py"
+    destination: "/tmp/repo/setup.py"
+
+  - type: "file"
+    source: "../../db"
+    destination: "/tmp/repo"
+
+  - type: "file"
+    source: "../../ops"
+    destination: "/tmp/repo"
+
+  - type: "file"
+    source: "../../configs"
+    destination: "/tmp/repo"
+
+  - type: "shell"
+    only: ["docker"]
+    inline:
+      - "apt-get update && apt-get -y install sudo"
+
+  - type: "shell"
+    inline:
+      - sudo apt-get -y install curl python-pip uwsgi unzip virtualenv sudo python-dev libyaml-dev libsasl2-dev libldap2-dev nginx uwsgi-plugin-python mysql-client
+      - sudo rm -rf /var/cache/apt/archives/*
+      - sudo useradd -m -s /bin/bash oncall
+      - sudo chown -R oncall:oncall /home/oncall /var/log/nginx /var/lib/nginx
+      - sudo -Hu oncall mkdir -p /home/oncall/var/log/uwsgi /home/oncall/var/log/nginx /home/oncall/var/run
+      - sudo mv /tmp/repo /home/oncall/source
+      - "sudo chown -R oncall:oncall /home/oncall/source"
+      - sudo mv /home/oncall/source/ops/config/systemd/uwsgi-oncall.service /etc/systemd/system/uwsgi-oncall.service
+      - sudo mv /home/oncall/source/ops/config/systemd/nginx-oncall.service /etc/systemd/system/nginx-oncall.service
+      - sudo mv /home/oncall/source/ops/config/systemd/nginx-oncall.socket /etc/systemd/system/nginx-oncall.socket
+      - sudo -Hu oncall ln -s /home/oncall/source/ops/daemons /home/oncall/daemons
+      - sudo -Hu oncall ln -s /home/oncall/source/ops/entrypoint.py /home/oncall/entrypoint.py
+      - sudo -Hu oncall ln -s /home/oncall/source/db /home/oncall/db
+      - sudo -Hu oncall mkdir /home/oncall/config
+      - sudo -Hu oncall cp /home/oncall/source/configs/config.yaml /home/oncall/config/config.yaml
+      - sudo -Hu oncall virtualenv /home/oncall/env
+      - sudo -Hu oncall /bin/bash -c 'source /home/oncall/env/bin/activate && cd /home/oncall/source && pip install .'
+
+  - type: "shell"
+    only: ["docker"]
+    inline:
+      - "sudo -Hu oncall mv -f /home/oncall/daemons/uwsgi-docker.yaml /home/oncall/daemons/uwsgi.yaml"
+      - sudo -Hu oncall cp /home/oncall/source/configs/config.docker.yaml /home/oncall/config/config.yaml

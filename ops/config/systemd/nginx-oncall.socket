@@ -1,0 +1,8 @@
+[Unit]
+Description=Socket for oncall nginx proxy
+
+[Socket]
+ListenStream=0.0.0.0:8080
+
+[Install]
+WantedBy=sockets.target

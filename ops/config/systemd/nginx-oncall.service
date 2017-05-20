@@ -1,0 +1,13 @@
+[Unit]
+Description=nginx proxy for uwsgi-oncall
+After=syslog.target
+
+[Service]
+ExecStart=/usr/sbin/nginx -c /home/oncall/daemons/nginx.conf
+User=oncall
+Group=oncall
+Restart=on-failure
+KillSignal=SIGQUIT
+Type=simple
+StandardError=syslog
+NotifyAccess=all
