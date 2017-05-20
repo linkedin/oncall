@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>API &mdash; Oncall 0.0.1 documentation</title>
+  <title>REST API &mdash; Oncall 1.0.0 documentation</title>
   
 
   
@@ -35,8 +35,8 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Oncall 0.0.1 documentation" href="index.html"/>
-        <link rel="prev" title="Welcome to Oncall’s documentation!" href="index.html"/> 
+    <link rel="top" title="Oncall 1.0.0 documentation" href="index.html"/>
+        <link rel="prev" title="User guide" href="user_guide.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.0.1
+                1.0.0
               </div>
             
           
@@ -89,9 +89,10 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Table of contents</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">REST API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#api-v0-teams">/api/v0/teams</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api-v0-schedules">/api/v0/schedules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api-v0-services">/api/v0/services</a></li>
@@ -145,7 +146,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>API</li>
+      <li>REST API</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -164,8 +165,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="api">
-<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="rest-api">
+<h1>REST API<a class="headerlink" href="#rest-api" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="api-v0-teams">
 <h2>/api/v0/teams<a class="headerlink" href="#api-v0-teams" title="Permalink to this headline">¶</a></h2>
 <dl class="get">
@@ -330,7 +331,29 @@
 <dl class="put">
 <dt id="put--api-v0-teams-team-rosters-roster">
 <code class="descname">PUT </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}</code><a class="headerlink" href="#put--api-v0-teams-team-rosters-roster" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change roster name</p>
+<dd><p>Change roster name. Must have team admin privileges.</p>
+<blockquote>
+<div><strong>Example request:</strong></div></blockquote>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/api/v0/teams/team-foo/rosters/roster-foo</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;roster-bar&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Invalid roster name, disallowed characters</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Duplicate roster name for team</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="delete">
@@ -354,13 +377,62 @@
 <dl class="put">
 <dt id="put--api-v0-teams-team-rosters-roster-users-user">
 <code class="descname">PUT </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/users/{user}</code><a class="headerlink" href="#put--api-v0-teams-team-rosters-roster-users-user" title="Permalink to this definition">¶</a></dt>
-<dd><p>Put a user into/out of rotation</p>
+<dd><p>Put a user into/out of rotation within a given roster</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/v0/api/teams/team_foo/rosters/best_coast/users/user1</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span><span class="nt">&quot;in_rotation&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; no error, user status udpated.</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; invalid request, missing field &#8220;in_rotation&#8221;.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="delete">
 <dt id="delete--api-v0-teams-team-rosters-roster-users-user">
 <code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/users/{user}</code><a class="headerlink" href="#delete--api-v0-teams-team-rosters-roster-users-user" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete user from a roster for a team</p>
+<dd><p>Delete user from roster</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/v0/api/teams/team_foo/rosters/best_coast/users/user1</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; no error, user deleted from roster.</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; roster not found.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="post">
@@ -507,7 +579,8 @@ Wednesday, May 3, and delete any events that start after May 3 that are associat
 <span class="p">[</span>
     <span class="p">{</span>
         <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;display_order&quot;</span><span class="p">:</span> <span class="mi">1</span>
     <span class="p">}</span>
 <span class="p">]</span>
 </pre></div>
@@ -744,10 +817,11 @@ Wednesday, May 3, and delete any events that start after May 3 that are associat
 <dl class="post">
 <dt id="post--api-v0-events-swap">
 <code class="descname">POST </code><code class="descname">/api/v0/events/swap</code><a class="headerlink" href="#post--api-v0-events-swap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Swap events. Takes an object specifying the 2 events to be swapped. Swap can take either single
-events or event sets, depending on the value of the &#8220;linked&#8221; attribute. If &#8220;linked&#8221; is True,
-the API interprets the &#8220;id&#8221; attribute as a link_id. Otherwise, it&#8217;s assumed to be an event_id.
-Note that this allows swapping a single event with a linked event.</p>
+<dd><p>Swap events. Takes an object specifying the 2 events to be swapped. Swap can
+take either single events or event sets, depending on the value of the
+&#8220;linked&#8221; attribute. If &#8220;linked&#8221; is True, the API interprets the &#8220;id&#8221;
+attribute as a link_id. Otherwise, it&#8217;s assumed to be an event_id. Note
+that this allows swapping a single event with a linked event.</p>
 <p><strong>Example request</strong>:</p>
 <div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">api/v0/events/swap</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
@@ -961,7 +1035,7 @@ the same as any non-linked event.</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="index.html" class="btn btn-neutral" title="Welcome to Oncall’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="user_guide.html" class="btn btn-neutral" title="User guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -992,7 +1066,7 @@ the same as any non-linked event.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.0.1',
+            VERSION:'1.0.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
