@@ -20,6 +20,7 @@ var oncall = {
     modes: [
       'email',
       'sms',
+      'slack',
       'call'
     ],
     timezones: [
