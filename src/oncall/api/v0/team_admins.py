@@ -13,7 +13,27 @@ from ...constants import ADMIN_CREATED
 
 def on_get(req, resp, team):
     """
-    Get list of admin users for a team
+    Get list of admin usernames for a team
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v0/teams/team-foo/admins  HTTP/1.1
+        Host: example.com
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            "jdoe",
+            "asmith"
+        ]
     """
     team = unquote(team)
     connection = db.connect()
@@ -32,7 +52,43 @@ def on_get(req, resp, team):
 @login_required
 def on_post(req, resp, team):
     """
-    Add user as team admin
+    Add user as a team admin. Responds with that user's info (similar to user GET).
+    Subscribes this user to default notifications for the team, and adds the user
+    to the team (if needed).
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        POST /api/v0/teams/team-foo/admins  HTTP/1.1
+        Host: example.com
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        {
+            "active": 1,
+            "contacts": {
+                "call": "+1 111-111-1111",
+                "email": "jdoe@example.com",
+                "im": "jdoe",
+                "sms": "+1 111-111-1111"
+            },
+            "full_name": "John Doe",
+            "id": 9535,
+            "name": "jdoe",
+            "photo_url": "image.example.com",
+            "time_zone": "US/Pacific"
+        }
+
+    :statuscode 201: Successful admin added
+    :statuscode 400: Missing name attribute in request
+    :statuscode 422: Invalid team/user, or user is already a team admin
     """
     team = unquote(team)
     check_team_auth(team, req)
@@ -46,7 +102,7 @@ def on_post(req, resp, team):
     cursor = connection.cursor()
 
     cursor.execute('''(SELECT `id` FROM `team` WHERE `name`=%s)
-                      UNION
+                      UNION ALL
                       (SELECT `id` FROM `user` WHERE `name`=%s)''', (team, user_name))
     results = [r[0] for r in cursor]
     if len(results) < 2:

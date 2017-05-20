@@ -15,6 +15,18 @@ columns = {'team': '`team_id` = (SELECT `id` FROM `team` WHERE `name` = %s)',
 
 @login_required
 def on_delete(req, resp, notification_id):
+    '''
+    Delete user notification settings by id.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        DELETE /api/v0/notifications/1234  HTTP/1.1
+
+    :statuscode 200: Successful delete
+    :statuscode 404: Notification setting not found
+    '''
     connection = db.connect()
     cursor = connection.cursor()
     try:
@@ -38,6 +50,34 @@ def on_delete(req, resp, notification_id):
 
 @login_required
 def on_put(req, resp, notification_id):
+    '''
+    Edit user notification settings. Allows editing of the following attributes:
+
+    - roles: list of role names
+    - team: team name
+    - mode: contact mode name
+    - type: string defining what event to notify on. Types are detailed in notification
+            POST documentation
+    - time_before: in units of seconds (if reminder setting)
+    - only_if_involved: boolean (if notification setting)
+
+    **Example request**
+
+        .. sourcecode:: http
+
+            PUT /api/v0/events/1234 HTTP/1.1
+            Content-Type: application/json
+
+            {
+                "team": "team-bar",
+                "mode": "call",
+                "user": "asmith",
+                "roles": ["secondary"]
+            }
+
+    :statuscode 200: Successful edit
+    :statuscode 400: Validation checks failed.
+    '''
     data = load_json_body(req)
     params = data.keys()
     roles = data.pop('roles')

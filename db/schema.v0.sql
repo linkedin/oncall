@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS `schedule` (
     ON UPDATE CASCADE);
 
 -- -----------------------------------------------------
--- Table `schedule_events`
+-- Table `schedule_event`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `schedule_event` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,

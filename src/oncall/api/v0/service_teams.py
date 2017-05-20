@@ -8,6 +8,25 @@ from ... import db
 def on_get(req, resp, service):
     """
     Get list of team mapped to a service
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v0/services/service-foo/teams  HTTP/1.1
+        Host: example.com
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            "team-foo"
+        ]
     """
     connection = db.connect()
     cursor = connection.cursor()

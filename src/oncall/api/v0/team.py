@@ -54,6 +54,91 @@ populate_map = {
 
 
 def on_get(req, resp, team):
+    '''
+    Get team info by name. By default, only finds active teams. Allows selection of
+    fields, including: users, admins, services, and rosters. If no ``fields`` is
+    specified in the query string, it defaults to all fields.
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v0/teams/team-foo  HTTP/1.1
+        Host: example.com
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        {
+            "admins": [
+                {
+                    "name": "jdoe"
+                }
+            ],
+            "email": "foo@example.com",
+            "id": 5501,
+            "iris_plan": null,
+            "name": "team-foo",
+            "rosters": {
+                "roster-foo": {
+                    "id": 4186,
+                    "schedules": [
+                        {
+                            "advanced_mode": 0,
+                            "auto_populate_threshold": 21,
+                            "events": [
+                                {
+                                    "duration": 604800,
+                                    "start": 7200
+                                }
+                            ],
+                            "id": 2222,
+                            "role": "primary",
+                            "role_id": 1,
+                            "roster": "roster-foo",
+                            "roster_id": 4186,
+                            "team": "team-foo",
+                            "team_id": 5501,
+                            "timezone": "US/Pacific"
+                        }
+                    ],
+                    "users": [
+                        {
+                            "in_rotation": true,
+                            "name": "jdoe"
+                        }
+                    ]
+                }
+            },
+            "scheduling_timezone": "US/Pacific",
+            "services": [
+                "service-foo"
+            ],
+            "slack_channel": "#foo",
+            "users": {
+                "jdoe": {
+                    "active": 1,
+                    "contacts": {
+                        "call": "+1 111-111-1111",
+                        "email": "jdoe@example.com",
+                        "im": "jdoe",
+                        "sms": "+1 111-111-1111"
+                    },
+                    "full_name": "John Doe",
+                    "id": 1234,
+                    "name": "jdoe",
+                    "photo_url": "image.example.com",
+                    "time_zone": "US/Pacific"
+                }
+            }
+        }
+
+    '''
     team = unquote(team)
     fields = req.get_param_as_list('fields')
     active = req.get_param('active', default=True)
@@ -83,6 +168,27 @@ def on_get(req, resp, team):
 
 @login_required
 def on_put(req, resp, team):
+    '''
+    Edit a team's information. Allows edit of: name, slack_channel, email, scheduling_timezone, iris_plan.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        PUT /api/v0/teams/team-foo HTTP/1.1
+        Content-Type: application/json
+
+        {
+            "name": "team-bar",
+            "slack_channel": "roster-bar",
+            "email": 28,
+            "scheduling_timezone": "US/Central"
+        }
+
+    :statuscode 200: Successful edit
+    :statuscode 400: Invalid team name/iris escalation plan
+    :statuscode 422: Duplicate team name
+    '''
     team = unquote(team)
     check_team_auth(team, req)
     data = load_json_body(req)
@@ -122,6 +228,20 @@ def on_put(req, resp, team):
 
 @login_required
 def on_delete(req, resp, team):
+    '''
+    Soft delete for teams. Does not remove data from the database, but sets the team's active
+    param to false. Note that this means deleted teams' names remain in the namespace, so new
+    teams cannot be created with the same name a sa deleted team.
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        DELETE /api/v0/teams/team-foo HTTP/1.1
+
+    :statuscode 200: Successful delete
+    :statuscode 404: Team not found
+    '''
     team = unquote(team)
     check_team_auth(team, req)
     connection = db.connect()

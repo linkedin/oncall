@@ -13,6 +13,15 @@ from ... import db
 def on_delete(req, resp, team, user):
     """
     Delete user from a team
+
+    **Example request:**
+
+    .. sourcecode:: http
+
+        DELETE /api/v0/teams/team-foo/users/jdoe HTTP/1.1
+
+    :statuscode 200: Successful delete
+    :statuscode 404: User not found in team
     """
     team = unquote(team)
     check_team_auth(team, req)

@@ -12,6 +12,27 @@ from ...auth import debug_only
 def on_get(req, resp, service):
     """
     Get service id by name
+
+    **Example request**
+
+    .. sourcecode:: http
+
+        GET /api/v0/services/service-foo  HTTP/1.1
+        Host: example.com
+
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        {
+            "id": 1234,
+            "name": "service-foo"
+        }
+
     """
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
@@ -28,7 +49,7 @@ def on_get(req, resp, service):
 @debug_only
 def on_put(req, resp, service):
     """
-    Change name for a service
+    Change name for a service. Currently unused/debug only.
     """
     data = load_json_body(req)
     connection = db.connect()
@@ -43,7 +64,7 @@ def on_put(req, resp, service):
 @debug_only
 def on_delete(req, resp, service):
     """
-    Delete a service
+    Delete a service. Currently unused/debug only.
     """
     connection = db.connect()
     cursor = connection.cursor()
