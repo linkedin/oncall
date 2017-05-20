@@ -1,0 +1,13 @@
+[Unit]
+Description=oncall uWSGI app
+After=syslog.target
+
+[Service]
+ExecStart=/bin/bash -c 'cd /home/oncall && source ./env/bin/activate && DOCKER_DB_BOOTSTRAP=1 python ./entrypoint.py'
+User=oncall
+Group=oncall
+Restart=on-failure
+KillSignal=SIGQUIT
+Type=simple
+StandardError=syslog
+NotifyAccess=all
