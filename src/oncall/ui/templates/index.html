@@ -420,7 +420,7 @@
       Call: <a href="tel:{{getUserInfo this @root.users 'contacts.call'}}"> {{getUserInfo this @root.users 'contacts.call'}} </a>
       <ul class="card-inner-extra">
         <li> SMS: <a href="tel:{{getUserInfo this @root.users 'contacts.sms'}}"> {{getUserInfo this @root.users 'contacts.sms'}} </a> </li>
-        <li> Slack: <a>{{getUserInfo this @root.users 'contacts.im'}}</a> </li>
+        <li> Slack: <a>{{getUserInfo this @root.users 'contacts.slack'}}</a> </li>
         <li> E-Mail: <a target="_blank" href="mailto:{{getUserInfo this @root.users 'contacts.email'}}"> {{getUserInfo this @root.users 'contacts.email'}} </a> </li>
       </ul>
     </div>
@@ -472,7 +472,7 @@
             <ul class="card-inner-extra light small">
               <li> Call: {{#if user_contacts.call}} <a href="tel:{{user_contacts.call}}"> {{user_contacts.call}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
               <li> SMS: {{#if user_contacts.sms}} <a href="tel:{{user_contacts.sms}}"> {{user_contacts.sms}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
-              <li> Slack: <a>{{user_contacts.im}}</a> </li>
+              <li> Slack: <a>{{user_contacts.slack}}</a> </li>
               <li> E-Mail: <a target="_blank" href="mailto:{{user_contacts.email}}"> {{user_contacts.email}} </a> </li>
             </ul>
             <ul class="border-top card-content">
@@ -501,7 +501,7 @@
             <span class="badge pull-right" data-role="{{role}}">{{role}}</span>
             <ul class="card-inner-extra light small">
               <li> SMS: <a href="tel:{{user_contacts.sms}}"> {{user_contacts.sms}} </a> </li>
-              <li> Slack: <a>{{user_contacts.im}}</a> </li>
+              <li> Slack: <a>{{user_contacts.slack}}</a> </li>
               <li> E-Mail: <a target="_blank" href="mailto:{{user_contacts.email}}"> {{user_contacts.email}} </a> </li>
             </ul>
             <ul class="border-top card-content">
@@ -980,7 +980,7 @@
         <li> <a target="_blank" href="mailto:{{user.contacts.email}}"> {{user.contacts.email}} </a> </li>
         <li> <span class="light"> Call </span> {{#if user.contacts.call}} <a href="tel:{{user.contacts.call}}" target="_blank"> {{user.contacts.call}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
         <li> <span class="light"> SMS </span> {{#if user.contacts.sms}} <a href="tel:{{user.contacts.sms}}" target="_blank"> {{user.contacts.sms}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
-        <li> <span class="light"> Slack </span> <a> {{user.contacts.im}} <a/> </li>
+        <li> <span class="light"> Slack </span> <a> {{user.contacts.slack}} <a/> </li>
         <span class="close remove-card-item" data-admin-action="true" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.info.removeCardItem" data-modal-title="Remove {{user.full_name}}" data-modal-content="Delete {{user.full_name}} from roster?">
           <i class="svg-icon svg-icon-trash">
             <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
@@ -1001,7 +1001,7 @@
         <li> <a target="_blank" href="mailto:{{getUserInfo this @root.users 'contacts.email'}}"> {{getUserInfo this @root.users 'contacts.email'}} </a> </li>
         <li> <span class="light"> Call </span> <a href="tel:{{getUserInfo this @root.users 'contacts.call'}}"> {{getUserInfo this @root.users 'contacts.call'}} </a> </li>
         <li> <span class="light"> SMS </span> <a href="tel:{{getUserInfo this @root.users 'contacts.sms'}}"> {{getUserInfo this @root.users 'contacts.sms'}} </a> </li>
-        <li> <span class="light"> Slack </span> <a> {{getUserInfo this @root.users 'contacts.im'}} </a></li>
+        <li> <span class="light"> Slack </span> <a> {{getUserInfo this @root.users 'contacts.slack'}} </a></li>
         <span class="close remove-card-item" data-admin-action="true" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.info.removeCardItem" data-modal-title="Remove {{getUserInfo this @root.users 'full_name'}}" data-modal-content="Delete {{getUserInfo this @root.users 'full_name'}} from roster?">
           <i class="svg-icon svg-icon-trash">
             <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
@@ -1113,7 +1113,7 @@
         <tr>
           <td>Slack ID</td>
           <td>
-            <span>{{contacts.im}}</span>
+            <span>{{contacts.slack}}</span>
           </td>
         </tr>
       </table>

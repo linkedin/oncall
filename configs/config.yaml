@@ -71,3 +71,10 @@ iris_plan_integration:
   api_key: magic
   api_host: http://localhost:16649
   plan_url: '/v0/applications/oncall/plans'
+
+
+# slack:
+#   oauth_access_token: 'foo'
+#
+# user_sync:
+#   module: 'oncall.user_sync.slack'

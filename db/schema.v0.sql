@@ -1,4 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS `oncall` DEFAULT CHARACTER SET utf8 ;
+CREATE DATABASE IF NOT EXISTS `oncall` DEFAULT CHARACTER SET utf8 ;
 USE `oncall`;
 
 -- -----------------------------------------------------
@@ -245,6 +245,11 @@ CREATE TABLE IF NOT EXISTS `contact_mode` (
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 );
+-- -----------------------------------------------------
+-- Initialize contact modes
+-- -----------------------------------------------------
+INSERT INTO `contact_mode` (`name`)
+VALUES ('email'), ('sms'), ('call'), ('slack');
 
 -- -----------------------------------------------------
 -- Table `user_contact`
@@ -367,10 +372,8 @@ CREATE TABLE IF NOT EXISTS `application` (
 );
 
 -- -----------------------------------------------------
--- Initialize contact modes, notification types
+-- Initialize notification types
 -- -----------------------------------------------------
-INSERT IGNORE INTO contact_mode VALUES (8, 'sms'), (17, 'im'), (26, 'call'), (35, 'email');
-
 INSERT INTO `notification_type` (`name`, `subject`, `body`, `is_reminder`)
 VALUES ('oncall_reminder',
         'Reminder: oncall shift for %(team)s starts in %(time_before)s',

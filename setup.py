@@ -32,10 +32,12 @@ setup(
         'python-ldap',
         'pytz',
         'irisclient',
+        'slackclient',
     ],
     entry_points={
         'console_scripts': [
             'oncall-dev = oncall.bin.run_server:main',
+            'oncall-user-sync = oncall.bin.user_sync:main',
             'build_assets = oncall.bin.build_assets:main',
             'oncall-scheduler = oncall.bin.scheduler:main',
             'oncall-notifier = oncall.bin.notifier:main'
