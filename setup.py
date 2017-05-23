@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+import setuptools
 import re
 
 with open('src/oncall/__init__.py', 'r') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE).group(1)
 
-setup(
+setuptools.setup(
     name='oncall',
     version=version,
     package_dir={'': 'src'},

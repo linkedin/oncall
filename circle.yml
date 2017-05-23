@@ -1,0 +1,13 @@
+# CircleCI Configuration file
+
+machine:
+  python:
+      version: 2.7.11
+
+dependencies:
+  override:
+    - bash .ci/install.sh
+
+test:
+  override:
+    - bash .ci/test.sh
