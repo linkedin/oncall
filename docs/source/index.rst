@@ -23,6 +23,7 @@ time is notified of any issues.
    :caption: Table of contents
 
    user_guide
+   admin_guide
    api
 
 
