@@ -58,7 +58,7 @@ def test_api_v0_get_team(team, role, roster, schedule):
     assert re.status_code == 200
     team = re.json()
     assert isinstance(team, dict)
-    expected_set = {'users', 'admins', 'services', 'rosters', 'name', 'id', 'slack_channel', 'email', 'scheduling_timezone'}
+    expected_set = {'users', 'admins', 'services', 'rosters', 'name', 'id', 'slack_channel', 'email', 'scheduling_timezone', 'iris_plan'}
     assert expected_set == set(team.keys())
 
     # it should also support filter by fields
@@ -66,7 +66,7 @@ def test_api_v0_get_team(team, role, roster, schedule):
     assert re.status_code == 200
     team = re.json()
     assert isinstance(team, dict)
-    expected_set = {'users', 'admins', 'services', 'name', 'id', 'slack_channel', 'email', 'scheduling_timezone'}
+    expected_set = {'users', 'admins', 'services', 'name', 'id', 'slack_channel', 'email', 'scheduling_timezone', 'iris_plan'}
     assert expected_set == set(team.keys())
 
 

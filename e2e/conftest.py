@@ -8,24 +8,24 @@ import requests
 from uuid import uuid4
 from oncall import db
 from testutils import api_v0
-
-db_config = {'conn': {'kwargs': {'charset': 'utf8',
-                                 'database': 'oncall-api',
-                                 'host': '127.0.0.1',
-                                 'scheme': 'mysql+pymysql',
-                                 'user': 'root'},
-                      'str': '%(scheme)s://%(user)s@%(host)s/%(database)s?charset=%(charset)s'},
-             'kwargs': {'pool_recycle': 3600}}
+import os.path
+import yaml
 
 
 @pytest.fixture(scope="session", autouse=True)
 def require_db():
-    db.init(db_config)
+    # Read config based on pytest root directory. Assumes config lives at oncall/configs/config.yaml
+    cfg_path = os.path.join(str(pytest.config.rootdir), 'configs/config.yaml')
+    with open(cfg_path) as f:
+        config = yaml.load(f)
+    db.init(config['db'])
+
 
 @pytest.fixture(scope="session", autouse=True)
 def require_test_user():
     re = requests.post(api_v0('users'), json={'name': 'test_user'})
     assert re.status_code in [422, 201]
+
 
 @pytest.fixture(scope="function")
 def user(request):
