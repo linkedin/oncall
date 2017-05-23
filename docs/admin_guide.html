@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -9,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; Oncall 1.0.0 documentation</title>
+  <title>Admin guide &mdash; Oncall 1.0.0 documentation</title>
   
 
   
@@ -34,9 +33,11 @@
 
   
         <link rel="index" title="Index"
-              href="#"/>
+              href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Oncall 1.0.0 documentation" href="index.html"/> 
+    <link rel="top" title="Oncall 1.0.0 documentation" href="index.html"/>
+        <link rel="next" title="REST API" href="api.html"/>
+        <link rel="prev" title="User guide" href="user_guide.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -90,9 +91,15 @@
             
             
               <p class="caption"><span class="caption-text">Table of contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="user_guide.html">User guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="admin_guide.html">Admin guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Admin guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quickstart">Quickstart</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#test-with-docker">Test with Docker</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">REST API</a></li>
 </ul>
 
@@ -138,12 +145,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li></li>
+      <li>Admin guide</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
+            <a href="_sources/admin_guide.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -155,11 +164,36 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-
-<h1 id="index">Index</h1>
-
-<div class="genindex-jumpbox">
- 
+  <div class="section" id="admin-guide">
+<h1>Admin guide<a class="headerlink" href="#admin-guide" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="quickstart">
+<h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="test-with-docker">
+<h3>Test with Docker<a class="headerlink" href="#test-with-docker" title="Permalink to this headline">¶</a></h3>
+<p>A local test instance of Oncall can be setup with <a class="reference external" href="https://www.docker.com/community-edition">Docker</a> in two commands:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>docker run -d --name oncall-mysql -e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span><span class="s1">&#39;1234&#39;</span> mysql
+docker run -d --link oncall-mysql:mysql -p <span class="m">8080</span>:8080 -e <span class="nv">DOCKER_DB_BOOTSTRAP</span><span class="o">=</span><span class="m">1</span> quay.io/iris/oncall
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We pass a <strong>DOCKER_DB_BOOTSTRAP</strong> environment variable to the Oncall container
+indicating to our setup script that the database needs to be initialized. This
+will populate the database with a small amount of dummy data and set up the
+proper schema so we can get up and running.</p>
+</div>
+<p>The above commands set up an Oncall service and MySQL database. Note that we
+set the MySQL root password to &#8216;1234&#8217;; you may wish to change this to something
+more secure.</p>
+<p>The test instance of Oncall can be accessed at <a class="reference external" href="http://localhost:8080">http://localhost:8080</a>.  Try
+logging in as the user &#8220;jdoe&#8221;, with any password (the Docker image defaults to
+disable authentication, which authenticates all credentials so long as the user
+exists in the DB). You can navigate to the &#8220;Browse Teams&#8221; page and check out
+&#8220;Test Team&#8221;, which shows a calendar page where you can create and modify
+events. See <a class="reference internal" href="user_guide.html#user-guide"><span class="std std-ref">User guide</span></a> for more information on how to interact with the
+UI.</p>
+</div>
+</div>
 </div>
 
 
@@ -169,6 +203,15 @@
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="REST API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="user_guide.html" class="btn btn-neutral" title="User guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
