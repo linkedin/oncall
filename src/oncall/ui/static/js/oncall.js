@@ -944,7 +944,7 @@ var oncall = {
         .append(
           $('<li />')
           .append('<label class="label-col">Slack</label>')
-          .append('<span class="data-col">' + userData.contacts.im + '</span>')
+          .append('<span class="data-col">' + userData.contacts.slack + '</span>')
         )
       },
       setupEscalateModal: function(){
