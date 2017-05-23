@@ -10,6 +10,12 @@ Oncall_ is a calendar tool designed for scheduling and managing on-call shifts.
 It is a standalone application that serves as source of truth for dynamic
 ownership information as well as contact info.
 
+.. image:: _static/demo.png
+    :width: 100%
+    :align: center
+    :alt: Oncall demo
+
+
 .. _Oncall: http://oncall.tools
 .. _Iris: http://iris.claims
 
