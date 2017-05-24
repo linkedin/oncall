@@ -1,11 +1,12 @@
-# CircleCI Configuration file
-
 machine:
+  services:
+    - docker
   python:
-      version: 2.7.11
+    version: 2.7.11
 
 dependencies:
   override:
+    - sudo service mysql stop
     - bash .ci/install.sh
 
 test:

@@ -30,7 +30,7 @@ Setup app config by editing configs/config.yaml.
 Optionally, you can import dummy data for testing:
 
 ```bash
-mysql -u root -p < ./db/dummy_data.sql
+mysql -u root -p -o oncall < ./db/dummy_data.sql
 ```
 
 ### Run
