@@ -23,7 +23,14 @@ UNLOCK TABLES;
 
 LOCK TABLES `notification_setting` WRITE;
 /*!40000 ALTER TABLE `notification_setting` DISABLE KEYS */;
-INSERT INTO `notification_setting` VALUES (1,4,1,35,1,86400,NULL),(2,4,1,35,1,604800,NULL),(3,2,1,35,1,86400,NULL),(4,2,1,35,1,604800,NULL),(7,3,1,35,1,86400,NULL),(8,3,1,35,1,604800,NULL),(9,4,1,35,3,NULL,1);
+INSERT INTO `notification_setting` VALUES
+    (1,4,1,1,1,86400,NULL),
+    (2,4,1,1,1,604800,NULL),
+    (3,2,1,1,1,86400,NULL),
+    (4,2,1,1,1,604800,NULL),
+    (7,3,1,1,1,86400,NULL),
+    (8,3,1,1,1,604800,NULL),
+    (9,4,1,1,3,NULL,1);
 /*!40000 ALTER TABLE `notification_setting` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -86,7 +93,26 @@ UNLOCK TABLES;
 
 LOCK TABLES `user_contact` WRITE;
 /*!40000 ALTER TABLE `user_contact` DISABLE KEYS */;
-INSERT INTO `user_contact` VALUES (1,8,'+1 111-111-1111'),(1,17,'root'),(1,26,'+1 111-111-1111'),(1,35,'root@example.com'),(2,8,'+1 222-222-2222'),(2,17,'manager'),(2,26,'+1 222-222-2222'),(2,35,'manager@example.com'),(3,8,'+1 333-333-3333'),(3,17,'jdoe'),(3,26,'+1 333-333-3333'),(3,35,'jdoe@example.com'),(4,8,'+1 444-444-4444'),(4,17,'asmith'),(4,26,'+1 444-444-4444'),(4,35,'asmith@example.com');
+INSERT INTO `user_contact` VALUES
+    (1,3,'+1 111-111-1111'),
+    (1,4,'root'),
+    (1,2,'+1 111-111-1111'),
+    (1,1,'root@example.com'),
+
+    (2,3,'+1 222-222-2222'),
+    (2,4,'bsmith'),
+    (2,2,'+1 222-222-2222'),
+    (2,1,'bsmith@example.com'),
+
+    (3,3,'+1 333-333-3333'),
+    (3,4,'jdoe'),
+    (3,2,'+1 333-333-3333'),
+    (3,1,'jdoe@example.com'),
+
+    (4,3,'+1 444-444-4444'),
+    (4,4,'asmith'),
+    (4,2,'+1 444-444-4444'),
+    (4,1,'asmith@example.com');
 /*!40000 ALTER TABLE `user_contact` ENABLE KEYS */;
 UNLOCK TABLES;
 
