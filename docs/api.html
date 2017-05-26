@@ -100,7 +100,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#api-v0-roles">/api/v0/roles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api-v0-events">/api/v0/events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api-v0-users">/api/v0/users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-v0-notifications">/api/v0/notifications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api-v0-notification-types">/api/v0/notification_types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-v0-search">/api/v0/search</a></li>
 </ul>
 </li>
 </ul>
@@ -171,6 +173,330 @@
 <div class="section" id="api-v0-teams">
 <h2>/api/v0/teams<a class="headerlink" href="#api-v0-teams" title="Permalink to this headline">¶</a></h2>
 <dl class="get">
+<dt id="get--api-v0-teams">
+<code class="descname">GET </code><code class="descname">/api/v0/teams</code><a class="headerlink" href="#get--api-v0-teams" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/teams</p>
+<p>Search for team names. Allows filtering based on a number of parameters, detailed below.
+Returns list of matching team names. If &#8220;active&#8221; parameter is unspecified, defaults to
+True (only displaying undeleted teams)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; team name</li>
+<li><strong>name__eq</strong> &#8211; team name</li>
+<li><strong>name__contains</strong> &#8211; team name contains param</li>
+<li><strong>name__startswith</strong> &#8211; team name starts with param</li>
+<li><strong>name__endswith</strong> &#8211; team name ends with param</li>
+<li><strong>id</strong> &#8211; team id</li>
+<li><strong>id__eq</strong> &#8211; team id</li>
+<li><strong>active</strong> &#8211; team active/deleted (1 and 0, respectively)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams?name__startswith=team-</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;team-bar&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-teams">
+<code class="descname">POST </code><code class="descname">/api/v0/teams</code><a class="headerlink" href="#post--api-v0-teams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint for team creation. The user who creates the team is automatically added as a
+team admin. Because of this, this endpoint cannot be called using an API key, otherwise
+a team would have no admins, making many team operations impossible.</p>
+<p>Teams can specify a number of attributes, detailed below:</p>
+<ul class="simple">
+<li>name: the team&#8217;s name. Teams must have unique names.</li>
+<li>email: email address for the team.</li>
+<li>slack_channel: slack channel for the team. Must start with &#8216;#&#8217;</li>
+<li>iris_plan: Iris escalation plan that incidents created from the Oncall UI will follow.</li>
+</ul>
+<p>If iris plan integration is not activated, this attribute can still be set, but its
+value is not used.</p>
+<p>Teams must specify <code class="docutils literal"><span class="pre">name</span></code> and <code class="docutils literal"><span class="pre">scheduling_timezone</span></code>; other parameters are optional.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">api/v0/teams</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;scheduling_timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo@example.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;slack_channel&quot;</span><span class="p">:</span> <span class="s2">&quot;#team-foo&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Successful create</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Error in creating team. Possible errors: API key auth not allowed, invalid attributes, missing required attributes</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Duplicate team name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-teams-team">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}</code><a class="headerlink" href="#get--api-v0-teams-team" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get team info by name. By default, only finds active teams. Allows selection of
+fields, including: users, admins, services, and rosters. If no <code class="docutils literal"><span class="pre">fields</span></code> is
+specified in the query string, it defaults to all fields.</p>
+<p><strong>Example request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team-foo</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;admins&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;foo@example.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">5501</span><span class="p">,</span>
+    <span class="nt">&quot;iris_plan&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;rosters&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;roster-foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4186</span><span class="p">,</span>
+            <span class="nt">&quot;schedules&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="nt">&quot;advanced_mode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="nt">&quot;auto_populate_threshold&quot;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span>
+                    <span class="nt">&quot;events&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="nt">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">604800</span><span class="p">,</span>
+                            <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">7200</span>
+                        <span class="p">}</span>
+                    <span class="p">],</span>
+                    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2222</span><span class="p">,</span>
+                    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;role_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="nt">&quot;roster&quot;</span><span class="p">:</span> <span class="s2">&quot;roster-foo&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;roster_id&quot;</span><span class="p">:</span> <span class="mi">4186</span><span class="p">,</span>
+                    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;team_id&quot;</span><span class="p">:</span> <span class="mi">5501</span><span class="p">,</span>
+                    <span class="nt">&quot;timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;users&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="nt">&quot;in_rotation&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+                    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;scheduling_timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;services&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;service-foo&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;slack_channel&quot;</span><span class="p">:</span> <span class="s2">&quot;#foo&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;users&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;jdoe&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;active&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe@example.com&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1234</span><span class="p">,</span>
+            <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;photo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;image.example.com&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;time_zone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--api-v0-teams-team">
+<code class="descname">PUT </code><code class="descname">/api/v0/teams/{team}</code><a class="headerlink" href="#put--api-v0-teams-team" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edit a team&#8217;s information. Allows edit of: name, slack_channel, email, scheduling_timezone, iris_plan.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/api/v0/teams/team-foo</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;team-bar&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;slack_channel&quot;</span><span class="p">:</span> <span class="s2">&quot;roster-bar&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span>
+    <span class="nt">&quot;scheduling_timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Central&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful edit</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Invalid team name/iris escalation plan</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Duplicate team name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-teams-team">
+<code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}</code><a class="headerlink" href="#delete--api-v0-teams-team" title="Permalink to this definition">¶</a></dt>
+<dd><p>Soft delete for teams. Does not remove data from the database, but sets the team&#8217;s active
+param to false. Note that this means deleted teams&#8217; names remain in the namespace, so new
+teams cannot be created with the same name a sa deleted team.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/api/v0/teams/team-foo</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful delete</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; Team not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-teams-team-summary">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/summary</code><a class="headerlink" href="#get--api-v0-teams-team-summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to get a summary of the team&#8217;s oncall information. Returns an object
+containing the fields <code class="docutils literal"><span class="pre">current</span></code> and <code class="docutils literal"><span class="pre">next</span></code>, which then contain information
+on the current and next on-call shifts for this team. <code class="docutils literal"><span class="pre">current</span></code> and <code class="docutils literal"><span class="pre">next</span></code>
+are objects keyed by role (if an event of that role exists), with values of
+lists of event/user information. This list will have multiple elements if
+multiple events with the same role are currently occurring, or if multiple
+events with the same role are starting next in the future at the same time.</p>
+<p>If no event with a given role exists, that role is excluded from the <code class="docutils literal"><span class="pre">current</span></code>
+or <code class="docutils literal"><span class="pre">next</span></code> object. If no events exist, the <code class="docutils literal"><span class="pre">current</span></code> and <code class="docutils literal"><span class="pre">next</span></code> objects
+will be empty objects.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">api/v0/teams/team-foo/summary</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;current&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;manager&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1495760400</span><span class="p">,</span>
+                <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;photo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;example.image.com&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;manager&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1495436400</span><span class="p">,</span>
+                <span class="nt">&quot;user_contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe@example.com&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span>
+                <span class="p">},</span>
+                <span class="nt">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1234</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;primary&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1495760400</span><span class="p">,</span>
+                <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Adam Smith&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;photo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;example.image.com&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1495350000</span><span class="p">,</span>
+                <span class="nt">&quot;user_contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 222-222-2222&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;asmith@example.com&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;asmith&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 222-222-2222&quot;</span>
+                <span class="p">},</span>
+                <span class="nt">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1235</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;next&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;manager&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1496127600</span><span class="p">,</span>
+                <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;photo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;example.image.com&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;manager&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1495436400</span><span class="p">,</span>
+                <span class="nt">&quot;user_contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe@example.com&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span>
+                <span class="p">},</span>
+                <span class="nt">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1234</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;primary&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1495760400</span><span class="p">,</span>
+                <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Adam Smith&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;photo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;example.image.com&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1495350000</span><span class="p">,</span>
+                <span class="nt">&quot;user_contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 222-222-2222&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;asmith@example.com&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;asmith&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 222-222-2222&quot;</span>
+                <span class="p">},</span>
+                <span class="nt">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1235</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="get">
 <dt id="get--api-v0-teams-team-oncall-role">
 <code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/oncall/{role}</code><a class="headerlink" href="#get--api-v0-teams-team-oncall-role" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/teams/(str:team_name)/oncall/(str:role)</p>
@@ -228,49 +554,239 @@
 <dl class="get">
 <dt id="get--api-v0-teams-team-admins">
 <code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/admins</code><a class="headerlink" href="#get--api-v0-teams-team-admins" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get list of admin users for a team</p>
+<dd><p>Get list of admin usernames for a team</p>
+<p><strong>Example request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team-foo/admins</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;asmith&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="post">
 <dt id="post--api-v0-teams-team-admins">
 <code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/admins</code><a class="headerlink" href="#post--api-v0-teams-team-admins" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add user as team admin</p>
+<dd><p>Add user as a team admin. Responds with that user&#8217;s info (similar to user GET).
+Subscribes this user to default notifications for the team, and adds the user
+to the team (if needed).</p>
+<p><strong>Example request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/api/v0/teams/team-foo/admins</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;active&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe@example.com&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">9535</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;photo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;image.example.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;time_zone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Successful admin added</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Missing name attribute in request</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Invalid team/user, or user is already a team admin</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="delete">
 <dt id="delete--api-v0-teams-team-admins-user">
 <code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}/admins/{user}</code><a class="headerlink" href="#delete--api-v0-teams-team-admins-user" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete team admin user</p>
+<dd><p>Delete team admin user. Removes admin from the team if he/she is not a member of any roster.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/api/v0/teams/team-foo/admins/jdoe</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful delete</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; Team admin not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="get">
 <dt id="get--api-v0-teams-team-users">
 <code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/users</code><a class="headerlink" href="#get--api-v0-teams-team-users" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get list of users for a team</p>
+<dd><p>Get list of usernames for all team members. A user is a member of a team when
+he/she is a team admin or a member of one of the team&#8217;s rosters. Accepts an
+<code class="docutils literal"><span class="pre">active</span></code> parameter in the query string that filters inactive (deleted) teams.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team-foo/users</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;asmith&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="post">
 <dt id="post--api-v0-teams-team-users">
 <code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/users</code><a class="headerlink" href="#post--api-v0-teams-team-users" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add user to a team</p>
+<dd><p>Add user to a team. Deprecated; used only for testing purposes.</p>
 </dd></dl>
 
 <dl class="delete">
 <dt id="delete--api-v0-teams-team-users-user">
 <code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}/users/{user}</code><a class="headerlink" href="#delete--api-v0-teams-team-users-user" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete user from a team</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/api/v0/teams/team-foo/users/jdoe</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful delete</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; User not found in team</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="get">
 <dt id="get--api-v0-teams-team-rosters">
 <code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/rosters</code><a class="headerlink" href="#get--api-v0-teams-team-rosters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get roster info(including schedules) for a team</p>
+<dd><p>Get roster info for a team. Returns a JSON object with roster names
+as keys, and info as values. This info includes the roster id, any
+schedules associated with the rosters, and roster users (along
+with their status as in/out of rotation).</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team-foo/rosters</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+    <span class="p">{</span>
+        <span class="nt">&quot;roster-foo&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2923</span><span class="p">,</span>
+            <span class="nt">&quot;schedules&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="nt">&quot;advanced_mode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="nt">&quot;auto_populate_threshold&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+                    <span class="nt">&quot;events&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="nt">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">604800</span><span class="p">,</span>
+                            <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">266400</span>
+                        <span class="p">}</span>
+                    <span class="p">],</span>
+                    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1788</span><span class="p">,</span>
+                    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;role_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="nt">&quot;roster&quot;</span><span class="p">:</span> <span class="s2">&quot;roster-foo&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;roster_id&quot;</span><span class="p">:</span> <span class="mi">2923</span><span class="p">,</span>
+                    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;team_id&quot;</span><span class="p">:</span> <span class="mi">2122</span><span class="p">,</span>
+                    <span class="nt">&quot;timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;users&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="nt">&quot;in_rotation&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+                    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="nt">&quot;in_rotation&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+                    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;asmith&quot;</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Invalid team</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="post">
 <dt id="post--api-v0-teams-team-rosters">
 <code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/rosters</code><a class="headerlink" href="#post--api-v0-teams-team-rosters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a roster for a team</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/v0/teams/team-foo/rosters</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;roster-foo&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Succesful roster creation</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Invalid character in roster name/Duplicate roster name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="get">
@@ -366,13 +882,69 @@
 <dl class="get">
 <dt id="get--api-v0-teams-team-rosters-roster-users">
 <code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/users</code><a class="headerlink" href="#get--api-v0-teams-team-rosters-roster-users" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get all users for a team roster</p>
+<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/teams/team-foo/rosters/roster-foo/users</p>
+<p>Get all users for a team&#8217;s roster</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team-foo/rosters/roster-foo/users</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span><span class="s2">&quot;jdoe&quot;</span><span class="p">,</span> <span class="s2">&quot;asmith&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="post">
 <dt id="post--api-v0-teams-team-rosters-roster-users">
 <code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/users</code><a class="headerlink" href="#post--api-v0-teams-team-rosters-roster-users" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add user to a roster for a team</p>
+<dd><p>Add user to a roster for a team. On successful creation, returns that user&#8217;s information.
+This includes id, contacts, etc, similar to the /api/v0/users GET endpoint.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/v0/teams/team-foo/rosters/roster-foo/users</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;active&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe@example.com&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;photo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;example.image.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;time_zone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Roster user added</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Missing &#8220;name&#8221; parameter</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Invalid team/user or user is already in roster.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="put">
@@ -436,10 +1008,109 @@
 </table>
 </dd></dl>
 
+<dl class="get">
+<dt id="get--api-v0-teams-team-rosters-roster-schedules">
+<code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/schedules</code><a class="headerlink" href="#get--api-v0-teams-team-rosters-roster-schedules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get schedules for a given roster. Information on schedule attributes is detailed
+in the schedules POST endpoint documentation. Schedules can be filtered with
+the following parameters passed in the query string:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; id of the schedule</li>
+<li><strong>id__eq</strong> &#8211; id of the schedule</li>
+<li><strong>id__gt</strong> &#8211; id greater than</li>
+<li><strong>id__ge</strong> &#8211; id greater than or equal</li>
+<li><strong>id__lt</strong> &#8211; id less than</li>
+<li><strong>id__le</strong> &#8211; id less than or equal</li>
+<li><strong>name</strong> &#8211; schedule name</li>
+<li><strong>name__eq</strong> &#8211; schedule name</li>
+<li><strong>name__contains</strong> &#8211; schedule name contains param</li>
+<li><strong>name__startswith</strong> &#8211; schedule name starts with param</li>
+<li><strong>name__endswith</strong> &#8211; schedule name ends with param</li>
+<li><strong>role</strong> &#8211; schedule role name</li>
+<li><strong>role__eq</strong> &#8211; schedule role name</li>
+<li><strong>role__contains</strong> &#8211; schedule role name contains param</li>
+<li><strong>role__startswith</strong> &#8211; schedule role name starts with param</li>
+<li><strong>role__endswith</strong> &#8211; schedule role name ends with param</li>
+<li><strong>team</strong> &#8211; schedule team name</li>
+<li><strong>team__eq</strong> &#8211; schedule team name</li>
+<li><strong>team__contains</strong> &#8211; schedule team name contains param</li>
+<li><strong>team__startswith</strong> &#8211; schedule team name starts with param</li>
+<li><strong>team__endswith</strong> &#8211; schedule team name ends with param</li>
+<li><strong>team_id</strong> &#8211; id of the schedule&#8217;s team</li>
+<li><strong>roster_id</strong> &#8211; id of the schedule&#8217;s roster</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team-foo/rosters/roster-foo/schedules</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;advanced_mode&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;auto_populate_threshold&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="nt">&quot;events&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nt">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">259200</span><span class="p">,</span>
+                <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2065</span><span class="p">,</span>
+        <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;role_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;roster&quot;</span><span class="p">:</span> <span class="s2">&quot;roster-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;roster_id&quot;</span><span class="p">:</span> <span class="mi">2922</span><span class="p">,</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;team_id&quot;</span><span class="p">:</span> <span class="mi">2121</span><span class="p">,</span>
+        <span class="nt">&quot;timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="post">
 <dt id="post--api-v0-teams-team-rosters-roster-schedules">
 <code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/schedules</code><a class="headerlink" href="#post--api-v0-teams-team-rosters-roster-schedules" title="Permalink to this definition">¶</a></dt>
-<dd><p>See below for sample JSON requests.</p>
+<dd><p>Schedule create endpoint. Schedules are templates for the auto-scheduler to follow that define
+how it should populate a certain period of time. This template is followed repeatedly to
+populate events on a team&#8217;s calendar. Schedules are associated with a roster, which defines
+the pool of users that the scheduler selects from. Similarly, the schedule&#8217;s role indicates
+the role that the populated events shoud have. The <code class="docutils literal"><span class="pre">auto_populate_threshold</span></code> parameter
+defines how far into the future the scheduler populates.</p>
+<p>Finally, each schedule has a list of events, each defining <code class="docutils literal"><span class="pre">start</span></code> and <code class="docutils literal"><span class="pre">duration</span></code>. <code class="docutils literal"><span class="pre">start</span></code>
+represents an offset from Sunday at 00:00 in the team&#8217;s scheduling timezone, in seconds. For
+example, denote DAY and HOUR as the number of seconds in a day/hour, respectively. An
+event with <code class="docutils literal"><span class="pre">start</span></code> of (DAY + 9 * HOUR) starts on Monday, at 9:00 am. Duration is also given
+in seconds.</p>
+<p>The scheduler will start at Sunday 00:00 in the team&#8217;s scheduling timezone, choose a user,
+and populate events on the calendar according to the offsets defined in the events list.
+It then repeats this process, moving to the next Sunday 00:00 after the events it has
+created.</p>
+<p><code class="docutils literal"><span class="pre">advanced_mode</span></code> acts as a hint to the frontend on how the schedule should be displayed,
+defining whether the advanced mode toggle on the schedule edit action should be set on or off.
+Because of how the frontend displays simple schedules, a schedule can only have advanced_mode = 0
+if its events have one of 4 formats:</p>
+<ol class="arabic simple">
+<li>One event that is one week long</li>
+<li>One event that is two weeks long</li>
+<li>Seven events that are 12 hours long</li>
+<li>Fourteen events that are 12 hours long</li>
+</ol>
+<p>See below for sample JSON requests.</p>
+<p>Assume these schedules&#8217; team defines US/Pacific as its scheduling timezone.</p>
 <p>Weekly 7*24 shift that starts at Monday 6PM PST:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s1">&#39;role&#39;</span><span class="o">:</span> <span class="s1">&#39;primary&#39;</span>
@@ -465,46 +1136,221 @@
 <span class="p">}</span>
 </pre></div>
 </div>
+<p><strong>Example Request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/v0/teams/team-foo/rosters/roster-foo/schedules</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;advanced_mode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;auto_populate_threshold&quot;</span><span class="p">:</span> <span class="s2">&quot;21&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;events&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">604800</span><span class="p">,</span>
+            <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">129600</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2221</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Successful schedule create. Response contains created schedule&#8217;s id.</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Missing required parameters</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Invalid roster specified</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="get">
 <dt id="get--api-v0-teams-team-services">
 <code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/services</code><a class="headerlink" href="#get--api-v0-teams-team-services" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get list of services mapped to a team</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team-foo/services</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="s2">&quot;service-foo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;service-bar&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="post">
 <dt id="post--api-v0-teams-team-services">
 <code class="descname">POST </code><code class="descname">/api/v0/teams/{team}/services</code><a class="headerlink" href="#post--api-v0-teams-team-services" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create team to service mapping</p>
+<dd><p>Create team to service mapping. Takes an object defining &#8220;name&#8221;, then maps
+that service to the team specified in the URL. Note that this endpoint does
+not create a service; it expects this service to already exist.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">api/v0/teams/team-foo/services</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;service-foo&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> &#8211; Successful create</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> &#8211; Mapping creation failed; Possible errors: Invalid service/team name,
+service already mapped to the team, service mapped to another team</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="delete">
 <dt id="delete--api-v0-teams-team-services-service">
 <code class="descname">DELETE </code><code class="descname">/api/v0/teams/{team}/services/{service}</code><a class="headerlink" href="#delete--api-v0-teams-team-services-service" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete service team mapping</p>
+<dd><p>Delete service team mapping. Only allowed for team admins.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/api/v0/teams/team-foo/services/service-foo</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful delete</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; Team-service mapping not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
 <div class="section" id="api-v0-schedules">
 <h2>/api/v0/schedules<a class="headerlink" href="#api-v0-schedules" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--api-v0-schedules-schedule_id">
+<code class="descname">GET </code><code class="descname">/api/v0/schedules/{schedule_id}</code><a class="headerlink" href="#get--api-v0-schedules-schedule_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get schedule information. Detailed information on schedule parameters is provided in the
+POST method for /api/v0/team/{team_name}/rosters/{roster_name}/schedules.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/schedules/1234</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+    <span class="p">{</span>
+        <span class="nt">&quot;advanced_mode&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;auto_populate_threshold&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="nt">&quot;events&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nt">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">259200</span><span class="p">,</span>
+                <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1234</span><span class="p">,</span>
+        <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;role_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;roster&quot;</span><span class="p">:</span> <span class="s2">&quot;roster-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;roster_id&quot;</span><span class="p">:</span> <span class="mi">2922</span><span class="p">,</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;asdf&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;team_id&quot;</span><span class="p">:</span> <span class="mi">2121</span><span class="p">,</span>
+        <span class="nt">&quot;timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="put">
 <dt id="put--api-v0-schedules-schedule_id">
 <code class="descname">PUT </code><code class="descname">/api/v0/schedules/{schedule_id}</code><a class="headerlink" href="#put--api-v0-schedules-schedule_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update a schedule</p>
+<dd><p>Update a schedule. Allows editing of role, team, roster, auto_populate_threshold,
+events, and advanced_mode. Only allowed for team admins. Note that simple mode
+schedules must conform to simple schedule restrictions (described in documentation
+for the /api/v0/team/{team_name}/rosters/{roster_name}/schedules GET endpoint).
+This is checked on both &#8220;events&#8221; and &#8220;advanced_mode&#8221; edits.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/api/v0/schedules/1234</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-bar&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;roster&quot;</span><span class="p">:</span> <span class="s2">&quot;roster-bar&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;auto_populate_threshold&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span>
+    <span class="nt">&quot;events&quot;</span><span class="p">:</span>
+        <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="nt">&quot;duration&quot;</span><span class="p">:</span> <span class="mi">100</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="s2">&quot;advanced_mode&quot;</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="delete">
 <dt id="delete--api-v0-schedules-schedule_id">
 <code class="descname">DELETE </code><code class="descname">/api/v0/schedules/{schedule_id}</code><a class="headerlink" href="#delete--api-v0-schedules-schedule_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete a schedule</p>
+<dd><p>Delete a schedule by id. Only allowed for team admins.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/api/v0/schedules/1234</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful delete</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; Schedule not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="post">
 <dt id="post--api-v0-schedules-schedule_id-populate">
 <code class="descname">POST </code><code class="descname">/api/v0/schedules/{schedule_id}/populate</code><a class="headerlink" href="#post--api-v0-schedules-schedule_id-populate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the scheduler on demand from a given point in time. Deletes existing schedule events if applicable.
-Given the <cite>start</cite> param, this will find the first schedule start time after <cite>start</cite>, then populate out
+Given the <code class="docutils literal"><span class="pre">start</span></code> param, this will find the first schedule start time after <code class="docutils literal"><span class="pre">start</span></code>, then populate out
 to the schedule&#8217;s auto_populate_threshold. It will also clear the calendar of any events associated
 with the chosen schedule from the start of the first event it created onward. For example, if <cite>start</cite>
 is Monday, May 1 and the chosen schedule starts on Wednesday, this will create events starting from
@@ -534,31 +1380,127 @@ Wednesday, May 3, and delete any events that start after May 3 that are associat
 <dl class="get">
 <dt id="get--api-v0-services">
 <code class="descname">GET </code><code class="descname">/api/v0/services</code><a class="headerlink" href="#get--api-v0-services" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search for services</p>
+<dd><p>Find services, filtered by params</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; id of the service</li>
+<li><strong>id__eq</strong> &#8211; id of the service</li>
+<li><strong>id__gt</strong> &#8211; id greater than</li>
+<li><strong>id__ge</strong> &#8211; id greater than or equal</li>
+<li><strong>id__lt</strong> &#8211; id less than</li>
+<li><strong>id__le</strong> &#8211; id less than or equal</li>
+<li><strong>name</strong> &#8211; service name</li>
+<li><strong>name__eq</strong> &#8211; service name</li>
+<li><strong>name__contains</strong> &#8211; service name contains param</li>
+<li><strong>name__startswith</strong> &#8211; service name starts with param</li>
+<li><strong>name__endswith</strong> &#8211; service name ends with param</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/services?name__startswith=service</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="s2">&quot;service-foo&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="get">
 <dt id="get--api-v0-services-service">
 <code class="descname">GET </code><code class="descname">/api/v0/services/{service}</code><a class="headerlink" href="#get--api-v0-services-service" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get service id by name</p>
+<p><strong>Example request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/services/service-foo</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1234</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;service-foo&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="put">
 <dt id="put--api-v0-services-service">
 <code class="descname">PUT </code><code class="descname">/api/v0/services/{service}</code><a class="headerlink" href="#put--api-v0-services-service" title="Permalink to this definition">¶</a></dt>
-<dd><p>Change name for a service</p>
+<dd><p>Change name for a service. Currently unused/debug only.</p>
 </dd></dl>
 
 <dl class="delete">
 <dt id="delete--api-v0-services-service">
 <code class="descname">DELETE </code><code class="descname">/api/v0/services/{service}</code><a class="headerlink" href="#delete--api-v0-services-service" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete a service</p>
+<dd><p>Delete a service. Currently unused/debug only.</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-services-service-oncall-role">
+<code class="descname">GET </code><code class="descname">/api/v0/services/{service}/oncall/{role}</code><a class="headerlink" href="#get--api-v0-services-service-oncall-role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current user on-call for a given service/role. Returns event start/end, contact info,
+and user name.</p>
+<p><strong>Example request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/services/service-foo/oncall/primary</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe@example.com&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1495695600</span><span class="p">,</span>
+        <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1495263600</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="get">
 <dt id="get--api-v0-services-service-teams">
 <code class="descname">GET </code><code class="descname">/api/v0/services/{service}/teams</code><a class="headerlink" href="#get--api-v0-services-service-teams" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get list of team mapped to a service</p>
+<p><strong>Example request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/services/service-foo/teams</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="s2">&quot;team-foo&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
@@ -617,7 +1559,7 @@ Wednesday, May 3, and delete any events that start after May 3 that are associat
 <dt id="get--api-v0-events">
 <code class="descname">GET </code><code class="descname">/api/v0/events</code><a class="headerlink" href="#get--api-v0-events" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/events</p>
-<p>Search for events.</p>
+<p>Search for events. Allows filtering based on a number of parameters, detailed below.</p>
 <p><strong>Example request</strong>:</p>
 <div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/events?team=foo-sre&amp;end__gt=1487466146&amp;role=primary</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
@@ -628,28 +1570,28 @@ Wednesday, May 3, and delete any events that start after May 3 that are associat
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">[</span>
-  <span class="p">{</span>
-    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1488441600</span><span class="p">,</span>
-    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1489132800</span><span class="p">,</span>
-    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;foo-sre&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;link_id&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;schedule_id&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
-    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Foo Icecream&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">187795</span>
-  <span class="p">},</span>
-  <span class="p">{</span>
-    <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1488441600</span><span class="p">,</span>
-    <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1489132800</span><span class="p">,</span>
-    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;foo-sre&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;link_id&quot;</span><span class="p">:</span> <span class="s2">&quot;8a8ae77b8c52448db60c8a701e7bffc2&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;schedule_id&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
-    <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Bar Apple&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">187795</span>
-  <span class="p">}</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1488441600</span><span class="p">,</span>
+        <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1489132800</span><span class="p">,</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;foo-sre&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;link_id&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;schedule_id&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Foo Icecream&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">187795</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1488441600</span><span class="p">,</span>
+        <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1489132800</span><span class="p">,</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;foo-sre&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;link_id&quot;</span><span class="p">:</span> <span class="s2">&quot;8a8ae77b8c52448db60c8a701e7bffc2&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;schedule_id&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+        <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Bar Apple&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">187795</span>
+    <span class="p">}</span>
 <span class="p">]</span>
 </pre></div>
 </div>
@@ -671,6 +1613,21 @@ Wednesday, May 3, and delete any events that start after May 3 that are associat
 <li><strong>end__ge</strong> &#8211; end time (unix timestamp) greater than or equal</li>
 <li><strong>end__lt</strong> &#8211; end time (unix timestamp) less than</li>
 <li><strong>end__le</strong> &#8211; end time (unix timestamp) less than or equal</li>
+<li><strong>role</strong> &#8211; role name</li>
+<li><strong>role__eq</strong> &#8211; role name</li>
+<li><strong>role__contains</strong> &#8211; role name contains param</li>
+<li><strong>role__startswith</strong> &#8211; role name starts with param</li>
+<li><strong>role__endswith</strong> &#8211; role name ends with param</li>
+<li><strong>team</strong> &#8211; team name</li>
+<li><strong>team__eq</strong> &#8211; team name</li>
+<li><strong>team__contains</strong> &#8211; team name contains param</li>
+<li><strong>team__startswith</strong> &#8211; team name starts with param</li>
+<li><strong>team__endswith</strong> &#8211; team name ends with param</li>
+<li><strong>user</strong> &#8211; user name</li>
+<li><strong>user__eq</strong> &#8211; user name</li>
+<li><strong>user__contains</strong> &#8211; user name contains param</li>
+<li><strong>user__startswith</strong> &#8211; user name starts with param</li>
+<li><strong>user__endswith</strong> &#8211; user name ends with param</li>
 </ul>
 </td>
 </tr>
@@ -687,9 +1644,18 @@ Wednesday, May 3, and delete any events that start after May 3 that are associat
 <dl class="post">
 <dt id="post--api-v0-events">
 <code class="descname">POST </code><code class="descname">/api/v0/events</code><a class="headerlink" href="#post--api-v0-events" title="Permalink to this definition">¶</a></dt>
-<dd><p>Endpoint for creating event. Responds with event id for created event</p>
+<dd><p>Endpoint for creating event. Responds with event id for created event. Events must
+specify the following parameters:</p>
+<ul class="simple">
+<li>start: Unix timestamp for the event start time (seconds)</li>
+<li>end: Unix timestamp for the event end time (seconds)</li>
+<li>user: Username for the event&#8217;s user</li>
+<li>team: Name for the event&#8217;s team</li>
+<li>role: Name for the event&#8217;s role</li>
+</ul>
+<p>All of these parameters are required.</p>
 <p><strong>Example request:</strong></p>
-<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/v0/events</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">api/v0/events</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">{</span>
@@ -963,37 +1929,422 @@ the same as any non-linked event.</p>
 <dl class="get">
 <dt id="get--api-v0-users">
 <code class="descname">GET </code><code class="descname">/api/v0/users</code><a class="headerlink" href="#get--api-v0-users" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search users</p>
+<dd><p>Get users filtered by params. Returns a list of user info objects for all users matching
+filter parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; id of the user</li>
+<li><strong>id__eq</strong> &#8211; id of the user</li>
+<li><strong>id__gt</strong> &#8211; id greater than</li>
+<li><strong>id__ge</strong> &#8211; id greater than or equal</li>
+<li><strong>id__lt</strong> &#8211; id less than</li>
+<li><strong>id__le</strong> &#8211; id less than or equal</li>
+<li><strong>name</strong> &#8211; username</li>
+<li><strong>name__eq</strong> &#8211; username</li>
+<li><strong>name__contains</strong> &#8211; username contains param</li>
+<li><strong>name__startswith</strong> &#8211; username starts with param</li>
+<li><strong>name__endswith</strong> &#8211; username ends with param</li>
+<li><strong>full_name</strong> &#8211; full name</li>
+<li><strong>full_name__eq</strong> &#8211; username</li>
+<li><strong>full_name__contains</strong> &#8211; full name contains param</li>
+<li><strong>full_name__startswith</strong> &#8211; full name starts with param</li>
+<li><strong>full_name__endswith</strong> &#8211; full name ends with param</li>
+<li><strong>active</strong> &#8211; whether user has been deactivated (deleted)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/events?team=foo-sre&amp;end__gt=1487466146&amp;role=primary</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;active&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe@example.com&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1234</span><span class="p">,</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;photo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;image.example.com&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;time_zone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="post">
 <dt id="post--api-v0-users">
 <code class="descname">POST </code><code class="descname">/api/v0/users</code><a class="headerlink" href="#post--api-v0-users" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create user</p>
+<dd><p>Create user. Currently used only in debug mode.</p>
 </dd></dl>
 
 <dl class="get">
 <dt id="get--api-v0-users-user_name">
 <code class="descname">GET </code><code class="descname">/api/v0/users/{user_name}</code><a class="headerlink" href="#get--api-v0-users-user_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get user info by name</p>
+<dd><p>Get user info by name. Retrieved fields can be filtered with the <code class="docutils literal"><span class="pre">fields</span></code>
+query parameter. Valid fields:</p>
+<ul class="simple">
+<li>id - user id</li>
+<li>name - username</li>
+<li>contacts - user contact information</li>
+<li>full_name - user&#8217;s full name</li>
+<li>time_zone - user&#8217;s preferred display timezone</li>
+<li>photo_url - URL of user&#8217;s thumbnail photo</li>
+<li>active - bool indicating whether the user is active in Oncall. Users can
+be marked inactive after leaving the company to preserve past event information.</li>
+</ul>
+<p>If no <code class="docutils literal"><span class="pre">fields</span></code> is provided, the endpoint defaults to returning all fields.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/users/jdoe</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;active&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe@example.com&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;im&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;sms&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 111-111-1111&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1234</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;photo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;image.example.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;time_zone&quot;</span><span class="p">:</span> <span class="s2">&quot;US/Pacific&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="put">
 <dt id="put--api-v0-users-user_name">
 <code class="descname">PUT </code><code class="descname">/api/v0/users/{user_name}</code><a class="headerlink" href="#put--api-v0-users-user_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update user info</p>
+<dd><p>Update user info. Allows edits to:</p>
+<ul class="simple">
+<li>contacts</li>
+<li>name</li>
+<li>full_name</li>
+<li>time_zone</li>
+<li>photo_url</li>
+<li>active</li>
+</ul>
+<p>Takes an object specifying the new values of these attributes. <code class="docutils literal"><span class="pre">contacts</span></code> acts
+slightly differently, specifying an object with the contact mode as key and new
+values for that contact mode as values. Any contact mode not specified will be
+unchanged. Similarly, any field not specified in the PUT will be unchanged.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/api/v0/users/jdoe</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;contacts&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;call&quot;</span><span class="p">:</span> <span class="s2">&quot;+1 222-222-2222&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe@example2.com&quot;</span>
+    <span class="p">}</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;johndoe&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Johnathan Doe&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.5">204 No Content</a> &#8211; Successful edit</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; User not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="delete">
 <dt id="delete--api-v0-users-user_name">
 <code class="descname">DELETE </code><code class="descname">/api/v0/users/{user_name}</code><a class="headerlink" href="#delete--api-v0-users-user_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete user by name</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/api/v0/users/jdoe</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful delete</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; User not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="get">
 <dt id="get--api-v0-users-user_name-teams">
 <code class="descname">GET </code><code class="descname">/api/v0/users/{user_name}/teams</code><a class="headerlink" href="#get--api-v0-users-user_name-teams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get active teams by user name</p>
+<dd><p>Get active teams by user name. Note that this does not return any deleted teams that
+this user is a member of.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/users/jdoe/teams</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;team-bar&quot;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-users-user_name-notifications">
+<code class="descname">GET </code><code class="descname">/api/v0/users/{user_name}/notifications</code><a class="headerlink" href="#get--api-v0-users-user_name-notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all notification settings for a user by name.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/users/jdoe/notifications</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">21830</span><span class="p">,</span>
+        <span class="nt">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;email&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;only_if_involved&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;roles&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;secondary&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shadow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;manager&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;time_before&quot;</span><span class="p">:</span> <span class="mi">86400</span><span class="p">,</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;oncall_reminder&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">21831</span><span class="p">,</span>
+        <span class="nt">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;email&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;only_if_involved&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nt">&quot;roles&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;secondary&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shadow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;manager&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;time_before&quot;</span><span class="p">:</span> <span class="mi">604800</span><span class="p">,</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;oncall_reminder&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--api-v0-users-user_name-notifications">
+<code class="descname">POST </code><code class="descname">/api/v0/users/{user_name}/notifications</code><a class="headerlink" href="#post--api-v0-users-user_name-notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to create notification settings for a user. Responds with an object denoting the created
+setting&#8217;s id. Requests to create notification settings must define the following:</p>
+<ul class="simple">
+<li>team</li>
+<li>roles</li>
+<li>mode</li>
+<li>type</li>
+</ul>
+<p>Users will be notified via <code class="docutils literal"><span class="pre">$mode</span></code> if a <code class="docutils literal"><span class="pre">$type</span></code> action occurs on the <code class="docutils literal"><span class="pre">$team</span></code> calendar that
+modifies events having a role contained in <code class="docutils literal"><span class="pre">$roles</span></code>. In addition to these parameters,
+notification settings must define one of <code class="docutils literal"><span class="pre">time_before</span></code> and <code class="docutils literal"><span class="pre">only_if_involved</span></code>, depending
+on whether the notification type is a reminder or a notification. Reminders define a <code class="docutils literal"><span class="pre">time_before</span></code>
+and reference the start/end time of an event that user is involved in. There are two reminder
+types: &#8220;oncall_reminder&#8221; and &#8220;offcall_reminder&#8221;, referencing the start and end of on-call events,
+respectively. <code class="docutils literal"><span class="pre">time_before</span></code> is specified in seconds and denotes how far in advance the user
+should be reminded of an event.</p>
+<p>Notifications are event-driven, and created when a team&#8217;s calendar is modified. By default,
+the notification types are:</p>
+<ul class="simple">
+<li>event_created</li>
+<li>event_edited</li>
+<li>event_deleted</li>
+<li>event_swapped</li>
+<li>event_substituted</li>
+</ul>
+<p>Non-reminder settings must define <code class="docutils literal"><span class="pre">only_if_involved</span></code> which determines whether the user will
+be notified on all actions of the given typ or only on ones in which they are involved. Note
+that <code class="docutils literal"><span class="pre">time_before</span></code> must not be specified for a non-reminder setting, and <code class="docutils literal"><span class="pre">only_if_involved</span></code>
+must not be specified for reminder settings.</p>
+<p>An authoritative list of notification types can be obtained from the /api/v0/notification_types
+GET endpoint, which also details whether the type is a reminder. This will obtain all
+notification type data from the database, and is an absolute source of truth for Oncall.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">api/v0/events</span>   <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+    <span class="p">{</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;roles&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;primary&quot;</span><span class="p">,</span> <span class="s2">&quot;secondary&quot;</span><span class="p">],</span>
+        <span class="nt">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;email&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;event_created&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;only_if_involved&quot;</span><span class="p">:</span> <span class="kc">true</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+    <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1234</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--api-v0-users-user_name-upcoming">
+<code class="descname">GET </code><code class="descname">/api/v0/users/{user_name}/upcoming</code><a class="headerlink" href="#get--api-v0-users-user_name-upcoming" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint for retrieving a user&#8217;s upcoming shifts. Groups linked events into a single
+entity, with the number of events indicated in the <code class="docutils literal"><span class="pre">num_events</span></code> attribute. Non-linked
+events have <code class="docutils literal"><span class="pre">num_events</span> <span class="pre">=</span> <span class="pre">0</span></code>. Returns a list of event information for each of that
+user&#8217;s upcoming shifts. Results can be filtered with the query string params below:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>limit</strong> &#8211; The number of shifts to retrieve. Default is unlimited</li>
+<li><strong>role</strong> &#8211; Filters results to return only shifts with the provided roles.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/users/jdoe/upcoming</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;end&quot;</span><span class="p">:</span> <span class="mi">1496264400</span><span class="p">,</span>
+        <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">169877</span><span class="p">,</span>
+        <span class="nt">&quot;link_id&quot;</span><span class="p">:</span> <span class="s2">&quot;7b3b96279bb24de8ac3fb7dbf06e5d1e&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;num_events&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="nt">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;schedule_id&quot;</span><span class="p">:</span> <span class="mi">1788</span><span class="p">,</span>
+        <span class="nt">&quot;start&quot;</span><span class="p">:</span> <span class="mi">1496221200</span><span class="p">,</span>
+        <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="api-v0-notifications">
+<h2>/api/v0/notifications<a class="headerlink" href="#api-v0-notifications" title="Permalink to this headline">¶</a></h2>
+<dl class="put">
+<dt id="put--api-v0-notifications-notification_id">
+<code class="descname">PUT </code><code class="descname">/api/v0/notifications/{notification_id}</code><a class="headerlink" href="#put--api-v0-notifications-notification_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edit user notification settings. Allows editing of the following attributes:</p>
+<ul class="simple">
+<li>roles: list of role names</li>
+<li>team: team name</li>
+<li>mode: contact mode name</li>
+<li><dl class="first docutils">
+<dt>type: string defining what event to notify on. Types are detailed in notification</dt>
+<dd>POST documentation</dd>
+</dl>
+</li>
+<li>time_before: in units of seconds (if reminder setting)</li>
+<li>only_if_involved: boolean (if notification setting)</li>
+</ul>
+<p><strong>Example request</strong></p>
+<blockquote>
+<div><div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/api/v0/events/1234</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;team&quot;</span><span class="p">:</span> <span class="s2">&quot;team-bar&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;call&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;asmith&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;roles&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;secondary&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful edit</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> &#8211; Validation checks failed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="delete">
+<dt id="delete--api-v0-notifications-notification_id">
+<code class="descname">DELETE </code><code class="descname">/api/v0/notifications/{notification_id}</code><a class="headerlink" href="#delete--api-v0-notifications-notification_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete user notification settings by id.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/api/v0/notifications/1234</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> &#8211; Successful delete</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> &#8211; Notification setting not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -1018,6 +2369,65 @@ the same as any non-linked event.</p>
         <span class="nt">&quot;is_reminder&quot;</span><span class="p">:</span> <span class="mi">1</span>
     <span class="p">}</span>
 <span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="api-v0-search">
+<h2>/api/v0/search<a class="headerlink" href="#api-v0-search" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--api-v0-search">
+<code class="descname">GET </code><code class="descname">/api/v0/search</code><a class="headerlink" href="#get--api-v0-search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint for searching for teams, services, users, and team users by keyword. Used for
+typeaheads in the frontend. Team/service search is done using substring matching, while
+user and team_user search is done with prefix matching. If no fields are provided, the
+endpoint defaults to [&#8216;teams&#8217;, &#8216;services&#8217;]. A keyword parameter must be passed in the
+query string.</p>
+<p><strong>Example request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/search?keyword=key</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+    <span class="p">{</span>
+        <span class="nt">&quot;services&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="nt">&quot;service-key&quot;</span><span class="p">:</span> <span class="s2">&quot;team-foo&quot;</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="nt">&quot;service-key2&quot;</span><span class="p">:</span> <span class="s2">&quot;team-bar&quot;</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="s2">&quot;teams&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;team-key&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;team-key2&quot;</span>
+            <span class="p">]</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>An example for user search:
+<strong>Example request</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/search?keyword=key&amp;fields=users</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;users&quot;</span><span class="p">:</span>
+        <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="nt">&quot;full_name&quot;</span><span class="p">:</span> <span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+                <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;jdoe&quot;</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </dd></dl>
