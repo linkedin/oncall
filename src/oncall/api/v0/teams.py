@@ -24,8 +24,6 @@ constraints = {
 
 def on_get(req, resp):
     '''
-    http:get:: /api/v0/teams
-
     Search for team names. Allows filtering based on a number of parameters, detailed below.
     Returns list of matching team names. If "active" parameter is unspecified, defaults to
     True (only displaying undeleted teams)

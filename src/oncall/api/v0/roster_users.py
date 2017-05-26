@@ -14,8 +14,6 @@ from ...constants import ROSTER_USER_ADDED
 
 def on_get(req, resp, team, roster):
     """
-    http:get:: /api/v0/teams/team-foo/rosters/roster-foo/users
-
     Get all users for a team's roster
 
     **Example request**:
