@@ -175,8 +175,7 @@
 <dl class="get">
 <dt id="get--api-v0-teams">
 <code class="descname">GET </code><code class="descname">/api/v0/teams</code><a class="headerlink" href="#get--api-v0-teams" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/teams</p>
-<p>Search for team names. Allows filtering based on a number of parameters, detailed below.
+<dd><p>Search for team names. Allows filtering based on a number of parameters, detailed below.
 Returns list of matching team names. If &#8220;active&#8221; parameter is unspecified, defaults to
 True (only displaying undeleted teams)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -499,8 +498,7 @@ will be empty objects.</p>
 <dl class="get">
 <dt id="get--api-v0-teams-team-oncall-role">
 <code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/oncall/{role}</code><a class="headerlink" href="#get--api-v0-teams-team-oncall-role" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/teams/(str:team_name)/oncall/(str:role)</p>
-<p>Get current active event for team based on given role.</p>
+<dd><p>Get current active event for team based on given role.</p>
 <p><strong>Example request</strong>:</p>
 <div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team_ops/oncall/primary</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
@@ -792,8 +790,7 @@ with their status as in/out of rotation).</p>
 <dl class="get">
 <dt id="get--api-v0-teams-team-rosters-roster">
 <code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}</code><a class="headerlink" href="#get--api-v0-teams-team-rosters-roster" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/teams/(str:team_name)/rosters</p>
-<p>Get user and schedule info for a roster</p>
+<dd><p>Get user and schedule info for a roster</p>
 <p><strong>Example request</strong>:</p>
 <div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/foo-sre/rosters</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
@@ -882,8 +879,7 @@ with their status as in/out of rotation).</p>
 <dl class="get">
 <dt id="get--api-v0-teams-team-rosters-roster-users">
 <code class="descname">GET </code><code class="descname">/api/v0/teams/{team}/rosters/{roster}/users</code><a class="headerlink" href="#get--api-v0-teams-team-rosters-roster-users" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/teams/team-foo/rosters/roster-foo/users</p>
-<p>Get all users for a team&#8217;s roster</p>
+<dd><p>Get all users for a team&#8217;s roster</p>
 <p><strong>Example request</strong>:</p>
 <div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/teams/team-foo/rosters/roster-foo/users</span>  <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
@@ -1558,8 +1554,7 @@ and user name.</p>
 <dl class="get">
 <dt id="get--api-v0-events">
 <code class="descname">GET </code><code class="descname">/api/v0/events</code><a class="headerlink" href="#get--api-v0-events" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="http:get">http:get</a>:: /api/v0/events</p>
-<p>Search for events. Allows filtering based on a number of parameters, detailed below.</p>
+<dd><p>Search for events. Allows filtering based on a number of parameters, detailed below.</p>
 <p><strong>Example request</strong>:</p>
 <div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v0/events?team=foo-sre&amp;end__gt=1487466146&amp;role=primary</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">example.com</span>
