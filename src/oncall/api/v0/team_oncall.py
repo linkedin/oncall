@@ -23,8 +23,6 @@ get_oncall_query = '''
 
 def on_get(req, resp, team, role):
     """
-    http:get:: /api/v0/teams/(str:team_name)/oncall/(str:role)
-
     Get current active event for team based on given role.
 
     **Example request**:

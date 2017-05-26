@@ -65,8 +65,6 @@ constraints = {
 
 def on_get(req, resp):
     """
-    http:get:: /api/v0/events
-
     Search for events. Allows filtering based on a number of parameters, detailed below.
 
     **Example request**:

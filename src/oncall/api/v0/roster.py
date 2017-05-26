@@ -15,8 +15,6 @@ from ...utils import create_audit
 
 def on_get(req, resp, team, roster):
     """
-    http:get:: /api/v0/teams/(str:team_name)/rosters
-
     Get user and schedule info for a roster
 
     **Example request**:
