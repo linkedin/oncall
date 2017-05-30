@@ -669,6 +669,7 @@ var oncall = {
           email = $form.find('#team-email').val(),
           slack = $form.find('#team-slack').val(),
           timezone = $form.find('#team-timezone').val(),
+          irisPlan = $form.find('#team-irisplan').val(),
           model = {};
 
       $form.find(':input[type="text"]').each(function(){
@@ -693,6 +694,7 @@ var oncall = {
               email: email,
               slack_channel: slack,
               scheduling_timezone: timezone,
+              iris_plan: irisPlan,
               page: self.data.route
             },
             state = (self.data.route === 'calendar') ? name : '/team/' + name + '/' + self.data.route;
@@ -2212,6 +2214,7 @@ var oncall = {
         $teamEmail.val($btn.attr('data-modal-email'));
         $teamSlack.val($btn.attr('data-modal-slack'));
         $teamIrisPlan.val($btn.attr('data-modal-irisplan'));
+        $planInput = $('#team-irisplan');
 
         results = new Bloodhound({
           datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
@@ -2222,7 +2225,8 @@ var oncall = {
             wildcard: '%QUERY'
           }
         });
-        $('#team-irisplan').typeahead(null, {
+        $planInput.typeahead('destroy');
+        $planInput.typeahead(null, {
           hint: true,
           async: true,
           highlight: true,
