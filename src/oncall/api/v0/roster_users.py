@@ -40,9 +40,12 @@ def on_get(req, resp, team, roster):
                JOIN `roster` ON `roster`.`id`=`roster_user`.`roster_id`
                JOIN `team` ON `team`.`id`=`roster`.`team_id`
                WHERE `roster`.`name`=%s AND `team`.`name`=%s'''
-    if req.get_param_as_bool('in_rotation'):
-        query += ' AND `roster_user`.`in_rotation` = 1'
-    cursor.execute(query, (roster, team))
+    in_rotation = req.get_param_as_bool('in_rotation')
+    query_params = [roster, team]
+    if in_rotation is not None:
+        query += ' AND `roster_user`.`in_rotation` = %s'
+        query_params.append(in_rotation)
+    cursor.execute(query, query_params)
     data = [r[0] for r in cursor]
     cursor.close()
     connection.close()

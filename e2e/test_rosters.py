@@ -160,18 +160,16 @@ def test_api_v0_auto_add_rosters_users_to_team(team, user, roster):
 def test_api_v0_rotation(team, user, roster):
     team_name = team.create()
     user_name = user.create()
+    user.add_to_team(user_name, team_name)
     roster_name = roster.create(team_name)
-
-    def setup():
-        requests.post(api_v0('teams/%s/users' % team_name),
-                      json={'name': user_name})
-
-    setup()
+    roster_name_2 = roster.create(team_name)
 
     # test adding user to a roster out of rotation
     re = requests.post(api_v0('teams/%s/rosters/%s/users' % (team_name, roster_name)),
                        json={'name': user_name, 'in_rotation': False})
     assert re.status_code == 201
+    requests.post(api_v0('teams/%s/rosters/%s/users' % (team_name, roster_name_2)),
+                  json={'name': user_name, 'in_rotation': False})
 
     # test fetching in-rotation users for a roster, verify user is not there
     re = requests.get(api_v0('teams/%s/rosters/%s/users?in_rotation=1' % (team_name, roster_name)))
@@ -187,6 +185,13 @@ def test_api_v0_rotation(team, user, roster):
 
     # verify user is now in rotation
     re = requests.get(api_v0('teams/%s/rosters/%s/users?in_rotation=1' % (team_name, roster_name)))
+    assert re.status_code == 200
+    users = re.json()
+    assert isinstance(users, list)
+    assert set(users) == set([user_name])
+
+    # verify other rosters unaffected
+    re = requests.get(api_v0('teams/%s/rosters/%s/users?in_rotation=0' % (team_name, roster_name_2)))
     assert re.status_code == 200
     users = re.json()
     assert isinstance(users, list)

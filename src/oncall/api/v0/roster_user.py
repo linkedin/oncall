@@ -111,8 +111,9 @@ def on_put(req, resp, team, roster, user):
     cursor = connection.cursor()
 
     cursor.execute('UPDATE `roster_user` SET `in_rotation`=%s '
-                   'WHERE `user_id` = (SELECT `id` FROM `user` WHERE `name`=%s)',
-                   (in_rotation, user))
+                   'WHERE `user_id` = (SELECT `id` FROM `user` WHERE `name`=%s)'
+                   'AND `roster_id` = (SELECT `id` FROM `roster` WHERE `name`=%s)',
+                   (in_rotation, user, roster))
     create_audit({'user': user, 'roster': roster, 'request_body': data},
                  team,
                  ROSTER_USER_EDITED,
