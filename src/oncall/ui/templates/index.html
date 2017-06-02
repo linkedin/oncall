@@ -129,11 +129,39 @@
   <div class="main container-fluid">
     <ul class="search-results">
     </ul>
-    {{#if this}}
-      <div class="recently-viewed">
+    {{#if this.pinned}}
+      <div class="landing-teams" id="pinned-teams">
+        <h3>Pinned Teams</h3>
+        <div class="card-wrap col-3">
+          {{#each this.pinned}}
+          <div class="module module-card dashboard-card card-column" data-team="{{this}}">
+            <div class="module-card-heading border-bottom">
+              <h4>
+                <span>
+                  <a href="/team/{{this}}" data-navigo>{{this}}</a>
+                </span>
+              </h4>
+              <span class="remove-card-column">
+                <i class="svg-icon grey-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
+                    <path d="M1.41 0l-1.41 1.41.72.72 1.78 1.81-1.78 1.78-.72.69 1.41 1.44.72-.72 1.81-1.81 1.78 1.81.69.72 1.44-1.44-.72-.69-1.81-1.78 1.81-1.81.72-.72-1.44-1.41-.69.72-1.78 1.78-1.81-1.78-.72-.72z" />
+                  </svg>
+                </i>
+              </span>
+            </div>
+            <div class="dashboard-card-inner">
+              <i class="loader"></i>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+      {{#if this.recent}}
+      <div class="landing-teams" id="recent-teams">
         <h3>Most Recently Viewed</h3>
         <div class="card-wrap col-3">
-          {{#each .}}
+          {{#each this.recent}}
           <div class="module module-card dashboard-card card-column" data-team="{{this}}">
             <div class="module-card-heading border-bottom">
               <h4>
@@ -199,14 +227,14 @@
   {{/if}}
 </script>
 
-<!--// recently viewed partial -->
-<script id="recently-viewed-inner-template" type="text/x-handlebars-template">
+<!--// landing teams partial -->
+<script id="landing-teams-inner-template" type="text/x-handlebars-template">
   <ul class="card-inner-wrapper">
     {{#ifNotEmpty data.current.primary}}
       <span class="subheading light">On Call Now</span>
       <li class="card-inner border-bottom" data-card-name="{{data.current.primary.0.full_name}}">
         <img class="card-picture" src="{{data.current.primary.0.photo_url}}" alt="{{data.current.primary.0.full_name}}">
-        <h4><strong><a class="recently-viewed-name" target="_blank" href="mailto:{{data.current.primary.0.user_contacts.email}}">{{data.current.primary.0.full_name}}</a></strong> <span class="badge pull-right" data-role="{{data.current.primary.0.role}}">{{data.current.primary.0.role}}</span></h4>
+        <h4><strong><a class="landing-teams-name" target="_blank" href="mailto:{{data.current.primary.0.user_contacts.email}}">{{data.current.primary.0.full_name}}</a></strong> <span class="badge pull-right" data-role="{{data.current.primary.0.role}}">{{data.current.primary.0.role}}</span></h4>
 
         {{#if data.current.primary.0.user_contacts.call}}
           <span class="light"><a href="tel:{{data.current.primary.0.user_contacts.call}}">{{data.current.primary.0.user_contacts.call}}</a></span>
@@ -262,11 +290,16 @@
         </h4>
         {% endraw %} {% endif %} {% raw %}
       </div>
-      <div class="pull-right" data-admin-action="true">
+      <div class="pull-right">
+        <span data-admin-action="true">
         {{#isEqual page "info"}}
-          <button class="btn btn-white add-roster-btn" data-toggle="modal" data-target="#input-modal" data-modal-action="oncall.team.info.addRoster" data-modal-title="Add roster" data-modal-placeholder="Roster Name"> + add roster </button>
-          <button id="#delete-team" class="btn btn-primary" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.deleteTeam" data-modal-title="Delete {{name}}" data-modal-content="Delete {{name}}?"> Delete Team </button>
+          <button id="#delete-team" class="btn btn-white" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.deleteTeam" data-modal-title="Delete {{name}}" data-modal-content="Delete {{name}}?"> Delete team </button>
+          <button class="btn btn-white add-roster-btn" data-toggle="modal" data-target="#input-modal" data-modal-action="oncall.team.info.addRoster" data-modal-title="Add roster" data-modal-placeholder="Roster Name"> Add roster </button>
         {{/isEqual}}
+        </span>
+        <span>
+          <button id="pin-team" class="btn btn-white" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.pinTeam" data-modal-title="Pin {{name}}" data-modal-content="Pin {{name}} to landing page?"> Pin to home </button>
+        </span>
       </div>
     </div>
   </div>

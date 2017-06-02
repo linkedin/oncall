@@ -171,6 +171,7 @@ def on_put(req, resp, event_id):
 def on_delete(req, resp, event_id):
     """
     Delete an event by id, anyone on the team can delete that team's events
+
     **Example request:**
 
     .. sourcecode:: http
