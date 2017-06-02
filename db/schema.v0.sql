@@ -30,6 +30,26 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE INDEX `username_unique` (`name` ASC));
 
 -- -----------------------------------------------------
+-- Table `pinned_team`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `pinned_team` (
+  `team_id` BIGINT(20) UNSIGNED NOT NULL,
+  `user_id` BIGINT(20) UNSIGNED NOT NULL,
+  INDEX `team_member_team_id_idx` (`team_id` ASC),
+  INDEX `team_member_user_id_idx` (`user_id` ASC),
+  PRIMARY KEY (`team_id`, `user_id`),
+  CONSTRAINT `pinned_team_team_id_fk`
+    FOREIGN KEY (`team_id`)
+    REFERENCES `team` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `pinned_team_user_id_fk`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
+
+-- -----------------------------------------------------
 -- Table `team_user`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `team_user` (

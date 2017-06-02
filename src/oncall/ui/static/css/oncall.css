@@ -537,13 +537,22 @@ nav.subnav li.active {
   padding: 16px;
 }
 
-.recently-viewed h3 {
+body[data-authenticated="false"] #pinned-teams {
+  display: none;
+}
+
+.landing-teams {
+  display: inline-block;
+  width: 100%;
+}
+
+.landing-teams h3 {
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid #dddedf;
 }
 
-.module-card .recently-viewed-name {
+.module-card .landing-teams-name {
   width: calc(100% - 60px);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -758,6 +767,10 @@ nav.subnav li.active {
  .subheader .edit-team-name:hover .pencil-icon:before {
   opacity: 1;
  }
+
+ body[data-authenticated="false"] #pin-team {
+  display: none;
+}
 
 .team-name-input {
   background: none;

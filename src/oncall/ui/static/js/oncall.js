@@ -411,10 +411,12 @@ var oncall = {
       summaryUrl: '/api/v0/teams/',
       pageSource: $('#search-template').html(),
       searchResultsSource: $('#search-results-template').html(),
-      cardInnerTemplate: $('#recently-viewed-inner-template').html(),
+      cardInnerTemplate: $('#landing-teams-inner-template').html(),
       endpointTypes: ['services', 'teams'],
       searchForm: '.main-search',
-      recentlyViewed: null
+      recentlyViewed: null,
+      pinnedTeams: null,
+      pinnedPromise: $.Deferred()
     },
     init: function(query){
       var $form,
@@ -427,117 +429,130 @@ var oncall = {
           self = this;
 
       Handlebars.registerPartial('dashboard-card-inner', this.data.cardInnerTemplate);
+      oncall.callbacks.onLogin = function(){
+        self.init();
+      };
       this.data.recentlyViewed = oncall.recentlyViewed.getItems();
-      this.renderPage();
-      this.getTeamSummaries();
-
-      $form = this.data.$page.find(this.data.searchForm);
-      $input = $form.find('.search-input');
-
-      if (query) {
-        this.getData.call(this, query);
-        $form.find('.search-input').val(decodeURIComponent(query.query));
+      if (oncall.data.user) {
+        $.get('/api/v0/users/' + oncall.data.user + '/pinned_teams').done(function(response){
+          self.data.pinnedTeams = response;
+          self.data.pinnedPromise.resolve();
+        })
+      } else {
+        this.data.pinnedPromise.resolve();
       }
 
-      services = new Bloodhound({
-        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        remote: {
-          url: this.data.url + '?keyword=%QUERY',
-          rateLimitWait: 200,
-          wildcard: '%QUERY',
-          transform: function(resp){
-            var newResp = [],
+      this.data.pinnedPromise.done(function() {
+        self.renderPage();
+        self.getTeamSummaries();
+        $form = self.data.$page.find(self.data.searchForm);
+        $input = $form.find('.search-input');
+
+        if (query) {
+          self.getData.call(self, query);
+          $form.find('.search-input').val(decodeURIComponent(query.query));
+        }
+
+        services = new Bloodhound({
+          datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+          queryTokenizer: Bloodhound.tokenizers.whitespace,
+          remote: {
+            url: self.data.url + '?keyword=%QUERY',
+            rateLimitWait: 200,
+            wildcard: '%QUERY',
+            transform: function(resp){
+              var newResp = [],
                 keys = Object.keys(resp.services);
 
-            servicesCt = keys.length;
-            for (var i = 0; i < keys.length; i++) {
-              newResp.push({
-                team: resp.services[keys[i]],
-                service: keys[i]
-              });
-            }
+              servicesCt = keys.length;
+              for (var i = 0; i < keys.length; i++) {
+                newResp.push({
+                  team: resp.services[keys[i]],
+                  service: keys[i]
+                });
+              }
 
-            return newResp;
-          }
-        }
-      });
-      teams = new Bloodhound({
-        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        remote: {
-          url: this.data.url + '?keyword=%QUERY',
-          rateLimitWait: 200,
-          wildcard: '%QUERY',
-          transform: function(resp){
-            teamsCt = resp.teams.length;
-            return resp.teams;
-          }
-        }
-      });
-
-      $input.typeahead(null, {
-        name: 'teams',
-        hint: true,
-        async: true,
-        highlight: true,
-        limit: typeaheadLimit,
-        source: teams,
-        templates: {
-          header: function(){
-            return '<h4> Teams </h4>';
-          },
-          suggestion: function(resp){
-            return '<div><a href="/team/' + resp + '" data-navigo>' + resp + '</a></div>';
-          },
-          footer: function(resp){
-            if (teamsCt > typeaheadLimit) {
-              return '<div class="tt-see-all"><a href="/query/' + resp.query + '/teams" data-navigo> See all ' + teamsCt + ' results for teams »</a></div>';
-            }
-          },
-          empty: function(resp){
-            return '<h4> No results found for "' + resp.query + '" </h4>';
-          }
-        }
-      },
-      {
-        name: 'services',
-        hint: true,
-        async: true,
-        highlight: true,
-        limit: typeaheadLimit,
-        displayKey: 'team',
-        source: services,
-        templates: {
-          header: function(){
-            return '<h4> Services </h4>';
-          },
-          suggestion: function(resp){
-            return '<div><a href="/team/' + resp.team + '" data-navigo>' + resp.service + ' - ' + '<i>' + resp.team + '</i></a></div>';
-          },
-          footer: function(resp){
-            if (servicesCt > typeaheadLimit) {
-              return '<div class="tt-see-all"><a href="/query/' + resp.query + '/services" data-navigo> See all ' + servicesCt + ' results for services »</a></div>';
+              return newResp;
             }
           }
-        }
-      });
+        });
+        teams = new Bloodhound({
+          datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+          queryTokenizer: Bloodhound.tokenizers.whitespace,
+          remote: {
+            url: self.data.url + '?keyword=%QUERY',
+            rateLimitWait: 200,
+            wildcard: '%QUERY',
+            transform: function(resp){
+              teamsCt = resp.teams.length;
+              return resp.teams;
+            }
+          }
+        });
 
-      $input
-      .on('typeahead:asyncrequest', function(){
-        $input.parents(self.data.searchForm).addClass('loading');
-      })
-      .on('typeahead:asyncreceive', function(){
-        $input.parents(self.data.searchForm).removeClass('loading');
-      })
-      .on('typeahead:asynccancel', function(){
-        $input.parents(self.data.searchForm).removeClass('loading');
-      })
-      .on('typeahead:render', function(){
-        router.updatePageLinks();
-      })
-      .on('typeahead:selected', function(){
-        router.navigate('/team/' + $(this).val());
+        $input.typeahead(null, {
+            name: 'teams',
+            hint: true,
+            async: true,
+            highlight: true,
+            limit: typeaheadLimit,
+            source: teams,
+            templates: {
+              header: function(){
+                return '<h4> Teams </h4>';
+              },
+              suggestion: function(resp){
+                return '<div><a href="/team/' + resp + '" data-navigo>' + resp + '</a></div>';
+              },
+              footer: function(resp){
+                if (teamsCt > typeaheadLimit) {
+                  return '<div class="tt-see-all"><a href="/query/' + resp.query + '/teams" data-navigo> See all ' + teamsCt + ' results for teams »</a></div>';
+                }
+              },
+              empty: function(resp){
+                return '<h4> No results found for "' + resp.query + '" </h4>';
+              }
+            }
+          },
+          {
+            name: 'services',
+            hint: true,
+            async: true,
+            highlight: true,
+            limit: typeaheadLimit,
+            displayKey: 'team',
+            source: services,
+            templates: {
+              header: function(){
+                return '<h4> Services </h4>';
+              },
+              suggestion: function(resp){
+                return '<div><a href="/team/' + resp.team + '" data-navigo>' + resp.service + ' - ' + '<i>' + resp.team + '</i></a></div>';
+              },
+              footer: function(resp){
+                if (servicesCt > typeaheadLimit) {
+                  return '<div class="tt-see-all"><a href="/query/' + resp.query + '/services" data-navigo> See all ' + servicesCt + ' results for services »</a></div>';
+                }
+              }
+            }
+          });
+
+        $input
+          .on('typeahead:asyncrequest', function(){
+            $input.parents(self.data.searchForm).addClass('loading');
+          })
+          .on('typeahead:asyncreceive', function(){
+            $input.parents(self.data.searchForm).removeClass('loading');
+          })
+          .on('typeahead:asynccancel', function(){
+            $input.parents(self.data.searchForm).removeClass('loading');
+          })
+          .on('typeahead:render', function(){
+            router.updatePageLinks();
+          })
+          .on('typeahead:selected', function(){
+            router.navigate('/team/' + $(this).val());
+          });
       });
     },
     events: function(){
@@ -555,7 +570,7 @@ var oncall = {
       $.get(this.data.url, param, this.renderResults.bind(this));
     },
     getTeamSummaries: function(){
-      var data = this.data.recentlyViewed,
+      var data = this.data.pinnedTeams ? this.data.recentlyViewed.concat(this.data.pinnedTeams) : this.data.recentlyViewed,
           self = this;
       if (data) {
         for (var i = 0; i < data.length; i++) {
@@ -581,7 +596,31 @@ var oncall = {
     },
     renderPage: function(){
       var template = Handlebars.compile(this.data.pageSource);
-      this.data.$page.html(template(this.data.recentlyViewed));
+      this.data.$page.html(template({recent: this.data.recentlyViewed, pinned: this.data.pinnedTeams}));
+
+      this.data.$page.on('click','.remove-card-column', function(){
+        var $teamCard = $(this).closest('.module-card'),
+            $pinnedTeams = $('#pinned-teams'),
+            teamName = $teamCard.attr('data-team');
+
+        oncall.data.$body.addClass('loading-view');
+        $.ajax({
+          type: 'DELETE',
+          url: 'api/v0/users/' + oncall.data.user + '/pinned_teams/' + teamName,
+          dataType: 'html'
+        }).done(function(){
+          $teamCard.hide();
+          if ($teamCard.siblings(':visible').length === 0) {
+            $pinnedTeams.hide()
+          }
+        }).fail(function(data){
+          var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Could not unpin team.';
+          oncall.alerts.createAlert('Failed: ' + error, 'danger');
+        }).always(function(){
+          oncall.data.$body.removeClass('loading-view');
+        });
+
+      });
       this.events();
     },
     renderCardInner: function(data){
@@ -612,7 +651,9 @@ var oncall = {
   team: {
     data: {
       $page: $('.content-wrapper'),
+      $pinButton: $('#pin-team'),
       url: '/api/v0/teams/',
+      pinUrl: '/api/v0/users/',
       teamSubheaderTemplate: $('#team-subheader-template').html(),
       subheaderWrapper: '.subheader-wrapper',
       deleteTeam: '#delete-team',
@@ -736,6 +777,28 @@ var oncall = {
       }).always(function(){
         $cta.removeClass('loading disabled').prop('disabled', false);
       });
+    },
+    pinTeam: function($modal) {
+      var $cta = $modal.find('.modal-cta'),
+          self = this;
+
+      $cta.addClass('loading disabled').prop('disabled', true);
+      $.ajax({
+          type: 'POST',
+          url: self.data.pinUrl + oncall.data.user + '/pinned_teams/',
+          contentType: 'application/json',
+          dataType: 'html',
+          data: JSON.stringify({team:self.data.teamName})
+        }).done(function(){
+          oncall.alerts.removeAlerts();
+          oncall.alerts.createAlert('Pinned team to home page', 'success');
+        }).fail(function(data){
+          var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Pinning team failed.';
+          oncall.alerts.createAlert(error, 'danger');
+        }).always(function(){
+        $cta.removeClass('loading disabled').prop('disabled', false);
+        $modal.modal('hide');
+        });
     },
     calendar: {
       data: {

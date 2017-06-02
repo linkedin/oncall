@@ -72,6 +72,10 @@ def init(application, config):
     from . import upcoming_shifts
     application.add_route('/api/v0/users/{user_name}/upcoming', upcoming_shifts)
 
+    from . import user_pinned_teams, user_pinned_team
+    application.add_route('/api/v0/users/{user_name}/pinned_teams', user_pinned_teams)
+    application.add_route('/api/v0/users/{user_name}/pinned_teams/{team_name}', user_pinned_team)
+
     # Optional Iris integration
     from . import iris_settings
     application.add_route('/api/v0/iris_settings', iris_settings)
