@@ -1092,6 +1092,13 @@ div[data-admin="false"] .team-info .toggle-rotation {
   display: inline-block;
 }
 
+.module-schedule .data-col.schedule-rotation {
+width: 70%;
+text-overflow: ellipsis;
+white-space: nowrap;
+overflow: hidden;
+}
+
 .module-schedule .data-col.schedule-roster {
   text-transform: none
 }

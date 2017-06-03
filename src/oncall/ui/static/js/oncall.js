@@ -1420,8 +1420,9 @@ var oncall = {
             msPerDay = msPerHour * 24,
             msPerWeek = msPerDay * 7;
 
-        $.getJSON(this.data.url + this.data.teamName).done(function(data){
+        $.when($.getJSON(this.data.url + this.data.teamName), oncall.data.rolesPromise).done(function(data){
           // shim api response for calendar / modules
+          data = data[0];
           for (var i in data.rosters) {
             if (data.rosters.hasOwnProperty(i)) {
               var item = data.rosters[i];
@@ -1744,6 +1745,7 @@ var oncall = {
               self.data.events = self.data.events.concat(events);
               $('.module-schedule[data-id="'+ id +'"]').remove();
               submitModel.id = id;
+              submitModel.is_12_hr = !submitModel.advanced_mode && submitModel.events.length > 1;
               self.data.$page.find(self.data.moduleScheduleWrapper).append(template(submitModel));
               self.data.$calendar.incalendar('refreshCalendarEvents', self.data.events, true);
             } else {

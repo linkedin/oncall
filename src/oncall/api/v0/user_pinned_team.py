@@ -31,4 +31,3 @@ def on_delete(req, resp, user_name, team_name):
     connection.close()
     if deleted == 0:
         raise HTTPNotFound()
-
