@@ -153,6 +153,8 @@ var oncall = {
 
     $body.attr('data-user', data.name);
     $nav.find('.user-dashboard-link').attr('href', '/dashboard/' + data.name);
+    //if data.photo_url is null replace with default headshot
+    data.photo_url = data.photo_url || '/static/images/headshot-blank.jpg';
     $container
       .find('.profile-picture').removeClass('placeholder').attr('src', data.photo_url)
       .end()
@@ -399,6 +401,8 @@ var oncall = {
     },
     renderUserDetails: function(data){
       var $el = this.data.$page.find(this.data.userDetails);
+      //if data.photo_url is null replace with default headshot
+      data.photo_url = data.photo_url || '/static/images/headshot-blank.jpg';
       $el.find('.headshot-large').attr('src', data.photo_url).removeClass('placeholder');
       $el.find('.user-details-name').text(data.full_name);
       $el.find('.user-details-email').html('<a href="mailto:' + data.contacts.email + '">' + data.contacts.email + '</a>');
@@ -2386,6 +2390,18 @@ var oncall = {
       return str.replace('#', '');
     });
 
+    //takes a photo_url and if null retuns the default blank headshot-blank
+   Handlebars.registerHelper('defaultPhoto', function(src){
+     // removes hash tag from string
+     if(src == null){
+       return "/static/images/headshot-blank.jpg";
+     }
+     else{
+       return src;
+     }
+   });
+
+
     Handlebars.registerHelper('getUserInfo', function(user, users, key){
       // accepts a user name, the user object containing all user contact info, and the key you need the value for
       if (!user || !users || !key || !users[user.name]) {
@@ -2401,6 +2417,11 @@ var oncall = {
         }
         return ctx[endKey] || "Unknown";
       } else {
+        //if a photo_url is requested return blank headshot instead of Unknown
+        if(key=='photo_url')
+        {
+          return users[user.name][key] || "/static/images/headshot-blank.jpg";
+        }
         return users[user.name][key] || "Unknown";
       }
     });
