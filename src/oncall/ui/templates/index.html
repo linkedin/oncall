@@ -93,7 +93,7 @@
         {{#each this}}
           {{#each this}}
           <li class="card-inner border-bottom" data-card-name="{{full_name}}">
-            <img class="card-picture" src="{{photo_url}}" alt="{{full_name}}">
+            <img class="card-picture" src="{{defaultPhoto photo_url}}" alt="{{full_name}}">
             <h4><strong>{{full_name}}</strong> <span class="badge pull-right" data-role="{{role}}">{{role}}</span></h4>
             <div class="light"><a href="mailto:{{user_contacts.email}}">{{user_contacts.email}}</a></div>
             <span class="light"><a href="tel:{{user_contacts.call}}">{{user_contacts.call}}</a></span>
@@ -233,7 +233,7 @@
     {{#ifNotEmpty data.current.primary}}
       <span class="subheading light">On Call Now</span>
       <li class="card-inner border-bottom" data-card-name="{{data.current.primary.0.full_name}}">
-        <img class="card-picture" src="{{data.current.primary.0.photo_url}}" alt="{{data.current.primary.0.full_name}}">
+        <img class="card-picture" src="{{defaultPhoto data.current.primary.0.photo_url}}" alt="{{data.current.primary.0.full_name}}">
         <h4><strong><a class="landing-teams-name" target="_blank" href="mailto:{{data.current.primary.0.user_contacts.email}}">{{data.current.primary.0.full_name}}</a></strong> <span class="badge pull-right" data-role="{{data.current.primary.0.role}}">{{data.current.primary.0.role}}</span></h4>
 
         {{#if data.current.primary.0.user_contacts.call}}
@@ -497,7 +497,7 @@
       {{#ifNotEmpty current.primary}}
         {{#each current.primary}}
           <li class="card-inner card-inner-slim border-bottom" data-card-name="{{full_name}}" data-collapsed="false">
-            <img class="card-picture-small" src="{{photo_url}}" alt="{{full_name}}">
+            <img class="card-picture-small" src="{{defaultPhoto photo_url}}" alt="{{full_name}}">
             <span class="card-inner-user">
               <strong>{{full_name}}</strong>
             </span>
@@ -527,7 +527,7 @@
         {{/each}}
         {{#each current.manager}}
           <li class="card-inner card-inner-slim border-bottom" data-card-name="{{full_name}}" data-collapsed="true">
-            <img class="card-picture-small" src="{{photo_url}}" alt="{{full_name}}">
+            <img class="card-picture-small" src="{{defaultPhoto photo_url}}" alt="{{full_name}}">
             <span class="card-inner-user">
               <strong>{{full_name}}</strong>
             </span>
@@ -1004,7 +1004,7 @@
 <script id="card-inner-template" type="text/x-handlebars-template">
   {{#if newItem}}
     <li class="card-inner border-bottom" data-card-name="{{user.name}}">
-      <img class="card-picture" src="{{user.photo_url}}" alt="{{user.name}}">
+      <img class="card-picture" src="{{defaultPhoto user.photo_url}}" alt="{{user.name}}">
       <strong class="card-inner-user"> {{user.full_name}} </strong>
       {{#unless admin}}
         <button class="badge toggle-rotation pull-right" data-in-rotation="true"> <span class="active-text">In Rotation</span> <span class="inactive-text">Out Of Rotation</span> </button>
@@ -1105,7 +1105,7 @@
           <td>Profile Picture</td>
           <td>
             <span class="profile-picture">
-              <img class="headshot" src="{{photo_url}}" alt="{{name}}">
+              <img class="headshot" src="{{defaultPhoto photo_url}}" alt="{{name}}">
             </span>
           </td>
         </tr>
