@@ -2393,12 +2393,7 @@ var oncall = {
     //takes a photo_url and if null retuns the default blank headshot-blank
    Handlebars.registerHelper('defaultPhoto', function(src){
      // removes hash tag from string
-     if(src == null){
-       return "/static/images/headshot-blank.jpg";
-     }
-     else{
-       return src;
-     }
+       return src || "/static/images/headshot-blank.jpg";
    });
 
 
