@@ -103,21 +103,24 @@ class RawPathPatcher(object):
 
 
 def init(config):
-    if not config.get('debug', False):
-        security_headers.append(
-            ('Content-Security-Policy',
-             # unsafe-eval is required for handlebars without precompiled templates
-             'default-src \'self\' \'unsafe-eval\'; '
-             'font-src \'self\' data: blob; img-src data: uri https: http:; '
-             'style-src \'unsafe-inline\' https: http:;'))
-        logging.basicConfig(level=logging.INFO)
-    else:
-        logging.basicConfig(level=logging.DEBUG)
-
     db.init(config['db'])
     constants.init(config)
     if 'iris_plan_integration' in config:
         iris.init(config['iris_plan_integration'])
+
+    if not config.get('debug', False):
+        security_headers.append(
+            ("Content-Security-Policy",
+             # unsafe-eval is required for handlebars without precompiled templates
+             "default-src 'self' %s 'unsafe-eval' ; "
+             "font-src 'self' data: blob; img-src data: uri https: http:; "
+             "style-src 'unsafe-inline' https: http:;" %
+             config.get('iris_plan_integration', {}).get('api_host', '')))
+        logging.basicConfig(level=logging.INFO)
+        logger.info('%s', security_headers)
+    else:
+        logging.basicConfig(level=logging.DEBUG)
+
     init_falcon_api(config)
 
     global application

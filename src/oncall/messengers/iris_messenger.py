@@ -2,12 +2,12 @@
 # See LICENSE in the project root for license information.
 
 
-from oncall.constants import EMAIL_SUPPORT, SMS_SUPPORT, CALL_SUPPORT
+from oncall.constants import EMAIL_SUPPORT, SMS_SUPPORT, CALL_SUPPORT, SLACK_SUPPORT
 from irisclient import IrisClient
 
 
 class iris_messenger(object):
-    supports = frozenset([EMAIL_SUPPORT, SMS_SUPPORT, CALL_SUPPORT])
+    supports = frozenset([EMAIL_SUPPORT, SMS_SUPPORT, CALL_SUPPORT, SLACK_SUPPORT])
 
     def __init__(self, config):
         self.iris_client = IrisClient(config['application'], config['iris_api_key'], config['api_host'])
