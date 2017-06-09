@@ -419,8 +419,7 @@ var oncall = {
       endpointTypes: ['services', 'teams'],
       searchForm: '.main-search',
       recentlyViewed: null,
-      pinnedTeams: null,
-      pinnedPromise: $.Deferred()
+      pinnedTeams: null
     },
     init: function(query){
       var $form,
@@ -430,7 +429,8 @@ var oncall = {
           teams,
           servicesCt,
           teamsCt,
-          self = this;
+          self = this,
+          pinnedPromise = $.Deferred();
 
       Handlebars.registerPartial('dashboard-card-inner', this.data.cardInnerTemplate);
       oncall.callbacks.onLogin = function(){
@@ -440,13 +440,13 @@ var oncall = {
       if (oncall.data.user) {
         $.get('/api/v0/users/' + oncall.data.user + '/pinned_teams').done(function(response){
           self.data.pinnedTeams = response;
-          self.data.pinnedPromise.resolve();
+          pinnedPromise.resolve();
         })
       } else {
-        this.data.pinnedPromise.resolve();
+        pinnedPromise.resolve();
       }
 
-      this.data.pinnedPromise.done(function() {
+      pinnedPromise.done(function() {
         self.renderPage();
         self.getTeamSummaries();
         $form = self.data.$page.find(self.data.searchForm);
