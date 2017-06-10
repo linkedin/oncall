@@ -47,12 +47,13 @@ def init(application, config):
     application.add_route('/api/v0/roles', roles)
     application.add_route('/api/v0/roles/{role}', role)
 
-    from . import events, event, event_swap, event_override, event_link
+    from . import events, event, event_swap, event_override, event_link, events_link
     application.add_route('/api/v0/events', events)
     application.add_route('/api/v0/events/{event_id}', event)
     application.add_route('/api/v0/events/swap', event_swap)
     application.add_route('/api/v0/events/override', event_override)
-    application.add_route('/api/v0/events/link', event_link)
+    application.add_route('/api/v0/events/link', events_link)
+    application.add_route('/api/v0/events/link/{link_id}', event_link)
 
     from . import users, user, user_teams, user_notifications
     application.add_route('/api/v0/users', users)

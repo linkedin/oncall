@@ -1,136 +1,64 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from falcon import HTTP_201, HTTPError, HTTPBadRequest
+from falcon import HTTP_201, HTTPError, HTTPBadRequest, HTTPNotFound, HTTPForbidden
 import time
 
 from ujson import dumps as json_dumps
 from ... import db
 from ...utils import (
-    load_json_body, gen_link_id, user_in_team_by_name
+    load_json_body, gen_link_id, user_in_team_by_name, create_notification, create_audit
 )
 from ...auth import login_required, check_calendar_auth
-
+from ...constants import EVENT_DELETED
 
 @login_required
-def on_post(req, resp):
+def on_delete(req, resp, link_id):
     """
-    Endpoint for creating linked events. Responds with event ids for created events.
-    Linked events can be swapped in a group, and users are reminded only on the first event of a
-    linked series. Linked events have a link_id attribute containing a uuid. All events
-    with an equivalent link_id are considered "linked together" in a single set. Editing any single event
-    in the set will break the link for that event, clearing the link_id field. Otherwise, linked events behave
-    the same as any non-linked event.
+    Delete a set of linked events using the link_id, anyone on the team can delete that team's events
 
     **Example request:**
 
     .. sourcecode:: http
 
-        POST /api/v0/events/link HTTP/1.1
-        Content-Type: application/json
+       DELETE /api/v0/events/link/1234 HTTP/1.1
 
-        [
-            {
-                "start": 1493667700,
-                "end": 149368700,
-                "user": "jdoe",
-                "team": "team-foo",
-                "role": "primary",
-            },
-            {
-                "start": 1493677700,
-                "end": 149387700,
-                "user": "jdoe",
-                "team": "team-foo",
-                "role": "primary",
-            }
-        ]
-
-    **Example response:**
-
-    .. sourcecode:: http
-
-        HTTP/1.1 201 Created
-        Content-Type: application/json
-
-        [1, 2]
-
-    :statuscode 201: Event created
-    :statuscode 400: Event validation checks failed
-    :statuscode 422: Event creation failed: nonexistent role/event/team
+    :statuscode 200: Successful delete
+    :statuscode 403: Delete not allowed; logged in user is not a team member
+    :statuscode 404: Events not found
     """
-    events = load_json_body(req)
-    if not isinstance(events, list):
-        raise HTTPBadRequest('Invalid argument',
-                             'events argument needs to be a list')
-    if not events:
-        raise HTTPBadRequest('Invalid argument', 'events list cannot be empty')
-
-    now = time.time()
-    team = events[0].get('team')
-    if not team:
-        raise HTTPBadRequest('Invalid argument',
-                             'event missing team attribute')
-    check_calendar_auth(team, req)
-
-    event_values = []
-    link_id = gen_link_id()
-
     connection = db.connect()
-    cursor = connection.cursor()
+    cursor = connection.cursor(db.DictCursor)
 
-    columns = ('`start`', '`end`', '`user_id`', '`team_id`', '`role_id`', '`link_id`')
-
-    try:
-        cursor.execute('SELECT `id` FROM `team` WHERE `name`=%s', team)
-        team_id = cursor.fetchone()
-        if not team_id:
-            raise HTTPBadRequest('Invalid event',
-                                 'Invalid team name: %s' % team)
-
-        values = [
-            '%s',
-            '%s',
-            '(SELECT `id` FROM `user` WHERE `name`=%s)',
-            '%s',
-            '(SELECT `id` FROM `role` WHERE `name`=%s)',
-            '%s'
-        ]
-
-        for ev in events:
-            if ev['end'] < now:
-                raise HTTPBadRequest('Invalid event',
-                                     'Creating events in the past not allowed')
-            if ev['start'] >= ev['end']:
-                raise HTTPBadRequest('Invalid event',
-                                     'Event must start before it ends')
-            ev_team = ev.get('team')
-            if not ev_team:
-                raise HTTPBadRequest('Invalid event', 'Missing team for event')
-            if team != ev_team:
-                raise HTTPBadRequest('Invalid event', 'Events can only be submitted to one team')
-            if not user_in_team_by_name(cursor, ev['user'], team):
-                raise HTTPBadRequest('Invalid event',
-                                     'User %s must be part of the team %s' % (ev['user'], team))
-            event_values.append((ev['start'], ev['end'], ev['user'], team_id, ev['role'], link_id))
-
-        insert_query = 'INSERT INTO `event` (%s) VALUES (%s)' % (','.join(columns), ','.join(values))
-        cursor.executemany(insert_query, event_values)
-        connection.commit()
-        cursor.execute('SELECT `id` FROM `event` WHERE `link_id`=%s', link_id)
-        ev_ids = [row[0] for row in cursor]
-    except db.IntegrityError as e:
-        err_msg = str(e.args[1])
-        if err_msg == 'Column \'role_id\' cannot be null':
-            err_msg = 'role not found'
-        elif err_msg == 'Column \'user_id\' cannot be null':
-            err_msg = 'user not found'
-        elif err_msg == 'Column \'team_id\' cannot be null':
-            err_msg = 'team "%s" not found' % team
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
-    finally:
+    cursor.execute('''SELECT `team`.`name` AS `team`, `event`.`team_id`, `role`.`name` AS `role`,
+                             `event`.`role_id`, `event`.`start`, `user`.`full_name`, `event`.`user_id`
+                      FROM `event`
+                      JOIN `team` ON `event`.`team_id` = `team`.`id`
+                      JOIN `role` ON `event`.`role_id` = `role`.`id`
+                      JOIN `user` ON `event`.`user_id` = `user`.`id`
+                      WHERE `event`.`link_id` = %s
+                      ORDER BY `event`.`start`''', link_id)
+    if cursor.rowcount == 0:
         cursor.close()
         connection.close()
+        raise HTTPNotFound()
+    data = cursor.fetchall()
+    ev = data[0]
 
-    resp.status = HTTP_201
-    resp.body = json_dumps(ev_ids)
+    try:
+        check_calendar_auth(ev['team'], req)
+    except HTTPForbidden:
+        cursor.close()
+        connection.close()
+        raise
+
+    cursor.execute('DELETE FROM `event` WHERE `link_id`=%s', link_id)
+
+    context = {'team': ev['team'], 'full_name': ev['full_name'], 'role': ev['role']}
+    create_notification(context, ev['team_id'], [ev['role_id']], EVENT_DELETED, [ev['user_id']], cursor,
+                        start_time=ev['start'])
+    create_audit({'old_event': data}, ev['team'], EVENT_DELETED, req, cursor)
+
+    connection.commit()
+    cursor.close()
+    connection.close()

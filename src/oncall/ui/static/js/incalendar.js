@@ -1427,6 +1427,35 @@
               })
             )
           )
+          .append(
+            $('<li class="toggle-input" />')
+            .append(
+              $('<label class="label-col label-swap-linked-to">Delete linked events</label>')
+            )
+            .append(
+              // #NOTE: This implementation is for deleting linked events
+              // but also for future editing linked events e.g. changing user.
+              // use the attribute 'data-edit-linked' on '.inv-event-details-edit'
+              // to determine if user wants changes to all linked events.
+
+              $('<input type="checkbox" id="toggle-edit-linked">')
+              .on('click', function(){
+                var $this = $(this),
+                    $modal = $this.parents('.inc-event-details-modal'),
+                    $editEventTab = $this.parents('.inc-event-details-edit');
+
+                if ($(this).prop('checked')) {
+                  $editEventTab.attr('data-edit-linked', true);
+                  $calendar.find('.inc-event[data-link-id="' + evt.link_id + '"]').attr('data-force-highlighted', true);
+                } else {
+                  $editEventTab.attr('data-edit-linked', false);
+                  $calendar.find('.inc-event[data-link-id="' + evt.link_id + '"]').attr('data-force-highlighted', false);
+                  $eventItem.attr('data-force-highlighted', true);
+                }
+              })
+            )
+            .append('<label for="toggle-edit-linked"></label>')
+          )
         )
         .append(
           $('<div class="inc-modal-actions" />')
@@ -1685,7 +1714,8 @@
     deleteEvent: function ($modal, evt) {
       var self = this,
           events = self.options.events,
-          url = this.options.eventsUrl + '/' + evt.id;
+          linked = $modal.find('.inc-event-details-edit').data('edit-linked'),
+          url = this.options.eventsUrl + '/' + ( linked ? 'link/' + evt.link_id : evt.id );
 
       $.ajax({
         type: 'DELETE',
@@ -1696,7 +1726,11 @@
         self.removeEventFromRowSlots(evt);
         self.options.events = self.options.events.filter(function(i){
           // remove self.options.events with the parent ID matching schedule ID
-          return i.id !== evt.id;
+          if (linked) {
+            return i.link_id !== evt.link_id;
+          } else {
+            return i.id !== evt.id;
+          }
         });
         self.refreshCalendarEvents();
         self.removeModal();

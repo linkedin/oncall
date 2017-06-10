@@ -455,6 +455,23 @@
   display: block;
 }
 
+.inc-event-details-modal[data-mode="edit"] .inc-event-details-edit {
+  position: relative;
+}
+
+.inc-event-details-modal[data-mode="edit"] .inc-event-details-edit[data-edit-linked="true"]:after {
+  display: block;
+  content: "";
+  position: absolute;
+  background: gray;
+  opacity: .4;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 156px;
+  z-index: 11;
+}
+
 .inc-event-details {
   border-top: 5px solid #dddedf;
   margin-top: 10px;
