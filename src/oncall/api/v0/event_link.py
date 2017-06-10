@@ -1,13 +1,10 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from falcon import HTTP_201, HTTPError, HTTPBadRequest, HTTPNotFound, HTTPForbidden
-import time
-
-from ujson import dumps as json_dumps
+from falcon import HTTPNotFound, HTTPForbidden
 from ... import db
 from ...utils import (
-    load_json_body, gen_link_id, user_in_team_by_name, create_notification, create_audit
+    create_notification, create_audit
 )
 from ...auth import login_required, check_calendar_auth
 from ...constants import EVENT_DELETED
