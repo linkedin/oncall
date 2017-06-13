@@ -55,6 +55,7 @@ constraints = {
     'team__contains': '`team`.`name` LIKE CONCAT("%%", %s, "%%")',
     'team__startswith': '`team`.`name` LIKE CONCAT(%s, "%%")',
     'team__endswith': '`team`.`name` LIKE CONCAT("%%", %s)',
+    'team_id': '`team`.`id` = %s',
     'user': '`user`.`name` = %s',
     'user__eq': '`user`.`name` = %s',
     'user__contains': '`user`.`name` LIKE CONCAT("%%", %s, "%%")',
@@ -110,6 +111,8 @@ def on_get(req, resp):
     :query user: user name
     :query role: role name
     :query id: id of the event
+    :query start: start time (unix timestamp) of event
+    :query end: end time (unix timestamp) of event
     :query start__gt: start time (unix timestamp) greater than
     :query start__ge: start time (unix timestamp) greater than or equal
     :query start__lt: start time (unix timestamp) less than
@@ -118,17 +121,15 @@ def on_get(req, resp):
     :query end__ge: end time (unix timestamp) greater than or equal
     :query end__lt: end time (unix timestamp) less than
     :query end__le: end time (unix timestamp) less than or equal
-    :query role: role name
     :query role__eq: role name
     :query role__contains: role name contains param
     :query role__startswith: role name starts with param
     :query role__endswith: role name ends with param
-    :query team: team name
     :query team__eq: team name
     :query team__contains: team name contains param
     :query team__startswith: team name starts with param
     :query team__endswith: team name ends with param
-    :query user: user name
+    :query team_id: team id
     :query user__eq: user name
     :query user__contains: user name contains param
     :query user__startswith: user name starts with param
