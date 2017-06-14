@@ -441,7 +441,7 @@ var oncall = {
         $.get('/api/v0/users/' + oncall.data.user + '/pinned_teams').done(function(response){
           self.data.pinnedTeams = response;
           pinnedPromise.resolve();
-        })
+        });
       } else {
         pinnedPromise.resolve();
       }
@@ -542,6 +542,7 @@ var oncall = {
           });
 
         $input
+          .trigger('focus')
           .on('typeahead:asyncrequest', function(){
             $input.parents(self.data.searchForm).addClass('loading');
           })
@@ -561,6 +562,7 @@ var oncall = {
     },
     events: function(){
       this.data.$page.on('submit', this.data.searchForm, this.updateSearch.bind(this));
+      this.data.$page.on('click','.remove-card-column', this.deletePinnedTeam);
       router.updatePageLinks();
     },
     getData: function(query) {
@@ -601,30 +603,6 @@ var oncall = {
     renderPage: function(){
       var template = Handlebars.compile(this.data.pageSource);
       this.data.$page.html(template({recent: this.data.recentlyViewed, pinned: this.data.pinnedTeams}));
-
-      this.data.$page.on('click','.remove-card-column', function(){
-        var $teamCard = $(this).closest('.module-card'),
-            $pinnedTeams = $('#pinned-teams'),
-            teamName = $teamCard.attr('data-team');
-
-        oncall.data.$body.addClass('loading-view');
-        $.ajax({
-          type: 'DELETE',
-          url: 'api/v0/users/' + oncall.data.user + '/pinned_teams/' + teamName,
-          dataType: 'html'
-        }).done(function(){
-          $teamCard.hide();
-          if ($teamCard.siblings(':visible').length === 0) {
-            $pinnedTeams.hide()
-          }
-        }).fail(function(data){
-          var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Could not unpin team.';
-          oncall.alerts.createAlert('Failed: ' + error, 'danger');
-        }).always(function(){
-          oncall.data.$body.removeClass('loading-view');
-        });
-
-      });
       this.events();
     },
     renderCardInner: function(data){
@@ -650,6 +628,25 @@ var oncall = {
 
       this.data.$page.find('.search-results').html(template(data));
       router.updatePageLinks();
+    },
+    deletePinnedTeam: function(e){
+      var $teamCard = $(this).parents('.module-card'),
+          $pinnedTeams = $('#pinned-teams'),
+          teamName = $teamCard.attr('data-team');
+
+      $.ajax({
+        type: 'DELETE',
+        url: 'api/v0/users/' + oncall.data.user + '/pinned_teams/' + teamName,
+        dataType: 'html'
+      }).done(function(){
+        $teamCard.remove();
+        if ($pinnedTeams.find('.module-card').length === 0) {
+          $pinnedTeams.hide()
+        }
+      }).fail(function(data){
+        var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Could not unpin team.';
+        oncall.alerts.createAlert('Failed: ' + error, 'danger');
+      });
     }
   },
   team: {
@@ -2494,11 +2491,16 @@ var oncall = {
           fixed = fixed || '';
 
       if (!$('#' + this.data.alertId).length) {
-        alert = '<div id="' + this.data.alertId + '" class="alert alert-'+ type +' alert-dismissible ' + fixed + '" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><span class="alert-content"></span></div>';
+        alert = '<div id="' + this.data.alertId + '" class="alert ' + fixed + '" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><span class="alert-content"></span></div>';
         $el[action](alert);
       }
 
-      $('#' + this.data.alertId).find('.alert-content').html(alertText);
+      $('#' + this.data.alertId)
+      .removeClass(function(i, className){
+        return (className.match (/(^|\s)alert-\S+/g) || []).join(' ');
+      })
+      .addClass('alert-' + type)
+      .find('.alert-content').html(alertText);
     },
     removeAlerts: function(){
       $('#' + this.data.alertId).remove();
