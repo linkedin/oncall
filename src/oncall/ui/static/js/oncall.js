@@ -920,7 +920,7 @@ var oncall = {
                 self.data.$calendar.find('[data-id="' + evtId + '"]').attr('data-modal-open', false);
               },
               user: oncall.data.user,
-              readOnly: oncall.data.user ? false : true,
+              readOnly: oncall.data.user && Object.keys(self.data.teamData.users).indexOf(oncall.data.user) !== -1 ? false : true,
               timezone: oncall.data.userTimezone,
               team: self.data.teamName,
               roles: oncall.data.roles
