@@ -1360,8 +1360,13 @@
         $('<ul class="inc-event-details inc-event-details-view" />')
         .append(
           $('<li />')
-          .append('<label class="label-col">Time: </label>')
-          .append('<span class="data-col">' + evt.origStartDateObj.format('M/D/YYYY HH:mm') + ' to ' +  evt.origEndDateObj.format('M/D/YYYY HH:mm') + '</span>')
+          .append('<label class="label-col">Start: </label>')
+          .append('<span class="data-col">' + evt.origStartDateObj.format('M/D/YYYY HH:mm') + '</span> <label class="small"> TZ: ' + (self.options.timezone ? self.options.timezone : 'System time') + '</label>')
+        )
+        .append(
+          $('<li />')
+          .append('<label class="label-col">End: </label>')
+          .append('<span class="data-col">' + evt.origEndDateObj.format('M/D/YYYY HH:mm') + '</span> <label class="small"> TZ: ' + (self.options.timezone ? self.options.timezone : 'System time') + '</label>')
         )
         .append(
           $('<li />')
