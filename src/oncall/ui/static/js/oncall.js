@@ -1109,6 +1109,7 @@ var oncall = {
       getData: function(name){
         var self = this;
         $.getJSON(this.data.url + this.data.teamName).done(function(data){
+          data.services.sort();
           self.data.teamData = data;
           self.renderPage(data);
           self.checkIfAdmin();
