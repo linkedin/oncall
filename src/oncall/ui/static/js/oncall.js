@@ -576,8 +576,10 @@ var oncall = {
       $.get(this.data.url, param, this.renderResults.bind(this));
     },
     getTeamSummaries: function(){
-      var data = this.data.pinnedTeams ? this.data.recentlyViewed.concat(this.data.pinnedTeams) : this.data.recentlyViewed,
-          self = this;
+      var self = this,
+          pinned = this.data.pinnedTeams ? this.data.pinnedTeams : [],
+          data = this.data.recentlyViewed ? this.data.recentlyViewed.concat(pinned) : pinned;
+
       if (data) {
         for (var i = 0; i < data.length; i++) {
           (function(i){

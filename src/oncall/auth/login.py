@@ -35,8 +35,11 @@ def on_post(req, resp):
     session['user'] = user
     session.save()
     csrf_token = '%x' % SystemRandom().getrandbits(128)
-    cursor.execute('INSERT INTO `session` (`id`, `csrf_token`) VALUES (%s, %s)',
-                   (req.env['beaker.session']['_id'], csrf_token))
+    try:
+        cursor.execute('INSERT INTO `session` (`id`, `csrf_token`) VALUES (%s, %s)',
+                       (req.env['beaker.session']['_id'], csrf_token))
+    except db.IntegrityError:
+        raise HTTPBadRequest('Invalid login attempt', 'User already logged in')
     connection.commit()
     cursor.close()
     connection.close()
