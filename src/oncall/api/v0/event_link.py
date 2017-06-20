@@ -9,6 +9,7 @@ from ...utils import (
 from ...auth import login_required, check_calendar_auth
 from ...constants import EVENT_DELETED
 
+
 @login_required
 def on_delete(req, resp, link_id):
     """

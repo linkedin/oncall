@@ -110,11 +110,14 @@ def on_put(req, resp, team, roster):
     """
     team, roster = unquote(team), unquote(roster)
     data = load_json_body(req)
-
+    name = data.get('name')
     check_team_auth(team, req)
-    if data['name'] == roster:
+
+    if not name:
+        raise HTTPBadRequest('invalid team name', 'team name is missing')
+    if name == roster:
         return
-    invalid_char = invalid_char_reg.search(data['name'])
+    invalid_char = invalid_char_reg.search(name)
     if invalid_char:
         raise HTTPBadRequest('invalid team name',
                              'team name contains invalid character "%s"' % invalid_char.group())
@@ -126,13 +129,13 @@ def on_put(req, resp, team, roster):
             '''UPDATE `roster` SET `name`=%s
                WHERE `team_id`=(SELECT `id` FROM `team` WHERE `name`=%s)
                    AND `name`=%s''',
-            (data['name'], team, roster))
-        create_audit({'old_name': roster, 'new_name': data['name']}, team, ROSTER_EDITED, req, cursor)
+            (name, team, roster))
+        create_audit({'old_name': roster, 'new_name': name}, team, ROSTER_EDITED, req, cursor)
         connection.commit()
     except db.IntegrityError as e:
         err_msg = str(e.args[1])
         if 'Duplicate entry' in err_msg:
-            err_msg = "roster '%s' already existed for team '%s'" % (data['name'], team)
+            err_msg = "roster '%s' already existed for team '%s'" % (name, team)
         raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
     finally:
         cursor.close()
