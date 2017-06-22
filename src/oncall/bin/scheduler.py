@@ -64,14 +64,19 @@ def get_roster_user_ids(roster_id, cursor):
     return [r['user_id'] for r in cursor]
 
 
-def get_busy_user_by_event_range(user_ids, team_id, start, end, cursor):
+def get_busy_user_by_event_range(user_ids, team_id, events, cursor):
     ''' Find which users have overlapping events for the same team in this time range'''
-    cursor.execute('''
-        SELECT `user_id`, COUNT(`id`) as `conflict_count` FROM `event`
-        WHERE `user_id` in %s AND %r < `end` AND `start` < %r AND team_id = %s
-        GROUP BY `user_id`
-        ''', (user_ids, start, end, team_id))
-    return [r['user_id'] for r in cursor.fetchall() if r['conflict_count'] > 0]
+    range_check = []
+    for e in events:
+        range_check.append('(%r < `end` AND `start` < %r)' % (e['start'], e['end']))
+
+    query = '''
+            SELECT DISTINCT `user_id` FROM `event`
+            WHERE `user_id` in %%s AND team_id = %%s AND (%s)
+            ''' % ' OR '.join(range_check)
+
+    cursor.execute(query, (user_ids, team_id))
+    return [r['user_id'] for r in cursor.fetchall()]
 
 
 def find_least_active_user_id_by_team(user_ids, team_id, start_time, role_id, cursor):
@@ -259,8 +264,7 @@ def find_least_active_available_user_id(team_id, role_id, roster_id, future_even
         return None
     logger.debug('filtering users: %s', user_ids)
     start = min([e['start'] for e in future_events])
-    end = max([e['end'] for e in future_events])
-    for uid in get_busy_user_by_event_range(user_ids, team_id, start, end, cursor):
+    for uid in get_busy_user_by_event_range(user_ids, team_id, future_events, cursor):
         user_ids.remove(uid)
     if not user_ids:
         logger.info('All users have conflicting events, skipping...')
