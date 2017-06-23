@@ -428,9 +428,10 @@
 
       return $calendar;
     },
-    addCalendarRows: function (count) {
+    addCalendarRows: function (count, nodeClass) {
       var self = this,
           $body = self.$calendar.find('.inc-body'),
+          nodeClass = nodeClass || 'inc-node',
           colCount = self.options.days.length,
           count = count || 1,
           $el = $('<div class="inc-row inc-month-row" />'),
