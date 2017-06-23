@@ -576,6 +576,7 @@
 }
 
 #inc-date-picker-widget .inc-toolbar {
+  color: grey;
   padding: 5px 0;
 }
 
@@ -587,10 +588,16 @@
   font-weight: 100;
   padding-left: 3px;
   cursor: pointer;
+  color: grey;
 }
 
 #inc-date-picker-widget .inc-date-picker-node:hover {
   background: #65C3E8;
+  color: #FFF;
+}
+
+#inc-date-picker-widget .inc-date-picker-node.selected {
+  background: #337ab7;
   color: #FFF;
 }
 

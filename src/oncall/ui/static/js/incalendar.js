@@ -111,7 +111,6 @@
   InCalendar.prototype = {
     init: function () {
       this.render();
-      this.datePicker();
       this.options.onInit.call(this, this);
     },
     render: function (date) {
@@ -134,6 +133,7 @@
       if (this.options.persistSettings) {
         this.localStorageService.addSetting('currentView', this.options.currentView);
       }
+      this.datePicker();
       this.options.onRender(this.$el);
     },
     _createMoment: function (date, format) {
@@ -1799,7 +1799,8 @@
     var $datePicker,
         $activeEl,
         cal = this,
-        currentDate = moment(),
+        currentDate,
+        originalDate,
         datePickerNodeClass = 'inc-date-picker-node',
         datePickerWidgetName = 'inc-date-picker-widget',
         today = moment();
@@ -1814,7 +1815,9 @@
 
     function activateDatePicker (e) {
       $activeEl = $(this);
-      render();
+      currentDate = moment($activeEl.val(), $activeEl.attr('placeholder'));
+      originalDate = moment($activeEl.val(), $activeEl.attr('placeholder'));
+      render(currentDate);
     }
 
     function buildDatePickerToolbar (date) {
@@ -1879,6 +1882,9 @@
         })
         .on('click', '.' + datePickerNodeClass, setDate)
         .append(buildDatePickerActionBar());
+
+      // Add active state to selected date.
+      $datePicker.find('.' + datePickerNodeClass + '[data-date="' + originalDate.format('YYYY/M/D') + '"]').addClass('selected');
     }
 
     function stepDatePicker (direction) {
