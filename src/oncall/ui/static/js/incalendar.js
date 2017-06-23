@@ -3,39 +3,40 @@
 ;(function ($, window, document, undefined) {
   var pluginName = "incalendar",
       defaults = {
-          firstDay: 0,
-          today: moment(),
-          startDate: moment(),
-          dateFormat: 'YYYY/M/D',
-          timeFormat: 'HH:mm',
-          displayDateFormat: 'M/D/YYYY',
-          displayTimeFormat: 'HH:mm',
-          months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-          monthsShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          controls: ['month', 'week'],
+          currentView: 'month',
+          currentViewRoles: null,
           days: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
           daysShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
-          controls: ['month', 'week'],
-          toolbar: true,
-          currentView: 'month',
-          rowCount: 2,
-          events: null,
+          dateFormat: 'YYYY/M/D',
+          datePickerClass: 'inc-date-picker',
+          displayDateFormat: 'M/D/YYYY',
+          displayTimeFormat: 'HH:mm',
           drag: true,
-          modalWidth: 400,
+          events: null,
           eventHeight: 22,
+          eventTypes: [],
+          firstDay: 0,
+          modalWidth: 400,
+          months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+          monthsShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          persistSettings: true, // save and retrieve settings to and from local storage
+          rowCount: 2,
+          readOnly: false,
           roles: [
             {'name': 'primary', 'display_order': 1},
             {'name': 'secondary', 'display_order': 2},
             {'name': 'vacation', 'display_order': 3}
           ],
           roleOrder: {},
-          currentViewRoles: null,
-          user: null,
+          startDate: moment(),
+          swapEvents: null, // #FIXME: swapevents shouldnt live in options
+          timeFormat: 'HH:mm',
+          today: moment(),
+          toolbar: true,
           timezone: null,
           team: null,
-          readOnly: false,
-          eventTypes: [],
-          swapEvents: null, // #FIXME: swapevents shouldnt live in options
-          persistSettings: true, // save and retrieve settings to and from local storage
+          user: null,
           onInit: function (pluginInstance) {
             // callback for when calendar is initialized
           },
@@ -78,7 +79,7 @@
 
     if (defaults.persistSettings && options.persistSettings !== false) {
       // Independently load local storage options and merge them to default before loading options passed by user. This is to maintain order of priority.
-      // Priority goes: default options -> local storage options -> options passed in at calendar init.
+      // Priority: default options -> local storage options -> options passed in at calendar init.
       this.localStorageService.init();
       defaults = $.extend( {}, defaults, this.localStorageService.settings );
     }
@@ -87,8 +88,8 @@
     this.options = $.extend( {}, defaults, options );
     this.options.today = this._createMoment(this.options.today);
     this.options.startDate = this._createMoment(this.options.startDate);
-    // set current view roles to match roles if no options are passed in and no
-    // local storage data is found
+    // set current view roles to match roles if no options are passed in and
+    // no local storage data is found
     if (!this.options.currentViewRoles) {
       this.options.currentViewRoles = [];
       for (var i = 0; i < this.options.roles.length; i++) {
@@ -110,6 +111,7 @@
   InCalendar.prototype = {
     init: function () {
       this.render();
+      this.datePicker();
       this.options.onInit.call(this, this);
     },
     render: function (date) {
@@ -118,7 +120,8 @@
       if (this.options.toolbar) {
         this.$el.append(this._buildToolbar(date));
       }
-      this.$el.append(this._buildCalendar(date));
+      this.$calendar = this._buildCalendar(date);
+      this.$el.append(this.$calendar);
       if (this.options.drag) {
         this._dragEventHandlers(this.$el.find('.inc-node'));
       }
@@ -153,26 +156,27 @@
         return moment(date, format);
       }
     },
-    _buildToolbar: function (date, view) {
+    _buildToolbar: function (date, view, controls, todayBtn) {
       var self = this,
-          controls = self.options.controls,
+          $calTitle = $('<div class="inc-toolbar-title" />'),
+          $controlLi,
+          $controlUl = $('<ul class="inc-toolbar-controls" />'),
+          $element = $('<div class="inc-toolbar" />'),
+          controls = controls || self.options.controls,
+          controlType,
+          dayTitle = 'Day',
+          date = date || self.options.startDate,
           months = self.options.months,
           monthsShort = self.options.monthsShort,
-          date = date || self.options.startDate,
-          view = view || self.options.currentView,
-          $element = $('<div class="inc-toolbar" />'),
-          $calTitle = $('<div class="inc-toolbar-title" />'),
           monthTitle = months[date.month()] + ' ' + date.year(),
+          todayBtn = todayBtn || true,
+          view = view || self.options.currentView,
           weekRange = self.getWeekRange(date),
-          weekTitle = monthsShort[weekRange.startDate.month()] + ' ' + weekRange.startDate.date() + ' - ' + monthsShort[weekRange.endDate.month()] + ' ' + weekRange.endDate.date() + ', ' + date.year(),
-          dayTitle = 'Day',
-          $controlUl = $('<ul class="inc-toolbar-controls" />'),
-          $controlLi,
-          controlType;
+          weekTitle = monthsShort[weekRange.startDate.month()] + ' ' + weekRange.startDate.date() + ' - ' + monthsShort[weekRange.endDate.month()] + ' ' + weekRange.endDate.date() + ', ' + date.year();
 
       for (var i = 0; i < controls.length; i++) {
         controlType = controls[i];
-        (function(controlType){
+        (function (controlType) {
           $controlUl
             .append( $('<li class="inc-toolbar-control" />')
               .addClass(function(){
@@ -193,7 +197,7 @@
         .append( $calTitle
           .append( $('<span class="inc-controls-title" />')
             .text(
-              function(){
+              function () {
                 if (view === 'day') {
                   return dayTitle;
                 } else if (view === 'week') {
@@ -207,28 +211,33 @@
           )
           .prepend( $('<span class="inc-controls-prev" data-type=' + view + ' />')
             .html('<i class="inc-icon icon-chevron icon-chevron-left"><svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 10 8" style="fill: currentColor; opacity: .7;"><path d="M4 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z" transform="translate(1)" /></svg></i>')
-            .click(function(){
+            .click(function () {
               self.stepCalendar('backward', view);
             })
           )
           .append( $('<span class="inc-controls-next" data-type=' + view + ' />')
             .html('<i class="inc-icon icon-chevron icon-chevron-right"><svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 10 8" style="fill: currentColor; opacity: .7;"><path d="M1.5 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z" transform="translate(1)" /></svg></i>')
-            .click(function(){
+            .click(function () {
               self.stepCalendar('forward', view);
             })
           )
-          .append( $('<button id="inc-controls-today" class="btn btn-blue">Today</button>')
-            .click(function(){
-              self.stepToDate(self.options.today);
-            })
+          .append(
+            function () {
+              if (todayBtn) {
+                $('<button id="inc-controls-today" class="btn btn-blue">Today</button>')
+                .click(function () {
+                  self.stepToDate(self.options.today);
+                });
+              }
+            }
           )
         );
 
       return $element;
     },
-    _buildCalendar: function(date, view, rowCount) {
+    _buildCalendar: function (date, view, rowCount, shortDayDisplay, nodeClass) {
       var self = this,
-          days = self.options.days,
+          days = shortDayDisplay ? self.options.daysShort : self.options.days,
           date = date || self.options.startDate,
           today = self.options.today,
           monthLength = self.daysInMonth(date),
@@ -236,6 +245,7 @@
           $calendar = $('<table class="inc-calendar" />'),
           $head = $('<thead class="inc-header" />'),
           $body = $('<tbody class="inc-body" />'),
+          nodeClass = nodeClass || 'inc-node',
           colCount = days.length,
           prevMonthDate,
           nextMonthDate,
@@ -248,7 +258,7 @@
           prevMonthArray = [],
           nextMonthArray = [];
 
-      function buildMonthCalendar() {
+      function buildMonthCalendar () {
         var $bodyTr,
             $el = $('<div class="inc-row inc-month-row" />'),
             headStr = '', // using string concat instead of append for perf.
@@ -299,11 +309,11 @@
               nextMonthArray[i][j] = k++
             }
             if (prevMonthArray[i][j]) {
-              bodyStr += '<td class="inc-node inc-day inc-day-out prev-month-day" data-date="' + prevMonthDate.format('YYYY/M/') + prevMonthArray[i][j] + '" data-time="00:00" data-day=' + self.options.daysShort[j].toLowerCase() + '>' + prevMonthArray[i][j] + '</td>';
+              bodyStr += '<td class="' + nodeClass + ' inc-day inc-day-out prev-month-day" data-date="' + prevMonthDate.format('YYYY/M/') + prevMonthArray[i][j] + '" data-time="00:00" data-day=' + self.options.daysShort[j].toLowerCase() + '>' + prevMonthArray[i][j] + '</td>';
             } else if (nextMonthArray[i][j]) {
-              bodyStr += '<td class="inc-node inc-day inc-day-out prev-month-day" data-date="' + nextMonthDate.format('YYYY/M/') + nextMonthArray[i][j] + '" data-time="00:00" data-day=' + self.options.daysShort[j].toLowerCase() + '>' + nextMonthArray[i][j] + '</td>';
+              bodyStr += '<td class="' + nodeClass + ' inc-day inc-day-out prev-month-day" data-date="' + nextMonthDate.format('YYYY/M/') + nextMonthArray[i][j] + '" data-time="00:00" data-day=' + self.options.daysShort[j].toLowerCase() + '>' + nextMonthArray[i][j] + '</td>';
             } else {
-              bodyStr += '<td class="inc-node inc-day' + ( date.clone().date(calArray[i][j]).isSame(today, 'd') ? ' today' : '') + '" data-date="' + date.format('YYYY/M/') + calArray[i][j] + '" data-time="00:00" data-day=' + self.options.daysShort[j].toLowerCase() + '>' + calArray[i][j] + '</td>';
+              bodyStr += '<td class="' + nodeClass + ' inc-day' + ( date.clone().date(calArray[i][j]).isSame(today, 'd') ? ' today' : '') + '" data-date="' + date.format('YYYY/M/') + calArray[i][j] + '" data-time="00:00" data-day=' + self.options.daysShort[j].toLowerCase() + '>' + calArray[i][j] + '</td>';
             }
           }
 
@@ -320,7 +330,7 @@
         }
       }
 
-      function buildWeekCalendar(date) {
+      function buildWeekCalendar (date) {
         var $el = $('<div class="inc-row inc-week-row" />'),
             headStr = '', // using string concat instead of append for perf.
             bodyStr = '',
@@ -347,7 +357,7 @@
           bodyStr = '<td class="inc-week-day">' + days[i] + '<br />' + startDate.format('M/D/YYYY') + '</td>';
 
           for(var j = 0, k = 1; j < weekColCt; j++) {
-            bodyStr += '<td class="inc-node inc-week-hour ' + (today.isSame(startDate.clone().hour(j), 'h') ? 'current-hour' : '') + '" data-date="' + startDate.format('YYYY/M/D') + '" data-time="' + (j < 10 ? '0' + j : j) + ':00"></td>';
+            bodyStr += '<td class="' + nodeClass + ' inc-week-hour ' + (today.isSame(startDate.clone().hour(j), 'h') ? 'current-hour' : '') + '" data-date="' + startDate.format('YYYY/M/D') + '" data-time="' + (j < 10 ? '0' + j : j) + ':00"></td>';
           }
 
           $el.append(
@@ -361,7 +371,7 @@
         }
       }
 
-      function buildTemplateCalendar() {
+      function buildTemplateCalendar () {
         var $el = $('<div class="inc-row inc-month-row" />'),
             headStr = '',
             bodyStr = '';
@@ -385,7 +395,7 @@
           $el = $('<div class="inc-row inc-month-row" />');
           bodyStr = '';
           for (var j = 0; j < colCount; j++) {
-            bodyStr += '<td class="inc-node inc-day" data-day="' + self.options.daysShort[j].toLowerCase() + '"></td>';
+            bodyStr += '<td class="' + nodeClass + ' inc-day" data-day="' + self.options.daysShort[j].toLowerCase() + '"></td>';
           }
 
           $el.append(
@@ -410,15 +420,15 @@
         buildMonthCalendar();
       }
 
-      self.$calendar = $calendar
-                        .attr('data-view', view)
-                        .attr('data-read-only', self.options.readOnly)
-                        .append($head)
-                        .append($body);
+      $calendar
+      .attr('data-view', view)
+      .attr('data-read-only', self.options.readOnly)
+      .append($head)
+      .append($body);
 
       return $calendar;
     },
-    addCalendarRows: function(count) {
+    addCalendarRows: function (count) {
       var self = this,
           $body = self.$calendar.find('.inc-body'),
           colCount = self.options.days.length,
@@ -431,7 +441,7 @@
         bodyStr = '';
 
         for (var j = 0; j < colCount; j++) {
-          bodyStr += '<td class="inc-node inc-day" data-day="' + self.options.daysShort[j].toLowerCase() + '"></td>';
+          bodyStr += '<td class="' + nodeClass + ' inc-day" data-day="' + self.options.daysShort[j].toLowerCase() + '"></td>';
         }
 
         $el.append(
@@ -707,11 +717,11 @@
 
       // sort event array so events with the same role are lined up together
       events.sort(function(a, b) {
-          var diff = self.options.roleOrder[a.role] - self.options.roleOrder[b.role];
-          if (diff === 0) {
-            diff = a.start - b.start;
-          }
-          return diff;
+        var diff = self.options.roleOrder[a.role] - self.options.roleOrder[b.role];
+        if (diff === 0) {
+          diff = a.start - b.start;
+        }
+        return diff;
       });
 
       for (var i = 0; i < events.length; i++) {
@@ -1184,7 +1194,7 @@
             )
             .append('<label class="label-col">Start: </label>')
             .append(
-              $('<input type="text" id="inc-event-start-date" name="inc-event-start-date" placeholder="YYYY/MM/DD" value="' + startDate + '" style="width:100px" /> ')
+              $('<input type="text" class="' + this.options.datePickerClass + '" id="inc-event-start-date" name="inc-event-start-date" placeholder="YYYY/MM/DD" value="' + startDate + '" style="width:100px" /> ')
               .on('change', function(){
                 self._renderOverrideOptions($modal);
               })
@@ -1201,7 +1211,7 @@
             $('<li />')
             .append('<label class="label-col">End: </label>')
             .append(
-              $('<input type="text" id="inc-event-end-date" name="inc-event-end-date" placeholder="YYYY/MM/DD" value="' + endDate + '" style="width:100px" /> ')
+              $('<input type="text" class="' + this.options.datePickerClass + '" id="inc-event-end-date" name="inc-event-end-date" placeholder="YYYY/MM/DD" value="' + endDate + '" style="width:100px" /> ')
               .on('change', function(){
                 self._renderOverrideOptions($modal);
               })
@@ -1397,7 +1407,7 @@
             $('<li />')
             .append('<label class="label-col">Start: </label>')
             .append(
-              $('<input type="text" id="inc-event-start-date" name="inc-event-start-date" placeholder="YYYY/MM/DD" value="' + evt.origStartDateObj.format('YYYY/M/D') + '" style="width:100px" /> ')
+              $('<input type="text" class="' + this.options.datePickerClass + '" id="inc-event-start-date" name="inc-event-start-date" placeholder="YYYY/MM/DD" value="' + evt.origStartDateObj.format('YYYY/M/D') + '" style="width:100px" /> ')
             )
             .append(
               $('<input type="text" id="inc-event-start-time" name="inc-event-start-time" placeholder="HH:MM" maxlength="5" value="' + evt.origStartDateObj.format('HH:mm') + '" style="width:60px" />')
@@ -1408,7 +1418,7 @@
             $('<li />')
             .append('<label class="label-col">End: </label>')
             .append(
-              $('<input type="text" id="inc-event-end-date" name="inc-event-end-date" placeholder="YYYY/MM/DD" value="' + evt.origEndDateObj.format('YYYY/M/D') + '" style="width:100px" /> ')
+              $('<input type="text" class="' + this.options.datePickerClass + '" id="inc-event-end-date" name="inc-event-end-date" placeholder="YYYY/MM/DD" value="' + evt.origEndDateObj.format('YYYY/M/D') + '" style="width:100px" /> ')
             )
             .append(
               $('<input type="text" id="inc-event-end-time" name="inc-event-end-time" placeholder="HH:MM" maxlength="5" value="' + evt.origEndDateObj.format('HH:mm') + '" style="width:60px" />')
@@ -1702,7 +1712,7 @@
 
         self.refreshCalendarEvents();
         self.removeModal();
-      }).fail(function(data){
+      }).fail(function (data) {
         var error = data.responseText ? JSON.parse(data.responseText).description : 'Request Failed';
         $modal.find('.error-text').text(error);
       });
@@ -1783,6 +1793,114 @@
         return false;
       }
     }
+  }
+
+  InCalendar.prototype.datePicker = function() {
+    var $datePicker,
+        $activeEl,
+        cal = this,
+        currentDate = moment(),
+        datePickerNodeClass = 'inc-date-picker-node',
+        datePickerWidgetName = 'inc-date-picker-widget',
+        today = moment();
+
+    function init () {
+      events();
+    }
+
+    function events () {
+      cal.$calendar.on('focus', '.' + cal.options.datePickerClass, activateDatePicker);
+    }
+
+    function activateDatePicker (e) {
+      $activeEl = $(this);
+      render();
+    }
+
+    function buildDatePickerToolbar (date) {
+      var $calTitle = $('<div class="inc-toolbar-title" />'),
+          $element = $('<div class="inc-toolbar" />'),
+          date = date || cal.options.startDate,
+          months = cal.options.months,
+          monthsShort = cal.options.monthsShort,
+          monthTitle = months[date.month()] + ' ' + date.year(),
+          view = 'month';
+
+      $element
+        .append( $calTitle
+          .append( $('<span class="inc-controls-title" />')
+            .text( monthTitle )
+          )
+          .prepend( $('<span class="inc-controls-prev" data-type=' + view + ' />')
+            .html('<i class="inc-icon icon-chevron icon-chevron-left"><svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 10 8" style="fill: currentColor; opacity: .7;"><path d="M4 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z" transform="translate(1)" /></svg></i>')
+            .click(function () {
+              stepDatePicker('backward');
+            })
+          )
+          .append( $('<span class="inc-controls-next" data-type=' + view + ' />')
+            .html('<i class="inc-icon icon-chevron icon-chevron-right"><svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 10 8" style="fill: currentColor; opacity: .7;"><path d="M1.5 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z" transform="translate(1)" /></svg></i>')
+            .click(function () {
+              stepDatePicker('forward');
+            })
+          )
+        );
+
+      return $element;
+    }
+
+    function buildDatePickerActionBar () {
+      var $element = $('<div class="inc-modal-actions" />');
+
+      $element
+        .append(
+          $('<button class="btn btn-blue">Cancel</button>')
+          .on('click', function(){
+            removeDatePicker();
+          })
+        )
+
+      return $element;
+    }
+
+    function render (date) {
+      var date = date && date._isAMomentObject ? date : moment();
+
+      if ($datePicker) { removeDatePicker() };
+
+      $datePicker = $('<div class="' + datePickerWidgetName + '" id="' + datePickerWidgetName + '" />');
+      $activeEl.after($datePicker);
+
+      $datePicker
+        .append(buildDatePickerToolbar(date))
+        .append(cal._buildCalendar(date, 'month', null, true, datePickerNodeClass))
+        .css({
+          top: $activeEl.position().top + $activeEl.outerHeight() + 3,
+          left: $activeEl.position().left
+        })
+        .on('click', '.' + datePickerNodeClass, setDate)
+        .append(buildDatePickerActionBar());
+    }
+
+    function stepDatePicker (direction) {
+      var dir = direction || 'forward',
+          method = dir === 'forward' ? 'add' : 'subtract';
+
+      currentDate[method](1, 'month');
+      render(currentDate);
+    }
+
+    function setDate () {
+      var $this = $(this);
+
+      $activeEl.val($this.data('date'));
+      removeDatePicker();
+    }
+
+    function removeDatePicker () {
+      $datePicker.remove();
+    }
+
+    init();
   }
 
   $.fn.incalendar = function (options) {
