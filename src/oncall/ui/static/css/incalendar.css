@@ -282,8 +282,6 @@
   width: 400px;
   padding: 20px;
   border: 1px solid #dddedf;
-  -webkit-box-shadow: 0 2px 6px rgba(75,75,75,0.3);
-  -moz-box-shadow: 0 2px 6px rgba(75,75,75,0.3);
   box-shadow: 0 2px 6px rgba(75,75,75,0.3);
   position: absolute;
   top: 0;
@@ -561,4 +559,63 @@
   fill: #91C475;
 }
 
+/* DatePicker Styles */
 
+#inc-date-picker-widget {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 250px;
+  padding: 5px;
+  overflow: hidden;
+  background: #FFF;
+  border: 1px solid #dddedf;
+  border-radius: 4px;
+  box-shadow: 1px 1px 6px rgba(75,75,75,0.3);
+  z-index: 101;
+}
+
+#inc-date-picker-widget .inc-toolbar {
+  color: grey;
+  padding: 5px 0;
+}
+
+#inc-date-picker-widget table {
+  border-bottom: none;
+}
+
+#inc-date-picker-widget .inc-date-picker-node {
+  font-weight: 100;
+  padding-left: 3px;
+  cursor: pointer;
+  color: grey;
+}
+
+#inc-date-picker-widget .inc-date-picker-node:hover {
+  background: #65C3E8;
+  color: #FFF;
+}
+
+#inc-date-picker-widget .inc-date-picker-node.selected {
+  background: #337ab7;
+  color: #FFF;
+}
+
+#inc-date-picker-widget .inc-controls-prev,
+#inc-date-picker-widget .inc-controls-next {
+  padding: 6px;
+}
+
+#inc-date-picker-widget .inc-controls-title {
+  min-width: 100px;
+}
+
+#inc-date-picker-widget .inc-node {
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+}
+
+#inc-date-picker-widget th {
+  padding-left: 3px;
+}
