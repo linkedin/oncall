@@ -6,7 +6,9 @@ from falcon import HTTP_201, HTTPError, HTTPBadRequest
 from ujson import dumps as json_dumps
 from ...auth import login_required, check_calendar_auth
 from ... import db
-from ...utils import load_json_body, user_in_team_by_name, create_notification, create_audit
+from ...utils import (
+    load_json_body, user_in_team_by_name, create_notification, create_audit
+)
 from ...constants import EVENT_CREATED
 
 columns = {
@@ -18,7 +20,8 @@ columns = {
     'user': '`user`.`name` as `user`',
     'full_name': '`user`.`full_name` as `full_name`',
     'schedule_id': '`event`.`schedule_id`',
-    'link_id': '`event`.`link_id`'
+    'link_id': '`event`.`link_id`',
+    'note': '`event`.`note`',
 }
 
 all_columns = ', '.join(columns.values())
@@ -66,7 +69,8 @@ constraints = {
 
 def on_get(req, resp):
     """
-    Search for events. Allows filtering based on a number of parameters, detailed below.
+    Search for events. Allows filtering based on a number of parameters,
+    detailed below.
 
     **Example request**:
 
@@ -219,13 +223,18 @@ def on_post(req, resp):
     check_calendar_auth(data['team'], req)
 
     columns = ['`start`', '`end`', '`user_id`', '`team_id`', '`role_id`']
-    values = ['%(start)s', '%(end)s', '(SELECT `id` FROM `user` WHERE `name`=%(user)s)',
+    values = ['%(start)s', '%(end)s',
+              '(SELECT `id` FROM `user` WHERE `name`=%(user)s)',
               '(SELECT `id` FROM `team` WHERE `name`=%(team)s)',
               '(SELECT `id` FROM `role` WHERE `name`=%(role)s)']
 
     if 'schedule_id' in data:
         columns.append('`schedule_id`')
         values.append('%(schedule_id)s')
+
+    if 'note' in data:
+        columns.append('`note`')
+        values.append('%(note)s')
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
@@ -241,10 +250,22 @@ def on_post(req, resp):
         cursor.execute('SELECT team_id, role_id, user_id, start, full_name '
                        'FROM event JOIN user ON user.`id` = user_id WHERE event.id=%s', event_id)
         ev_info = cursor.fetchone()
-        context = {'team': data['team'], 'role': data['role'], 'full_name': ev_info['full_name']}
-        create_notification(context, ev_info['team_id'], [ev_info['role_id']], EVENT_CREATED,
-                            [ev_info['user_id']], cursor, start_time=ev_info['start'])
-        create_audit({'new_event_id': event_id, 'request_body': data}, data['team'], EVENT_CREATED, req, cursor)
+        context = {
+            'team': data['team'],
+            'role': data['role'],
+            'full_name': ev_info['full_name']
+        }
+        create_notification(context, ev_info['team_id'],
+                            [ev_info['role_id']],
+                            EVENT_CREATED,
+                            [ev_info['user_id']],
+                            cursor,
+                            start_time=ev_info['start'])
+        create_audit({'new_event_id': event_id, 'request_body': data},
+                     data['team'],
+                     EVENT_CREATED,
+                     req,
+                     cursor)
         connection.commit()
     except db.IntegrityError as e:
         err_msg = str(e.args[1])

@@ -7,7 +7,9 @@ from falcon import HTTPNotFound, HTTPBadRequest, HTTPForbidden
 
 from ...auth import login_required, check_calendar_auth
 from ... import db
-from ...utils import load_json_body, user_in_team_by_name, create_notification, create_audit
+from ...utils import (
+    load_json_body, user_in_team_by_name, create_notification, create_audit
+)
 from ...constants import EVENT_DELETED, EVENT_EDITED
 
 from events import columns, all_columns
@@ -16,7 +18,8 @@ update_columns = {
     'start': '`start`=%(start)s',
     'end': '`end`=%(end)s',
     'role': '`role_id`=(SELECT `id` FROM `role` WHERE `name`=%(role)s)',
-    'user': '`user_id`=(SELECT `id` FROM `user` WHERE `name`=%(user)s)'
+    'user': '`user_id`=(SELECT `id` FROM `user` WHERE `name`=%(user)s)',
+    'note': '`note`=%(note)s'
 }
 
 
@@ -114,6 +117,7 @@ def on_put(req, resp, event_id):
                 `event`.`user_id`,
                 `event`.`role_id`,
                 `event`.`id`,
+                `event`.`note`,
                 `team`.`name` AS `team`,
                 `role`.`name` AS `role`,
                 `user`.`name` AS `user`,

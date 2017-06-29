@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   -- seconds since epoch (unix timestamp)
   `start` BIGINT(20) NOT NULL,
   `end` BIGINT(20) NOT NULL,
-
+  `note` TEXT,
   PRIMARY KEY (`id`),
   INDEX `event_role_id_fk_idx` (`role_id` ASC),
   INDEX `event_user_id_fk_idx` (`user_id` ASC),
