@@ -1245,6 +1245,14 @@
               })
             )
           )
+          .append(
+            $('<li />')
+            .append('<label class="label-col">Note: </label>')
+            .append(
+              $('<div class="input-col" />')
+              .append('<input type="text" id="inc-event-note" name="inc-event-note" value="" style="width:100%" /> ')
+            )
+          )
           .append('<h5 class="divider-text"> Substitute </h5>')
           .append(
             $('<li class="toggle-input" />')
@@ -1292,8 +1300,14 @@
               start: self._createMoment($modal.find('#inc-event-start-date').val() + ' ' + $modal.find('#inc-event-start-time').val()).valueOf(),
               end: self._createMoment($modal.find('#inc-event-end-date').val() + ' ' + $modal.find('#inc-event-end-time').val()).valueOf(),
               team: self.options.team,
-              user: $modal.find('#inc-event-user').val()
+              user: $modal.find('#inc-event-user').val(),
             }
+
+            var note = $modal.find('#inc-event-note').val();
+            if (!!note) {
+              evt.note = note;
+            }
+
             if ($modal.attr('data-override') === "true") {
               // override logic goes here
               $('#inc-override-event-list').find('input[type="checkbox"]:checked').each(function(){
@@ -1389,6 +1403,11 @@
           .append('<label class="label-col">User: </label>')
           .append('<span class="data-col">' + evt.user + '</span>')
         )
+        .append(
+          $('<li />')
+          .append('<label class="label-col">Note: </label>')
+          .append('<span class="data-col">' + (evt.note || "") + '</span>')
+        )
       )
       .append(
         $('<div class="inc-event-details inc-event-details-edit" />')
@@ -1444,6 +1463,14 @@
             )
           )
           .append(
+            $('<li />')
+            .append('<label class="label-col">Note: </label>')
+            .append(
+              $('<div class="input-col" />')
+              .append('<input type="text" id="inc-event-note" name="inc-event-note" value="' + (evt.note || '') + '" style="width:100%" /> ')
+            )
+          )
+          .append(
             $('<li class="toggle-input" />')
             .append(
               $('<label class="label-col label-swap-linked-to">Delete linked events</label>')
@@ -1494,6 +1521,7 @@
               updatedEvt.start = self._createMoment($modal.find('#inc-event-start-date').val() + ' ' + $modal.find('#inc-event-start-time').val()).valueOf();
               updatedEvt.end = self._createMoment($modal.find('#inc-event-end-date').val() + ' ' + $('#inc-event-end-time').val()).valueOf();
               updatedEvt.user = $('#inc-event-user').val();
+              updatedEvt.note = $('#inc-event-note').val();
               self.updateEvent($modal, updatedEvt);
             })
           )
@@ -1634,7 +1662,8 @@
             role: evt.role,
             start: evt.start / 1000,
             end: evt.end / 1000,
-            user: evt.user
+            user: evt.user,
+            note: evt.note,
           }
 
       // #TODO: convert times to second for API. find a better solution for interacting with api.
@@ -1652,6 +1681,7 @@
             item.end = evt.end;
             item.role = evt.role;
             item.user = evt.user;
+            item.note = evt.note;
             item.formatted = false;
             item.link_id = null; // break link on individual event swap
             delete item.full_name;

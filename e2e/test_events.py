@@ -73,7 +73,8 @@ def test_events(team, user, role):
         'role': role_name,
         'schedule_id': None,
         'link_id': None,
-        'full_name': None
+        'full_name': None,
+        'note': None,
     }
 
     # test get events by team
