@@ -233,6 +233,12 @@
   border-color: #91C475;
 }
 
+.inc-calendar .inc-event[data-type="unavailable"] {
+  background: #FFDFF6;
+  color: #720059;
+  border-color: #FF91CF;
+}
+
 .inc-calendar .inc-event[data-type="primary"][data-force-highlighted="true"],
 .inc-calendar .inc-event[data-type="primary"][data-highlighted="true"] {
   background: #EF7E37;
@@ -265,6 +271,13 @@
 .inc-calendar .inc-event[data-type="vacation"][data-highlighted="true"] {
   background: #469A1F;
   border-color: #22670F;
+  color: rgba(255,255,255,.9);
+}
+
+.inc-calendar .inc-event[data-type="unavailable"][data-force-highlighted="true"],
+.inc-calendar .inc-event[data-type="unavailable"][data-highlighted="true"] {
+  background: #FF1B90;
+  border-color: #AC0A70;
   color: rgba(255,255,255,.9);
 }
 
@@ -340,6 +353,10 @@
 
 .inc-modal[data-role="vacation"] .inc-event-details {
   border-color: #91C475;
+}
+
+.inc-modal[data-role="unavailable"] .inc-event-details {
+  border-color: #FF91CF;
 }
 
 .inc-modal-top-actions {
@@ -518,6 +535,11 @@
 #inc-override-event-list [data-type="vacation"],
 .inc-event-details-swap [data-type="vacation"] {
   color: #91C475;
+}
+
+#inc-override-event-list [data-type="unavailable"],
+.inc-event-details-swap [data-type="unavailable"] {
+  color: #FF91CF;
 }
 
 /* Read Only Overrides */

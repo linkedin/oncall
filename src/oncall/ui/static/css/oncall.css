@@ -824,6 +824,10 @@ body[data-authenticated="false"] #pinned-teams {
   background: #91C475;
 }
 
+.calendar-types .color-swatch[data-type="unavailable"] {
+  background: #FF91CF;
+}
+
 .calendar-tip {
   line-height: 28px;
   margin-bottom: 30px;
@@ -1020,6 +1024,10 @@ div[data-admin="false"] .team-info .toggle-rotation {
   border-color: #91C475;
 }
 
+.module-schedule-create[data-role="unavailable"] .border-bottom {
+  border-color: #FF91CF;
+}
+
 .module-schedule {
   width: 24%;
   margin: 0 .5%;
@@ -1053,6 +1061,10 @@ div[data-admin="false"] .team-info .toggle-rotation {
   border-color: #91C475;
 }
 
+.module-schedule[data-role="unavailable"] .schedule-actions {
+  border-color: #FF91CF;
+}
+
 .module-schedule[data-highlighted="true"] {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.2);
 }
@@ -1079,6 +1091,10 @@ div[data-admin="false"] .team-info .toggle-rotation {
 
 .module-schedule[data-role="vacation"][data-highlighted="true"] .schedule-actions {
   border-color: #469A1F;
+}
+
+.module-schedule[data-role="unavailable"][data-highlighted="true"] .schedule-actions {
+  border-color: #FF1B90;
 }
 
 .module-schedule .label-col {
@@ -1654,6 +1670,11 @@ footer li:first-child {
 .badge[data-role="vacation"] {
   background: #DCF0CB;
   color: #0E4507;
+}
+
+.badge[data-role="unavailable"] {
+  background: #FFDFF6;
+  color: #720059;
 }
 
 .module {

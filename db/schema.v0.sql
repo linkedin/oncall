@@ -120,7 +120,8 @@ VALUES ('primary', 1),
        ('secondary', 2),
        ('shadow', 3),
        ('manager', 4),
-       ('vacation', 5);
+       ('vacation', 5),
+       ('unavailable', 6);
 
 -- -----------------------------------------------------
 -- Table `schedule`
@@ -420,6 +421,6 @@ VALUES ('oncall_reminder',
         '%(full_name_0)s\'s shift beginning at %(start_time_0)s was swapped with %(full_name_1)s\'s shift beginning at %(start_time_1)s on the %(team)s calendar.',
         FALSE),
        ('event_substituted',
-        'Notice: %(full_name_0) substituted in for %(full_name_1)s',
+        'Notice: %(full_name_0)s substituted in for %(full_name_1)s',
         '%(full_name_0)s took over %(full_name_1)s\'s %(role)s shift on the %(team)s calendar from %(start_time)s to %(end_time)s',
         FALSE);
