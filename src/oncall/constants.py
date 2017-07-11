@@ -30,11 +30,15 @@ DEFAULT_ROLES = None
 DEFAULT_MODES = None
 DEFAULT_TIMES = None
 
+SUPPORTED_TIMEZONES = None
+
 
 def init(config):
     global DEFAULT_ROLES
     global DEFAULT_MODES
     global DEFAULT_TIMES
+    global SUPPORTED_TIMEZONES
     DEFAULT_ROLES = config['notifications']['default_roles']
     DEFAULT_MODES = config['notifications']['default_modes']
     DEFAULT_TIMES = config['notifications']['default_times']
+    SUPPORTED_TIMEZONES = config['supported_timezones']

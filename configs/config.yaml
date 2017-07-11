@@ -33,6 +33,16 @@ messengers:
 # allow_origins_list:
 #   - http://www.example.com
 
+supported_timezones:
+  - 'US/Pacific'
+  - 'US/Eastern'
+  - 'US/Central'
+  - 'US/Mountain'
+  - 'US/Alaska'
+  - 'US/Hawaii'
+  - 'Asia/Kolkata'
+  - 'UTC'
+
 index_content_setting:
   footer: |
     <ul>

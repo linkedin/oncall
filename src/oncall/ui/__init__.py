@@ -8,6 +8,7 @@ from __future__ import absolute_import
 
 import logging
 import re
+from ..constants import SUPPORTED_TIMEZONES
 from os import path, environ
 from falcon import HTTPNotFound
 from jinja2 import FileSystemLoader
@@ -73,7 +74,8 @@ def index(req, resp):
         user_setting_note=INDEX_CONTENT_SETTING['user_setting_note'],
         header_color=HEADER_COLOR,
         iris_plan_settings=IRIS_PLAN_SETTINGS,
-        footer=INDEX_CONTENT_SETTING['footer']
+        footer=INDEX_CONTENT_SETTING['footer'],
+        timezones=SUPPORTED_TIMEZONES
     )
 
 

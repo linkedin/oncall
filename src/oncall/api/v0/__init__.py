@@ -77,6 +77,9 @@ def init(application, config):
     application.add_route('/api/v0/users/{user_name}/pinned_teams', user_pinned_teams)
     application.add_route('/api/v0/users/{user_name}/pinned_teams/{team_name}', user_pinned_team)
 
+    from . import timezones
+    application.add_route('/api/v0/timezones', timezones)
+
     # Optional Iris integration
     from . import iris_settings
     application.add_route('/api/v0/iris_settings', iris_settings)
