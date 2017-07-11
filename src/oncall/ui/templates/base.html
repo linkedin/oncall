@@ -134,14 +134,9 @@
             <p>
               <label for="team-timezone"> Team Scheduling Timezone: </label>
               <select name="scheduling_timezone" id="team-timezone" class="form-control team-timezone">
-                <option value="US/Pacific">US/Pacific</option>
-                <option value="US/Eastern">US/Eastern</option>
-                <option value="US/Central">US/Central</option>
-                <option value="US/Mountain">US/Mountain</option>
-                <option value="US/Alaska">US/Alaska</option>
-                <option value="US/Hawaii">US/Hawaii</option>
-                <option value="Asia/Kolkata">Asia/Kolkata</option>
-                <option value="UTC">UTC</option>
+                {%  for timezone in timezones %}
+                  <option value="{{timezone}}">{{timezone}}</option>
+                {% endfor %}
               </select>
             </p>
             {%  if iris_plan_settings.activated %}

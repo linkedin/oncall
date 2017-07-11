@@ -15,30 +15,23 @@ var oncall = {
     userUrl: '/api/v0/users/',
     irisSettingsUrl: '/api/v0/iris_settings',
     rolesUrl: '/api/v0/roles/',
+    timezonesUrl: '/api/v0/timezones/',
     roles: null,  // will be fetched from API
-    irisSettings: null,
+    irisSettings: null,  // will be fetched from API
+    timezones: null,  // will be fetched from API
     modes: [
       'email',
       'sms',
       'slack',
       'call'
     ],
-    timezones: [
-      'US/Pacific',
-      'US/Eastern',
-      'US/Central',
-      'US/Mountain',
-      'US/Alaska',
-      'US/Hawaii',
-      'Asia/Kolkata',
-      'UTC'
-    ],
     userTimezone: null,
     userInfo: null,
     csrfKey: 'csrf-key',
     userInfoPromise: $.Deferred(),
     irisSettingsPromise: $.Deferred(),
-    rolesPromise: $.Deferred()
+    rolesPromise: $.Deferred(),
+    timezonesPromise: $.Deferred()
   },
   callbacks: {
     onLogin: function (data){
@@ -80,6 +73,7 @@ var oncall = {
       this.data.userInfoPromise.resolve();
     }
     this.getRoles();
+    this.getTimezones();
     Handlebars.registerPartial('error-page', this.data.errorTemplate);
   },
   login: function(e){
@@ -167,6 +161,13 @@ var oncall = {
         return a.display_order - b.display_order;
       });
       self.data.rolesPromise.resolve();
+    });
+  },
+  getTimezones: function() {
+    var self = this;
+    $.get(this.data.timezonesUrl).done(function (data) {
+      self.data.timezones = data;
+      self.data.timezonesPromise.resolve();
     });
   },
   getUpcomingShifts: function(){
@@ -1424,7 +1425,8 @@ var oncall = {
             msPerDay = msPerHour * 24,
             msPerWeek = msPerDay * 7;
 
-        $.when($.getJSON(this.data.url + this.data.teamName), oncall.data.rolesPromise).done(function(data){
+        $.when($.getJSON(this.data.url + this.data.teamName),
+          oncall.data.rolesPromise, oncall.data.timezonesPromise).done(function(data){
           // shim api response for calendar / modules
           data = data[0];
           for (var i in data.rosters) {
@@ -1925,11 +1927,13 @@ var oncall = {
       }
     },
     renderPage: function(data){
-      var template = Handlebars.compile(this.data.pageSource);
-
-      data.timezones = oncall.data.timezones;
-      this.data.$page.html(template(data));
-      this.events();
+      var template = Handlebars.compile(this.data.pageSource),
+           self = this;
+      oncall.data.timezonesPromise.done(function() {
+        data.timezones = oncall.data.timezones;
+        self.data.$page.html(template(data));
+        self.events();
+      });
     },
     updateSettings: function(e){
       e.preventDefault();
