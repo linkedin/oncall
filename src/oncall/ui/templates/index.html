@@ -494,9 +494,10 @@
       {{/if}}
     </div>
     <ul>
-      {{#ifNotEmpty current.primary}}
-        {{#each current.primary}}
-          <li class="card-inner card-inner-slim border-bottom" data-card-name="{{full_name}}" data-collapsed="false">
+      {{#if oncallNow}}
+        {{#each oncallNow}}
+          {{#each this}}
+          <li class="card-inner card-inner-slim border-bottom" data-card-name="{{full_name}}" data-collapsed="{{#ifExists collapsed}}{{collapsed}}{{else}}true{{/ifExists}}">
             <img class="card-picture-small" src="{{defaultPhoto photo_url}}" alt="{{full_name}}">
             <span class="card-inner-user">
               <strong>{{full_name}}</strong>
@@ -524,39 +525,11 @@
               </li>
             </ul>
           </li>
-        {{/each}}
-        {{#each current.manager}}
-          <li class="card-inner card-inner-slim border-bottom" data-card-name="{{full_name}}" data-collapsed="true">
-            <img class="card-picture-small" src="{{defaultPhoto photo_url}}" alt="{{full_name}}">
-            <span class="card-inner-user">
-              <strong>{{full_name}}</strong>
-            </span>
-            <span class="badge pull-right" data-role="{{role}}">{{role}}</span>
-            <ul class="card-inner-extra light small">
-              <li> SMS: <a href="tel:{{user_contacts.sms}}"> {{user_contacts.sms}} </a> </li>
-              <li> Slack: <a>{{user_contacts.slack}}</a> </li>
-              <li> E-Mail: <a target="_blank" href="mailto:{{user_contacts.email}}"> {{user_contacts.email}} </a> </li>
-            </ul>
-            <ul class="border-top card-content">
-              <li class="small light">
-                {{ convertUnixTime start}}  - <br> {{convertUnixTime end}}
-                <i class="svg-icon svg-icon-chevron svg-icon-chevron-down pull-right">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
-                    <path d="M1.5 0l-1.5 1.5 4 4 4-4-1.5-1.5-2.5 2.5-2.5-2.5z" transform="translate(0 1)" />
-                  </svg>
-                </i>
-                <i class="svg-icon svg-icon-chevron svg-icon-chevron-up pull-right">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
-                    <path d="M4 0l-4 4 1.5 1.5 2.5-2.5 2.5 2.5 1.5-1.5-4-4z" transform="translate(0 1)" />
-                  </svg>
-                </i>
-              </li>
-            </ul>
-          </li>
+          {{/each}}
         {{/each}}
       {{else}}
         <li> No one is on call. </li>
-      {{/ifNotEmpty}}
+      {{/if}}
     </ul>
   </div>
   <!-- Team Escalation modal -->
