@@ -494,8 +494,8 @@
       {{/if}}
     </div>
     <ul>
-      {{#if onCallNow}}
-        {{#each onCallNow}}
+      {{#if oncallNow}}
+        {{#each oncallNow}}
           {{#each this}}
           <li class="card-inner card-inner-slim border-bottom" data-card-name="{{full_name}}" data-collapsed="{{#ifExists collapsed}}{{collapsed}}{{else}}true{{/ifExists}}">
             <img class="card-picture-small" src="{{defaultPhoto photo_url}}" alt="{{full_name}}">

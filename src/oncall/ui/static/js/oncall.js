@@ -820,6 +820,7 @@ var oncall = {
         escalateModal: '#team-escalate-modal',
         cardExtra: '.card-inner[data-collapsed]',
         cardExtraChevron: '.card-inner[data-collapsed] .svg-icon-chevron',
+        oncallNowDisplayRoles: ['primary', 'secondary', 'manager'],
         timezoneDisplay: '.timezone-display',
         teamName: null,
         teamData: null
@@ -950,7 +951,7 @@ var oncall = {
             self = this,
             roles = oncall.data.roles;
 
-        data.onCallNow = [];
+        data.oncallNow = [];
         data.showEscalate = oncall.data.user && this.data.teamData.iris_plan;
 
         // Sort data for oncall now module by display_order
@@ -958,12 +959,12 @@ var oncall = {
         for (var i = 0, key, item, keys = Object.keys(data.current); i < keys.length; i++) {
           key = keys[i];
           item = data.current[key];
-          if (key !== 'vacation') {
-            data.onCallNow.push(item);
+          if (this.data.oncallNowDisplayRoles.indexOf(key) !== -1) {
+            data.oncallNow.push(item);
           }
         }
 
-        data.onCallNow.sort(function(a,b){
+        data.oncallNow.sort(function(a,b){
           var roleA = roles.filter(function(item){
             return item.name === a[0].role;
           })[0];
@@ -977,7 +978,9 @@ var oncall = {
 
         // Set first item in array to not be collapsed for UX
 
-        data.onCallNow[0][0].collapsed = false;
+        if (data.oncallNow.length) {
+          data.oncallNow[0][0].collapsed = false;
+        }
 
         oncall.data.irisSettingsPromise.done(function(){
           data.showEscalate = data.showEscalate && oncall.data.irisSettings.activated;
