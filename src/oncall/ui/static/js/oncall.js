@@ -977,7 +977,9 @@ var oncall = {
 
         // Set first item in array to not be collapsed for UX
 
-        data.onCallNow[0][0].collapsed = false;
+        if (data.onCallNow.length) {
+          data.onCallNow[0][0].collapsed = false;
+        }
 
         oncall.data.irisSettingsPromise.done(function(){
           data.showEscalate = data.showEscalate && oncall.data.irisSettings.activated;
