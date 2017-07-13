@@ -16,7 +16,7 @@ Development setup
 
 ```bash
 python setup.py develop
-pip install -r dev_requirements.txt
+pip install -e .[dev]
 ```
 
 Setup mysql schema:

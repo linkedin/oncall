@@ -32,6 +32,20 @@ setuptools.setup(
         'irisclient',
         'slackclient',
     ],
+    extras_require={
+        'ldap': ['python-ldap'],
+        'dev': [
+            'pytest',
+            'pytest-mock',
+            'requests',
+            'gunicorn',
+            'flake8',
+            'Sphinx==1.5.6',
+            'sphinxcontrib-httpdomain',
+            'sphinx_rtd_theme',
+            'sphinx-autobuild',
+        ],
+    },
     entry_points={
         'console_scripts': [
             'oncall-dev = oncall.bin.run_server:main',

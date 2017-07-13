@@ -22,6 +22,10 @@ session:
 auth:
   debug: True
   module: 'oncall.auth.modules.debug'
+#   module: 'oncall.auth.modules.ldap_example'
+#   ldap_url: 'ldaps://example.com'
+#   ldap_user_suffix: '@example.biz'
+#   ldap_cert_path: '/etc/ldap_cert.pem'
 notifier:
   skipsend: True
 healthcheck_path: /tmp/status
@@ -77,4 +81,17 @@ iris_plan_integration:
 #   oauth_access_token: 'foo'
 #
 # user_sync:
-#   module: 'oncall.user_sync.slack'
+#   module: 'oncall.user_sync.ldap_sync'
+# ldap_sync:
+#   url: 'ldaps://example.com'
+#   base: 'ou=Staff Users,dc=multiforest,dc=biz'
+#   user: 'CN=example,DC=multiforest,DC=biz'
+#   password: 'password'
+#   cert_path: '/etc/ldap_cert.pem'
+#   query: '(&(objectClass=userProxy)(employeeId=*))'
+#   attrs:
+#     username: 'sAMAccountName'
+#     full_name: 'displayName'
+#     mail: 'mail'
+#     mobile: 'mobile'
+#   image_url: 'https://image.example.com/api/%s/picture'
