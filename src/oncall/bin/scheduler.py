@@ -118,6 +118,15 @@ def find_new_user_in_roster(roster_id, team_id, start_time, role_id, cursor):
 
 
 def create_events(team_id, schedule_id, user_id, events, role_id, cursor):
+    # Skip creating this epoch of events if matching events exist
+    matching = ' OR '.join(['(start = %s AND end = %s AND role_id = %s AND team_id = %s)'] * len(events))
+    query_params = []
+    for ev in events:
+        query_params += [ev['start'], ev['end'], role_id, team_id]
+    cursor.execute('SELECT COUNT(*) AS num_events FROM event WHERE %s' % matching, query_params)
+    if cursor.fetchone()['num_events'] == len(events):
+        return
+
     if len(events) == 1:
         [event] = events
         event_args = (team_id, schedule_id, event['start'], event['end'], user_id, role_id)
