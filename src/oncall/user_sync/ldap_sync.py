@@ -204,7 +204,7 @@ def sync(config, engine):
         logger.debug('Inserting %s' % username)
         full_name = ldap_users[username].pop('name')
         try:
-            user_id = engine.execute(user_add_sql, (username, full_name, LDAP_SETTINGS['image_url'] % username)).lastrowid
+            user_id = engine.execute(user_add_sql, (username, full_name)).lastrowid
         except SQLAlchemyError:
             stats['users_failed_to_add'] += 1
             stats['sql_errors'] += 1
@@ -234,7 +234,7 @@ def sync(config, engine):
                 engine.execute(name_update_sql, (full_name, username))
                 stats['user_names_updated'] += 1
             if not db_contacts.get('photo_url'):
-                engine.execute(photo_update_sql, (LDAP_SETTINGS['image_url'] % username, username))
+                engine.execute(photo_update_sql, (username))
                 stats['user_photos_updated'] += 1
             for mode in modes:
                 if mode in ldap_contacts and ldap_contacts[mode]:
