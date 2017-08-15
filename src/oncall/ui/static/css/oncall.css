@@ -859,6 +859,10 @@ body[data-authenticated="false"] #escalate-btn {
   display: none;
 }
 
+#escalate-plan {
+  width: 35%;
+}
+
 #escalate-description {
   height: 100px;
   resize: vertical;
@@ -1855,6 +1859,7 @@ select.form-control {
   transition: box-shadow .15s;
   color: rgba(0,0,0,.85);
   padding: 4px 12px;
+  padding-right: 25px;
   width: 100%;
   background: url('../images/chevron-bottom.svg') right 9px top 13px no-repeat transparent;
 }
