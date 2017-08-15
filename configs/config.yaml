@@ -85,6 +85,18 @@ iris_plan_integration:
   api_key: magic
   api_host: http://localhost:16649
   plan_url: '/v0/applications/oncall/plans'
+  urgent_plan:
+    name: 'Oncall Urgent'
+    dynamic_targets:
+      - role: 'oncall-primary'
+      - role: 'team'
+      - role: 'manager'
+  medium_plan:
+    name: 'Oncall Medium'
+    dynamic_targets:
+      - role: 'oncall-primary'
+      - role: 'team'
+      - role: 'manager'
 
 
 # slack:

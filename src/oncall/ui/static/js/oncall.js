@@ -678,6 +678,7 @@ var oncall = {
           email = $form.find('#team-email').val(),
           slack = $form.find('#team-slack').val(),
           timezone = $form.find('#team-timezone').val(),
+          $irisEnabled = $form.find('#team-iris-enabled'),
           model = {};
 
       $form.find(':input[type="text"]').each(function(){
@@ -687,6 +688,7 @@ var oncall = {
         }
       });
       model[$form.find('#team-timezone').attr('name')] = timezone;
+      model[$irisEnabled.attr('name')] = $irisEnabled.prop('checked');
 
       $cta.addClass('loading disabled').prop('disabled', true);
       $.ajax({
@@ -715,15 +717,15 @@ var oncall = {
           slack = $form.find('#team-slack').val(),
           timezone = $form.find('#team-timezone').val(),
           irisPlan = $form.find('#team-irisplan').val(),
+          irisEnabled = $form.find('#team-iris-enabled').prop('checked'),
           model = {};
 
-      $form.find(':input[type="text"]').each(function(){
+      $form.find(':input[type="text"]').not('.tt-hint').each(function(){
         var $this = $(this);
-        if ($this.val().length) {
-          model[$this.attr('name')] = $this.val();
-        }
+        model[$this.attr('name')] = $this.val();
       });
       model[$form.find('#team-timezone').attr('name')] = timezone;
+      model[$form.find('#team-iris-enabled').attr('name')] = irisEnabled;
 
       $cta.addClass('loading disabled').prop('disabled', true);
       $.ajax({
@@ -740,6 +742,7 @@ var oncall = {
               slack_channel: slack,
               scheduling_timezone: timezone,
               iris_plan: irisPlan,
+              iris_enabled: irisEnabled ? '1' : '0',
               page: self.data.route
             },
             state = (self.data.route === 'calendar') ? name : '/team/' + name + '/' + self.data.route;
@@ -818,6 +821,7 @@ var oncall = {
         addCardTemplate: $('#add-card-item-template').html(),
         calendarTypesTemplate: $('#calendar-types-template').html(),
         escalateModal: '#team-escalate-modal',
+        escalatePlanSelect: '#escalate-plan',
         cardExtra: '.card-inner[data-collapsed]',
         cardExtraChevron: '.card-inner[data-collapsed] .svg-icon-chevron',
         oncallNowDisplayRoles: ['primary', 'secondary', 'manager'],
@@ -844,6 +848,7 @@ var oncall = {
       },
       events: function(){
         this.data.$page.on('click', this.data.cardExtraChevron, this.toggleCardExtra.bind(this));
+        this.data.$page.on('change', this.data.escalatePlanSelect, this.updatePlanDescription.bind(this));
         router.updatePageLinks();
       },
       getData: function(name){
@@ -947,12 +952,12 @@ var oncall = {
       },
       renderTeamSummary: function(data){
         var template = Handlebars.compile(this.data.cardOncallTemplate),
-            $container = this.data.$page.find('#oncall-now-container');
+            $container = this.data.$page.find('#oncall-now-container'),
             self = this,
             roles = oncall.data.roles;
 
         data.oncallNow = [];
-        data.showEscalate = oncall.data.user && this.data.teamData.iris_plan;
+        data.showEscalate = oncall.data.user && this.data.teamData.iris_enabled;
 
         // Sort data for oncall now module by display_order
 
@@ -985,7 +990,9 @@ var oncall = {
         oncall.data.irisSettingsPromise.done(function(){
           data.showEscalate = data.showEscalate && oncall.data.irisSettings.activated;
           if (data.showEscalate) {
-            data.iris_plan = self.data.teamData.iris_plan;
+            data.custom_plan = self.data.teamData.iris_plan;
+            data.urgent_plan = oncall.data.irisSettings.urgent_plan.name;
+            data.medium_plan = oncall.data.irisSettings.medium_plan.name;
           }
           $container.html(template(data));
           self.setupEscalateModal();
@@ -1055,14 +1062,33 @@ var oncall = {
           );
         }
       },
+      updatePlanDescription: function() {
+        var $modal = $(this.data.escalateModal),
+            plan = $modal.find('#escalate-plan').find('option:selected').text(),
+            $description = $modal.find('#escalate-plan-description');
+        switch (plan){
+          case oncall.data.irisSettings.urgent_plan.name:
+            $description.html('<i>For urgent escalations. <b>WARNING: This will call the current on-call</b></i>');
+            break;
+          case oncall.data.irisSettings.medium_plan.name:
+            $description.html('<i>For medium-priority escalations.</i>');
+            break;
+          case this.data.teamData.iris_plan:
+            $description.html('<i>Escalate using this team\'s custom plan</i>');
+            break;
+        }
+
+      },
       setupEscalateModal: function(){
         var $modal = $(this.data.escalateModal),
             $modalForm = $modal.find('.modal-form'),
+            $modalBody = $modal.find('.modal-body'),
             $modalInput = $modalForm.find('.create-input'),
             $modalBtn = $modal.find('#escalate-btn'),
             $cta = $modal.find('.modal-cta'),
             self = this;
 
+        this.updatePlanDescription();
         $modal.on('shown.bs.modal', function(){
           $modalInput.trigger('focus');
         });
@@ -1077,14 +1103,16 @@ var oncall = {
             url: self.data.url + self.data.teamName + '/iris_escalate',
             contentType: 'application/json',
             dataType: 'html',
-            data: JSON.stringify({description:$modalForm.find('#escalate-description').val()})
-          }).done(function(){
+            data: JSON.stringify({description: $modalForm.find('#escalate-description').val(),
+                                  plan: $modalForm.find('#escalate-plan').val()})
+          }).done(function(response){
             $modal.modal('hide');
             oncall.alerts.removeAlerts();
-            oncall.alerts.createAlert('Escalated incident to ' + self.data.teamName + ' successfully, using the ' + self.data.teamData.iris_plan + ' Iris plan.', 'success');
+            oncall.alerts.createAlert('Escalated incident to ' + self.data.teamName + ' successfully. <a href="'
+              + oncall.data.irisSettings.api_host + '/incidents/' + response + '">See incident details.</a>', 'success');
           }).fail(function(data){
             var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Escalation failed.';
-            oncall.alerts.createAlert(error, 'danger');
+            oncall.alerts.createAlert(error, 'danger', $modalBody);
           }).always(function(){
             $cta.removeClass('loading disabled').prop('disabled', false);
           });
@@ -2307,6 +2335,7 @@ var oncall = {
           $teamSlack = $modalForm.find('#team-slack'),
           $teamTimezone = $modalForm.find('#team-timezone'),
           $teamIrisPlan = $modalForm.find('#team-irisplan'),
+          $teamIrisEnabled = $modalForm.find('#team-iris-enabled'),
           self = this,
           $btn,
           action;
@@ -2319,6 +2348,7 @@ var oncall = {
         $teamEmail.val($btn.attr('data-modal-email'));
         $teamSlack.val($btn.attr('data-modal-slack'));
         $teamIrisPlan.val($btn.attr('data-modal-irisplan'));
+        $teamIrisEnabled.prop('checked', $btn.attr('data-modal-iris-enabled') === '1');
         $planInput = $('#team-irisplan');
 
         results = new Bloodhound({

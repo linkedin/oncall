@@ -26,6 +26,10 @@ ROSTER_DELETED = 'roster_deleted'
 ADMIN_CREATED = 'admin_created'
 ADMIN_DELETED = 'admin_deleted'
 
+URGENT = 'urgent'
+MEDIUM = 'medium'
+CUSTOM = 'custom'
+
 DEFAULT_ROLES = None
 DEFAULT_MODES = None
 DEFAULT_TIMES = None
