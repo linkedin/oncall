@@ -53,6 +53,10 @@ def test_api_v0_schedules(team, roster, role):
     assert schedule['events'][0]['duration'] == 48 * HOUR
     assert schedule['advanced_mode'] == 1
 
+    # test 'schedule' endpoint
+    re = requests.get(api_v0('schedules/%s' % (schedule_id)))
+    assert re.status_code == 200
+    assert re.json() == data[0]
 
     updated_events = [{'start': 0, 'duration': 100}, {'start': 150, 'duration': 200}]
     # verify schedule updates properly
