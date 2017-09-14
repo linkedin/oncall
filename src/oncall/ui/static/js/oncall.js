@@ -629,6 +629,23 @@ var oncall = {
         data.noResults = true;
       }
 
+      if (data.services && Object.keys(data.services).length) {
+        // Transform result to collapse services by team
+
+        var hash = {};
+        for (var i = 0, key, item, keys = Object.keys(data.services); i < keys.length; i++) {
+          item = data.services[keys[i]];
+          key = keys[i];
+          if (!hash[item]) {
+            hash[item] = [];
+            hash[item].push(key);
+          } else {
+            hash[item].push(key);
+          }
+        }
+        data.services = hash;
+      }
+
       this.data.$page.find('.search-results').html(template(data));
       router.updatePageLinks();
     },

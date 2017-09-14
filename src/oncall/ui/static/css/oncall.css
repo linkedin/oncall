@@ -505,7 +505,7 @@ nav.subnav li.active {
   width: 100px;
 }
 
-.search-results ul {
+.search-results .search-module {
   width: 100%;
   background: #fff;
   border: 1px solid #dddedf;
@@ -518,7 +518,8 @@ nav.subnav li.active {
 }
 
 .search-results .result {
-  border-bottom: 1px solid #dddedf;
+  border: 1px solid #dddedf;
+  border-top: none;
   background-clip: padding-box;
   position: relative;
   transition: background-color .2s;
@@ -546,7 +547,17 @@ body[data-authenticated="false"] #pinned-teams {
   width: 100%;
 }
 
-.landing-teams h3 {
+.search-results th:first-child {
+  width: 22%;
+}
+
+.search-results th,
+.search-results td {
+  border: 1px solid #dddedf;
+  padding: 5px 10px;
+}
+.landing-teams h3,
+.recently-viewed h3 {
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid #dddedf;

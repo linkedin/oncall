@@ -663,7 +663,7 @@
           url = self.options.getEventsUrl,
           params = {
            end__ge: self.getCalStartVal() / 1000,
-           start__le: self.getCalEndVal() / 1000
+           start__lt: self.getCalEndVal() / 1000
           }
 
       self.$el.addClass('loading-events');

@@ -184,14 +184,14 @@
 <!--// search results partial -->
 <script id="search-results-template" type="text/x-handlebars-template">
   {{#if noResults}}
-    <ul>
+    <ul class="search-module">
       <h4>No teams or services found</h4>
     </ul>
   {{else}}
     {{#ifExists teams}}
       <h3>Teams</h3>
       {{#if teams}}
-        <ul>
+        <ul class="search-module">
           {{#each teams}}
             <li class="result">
               <h4>
@@ -201,7 +201,7 @@
           {{/each}}
         </ul>
       {{else}}
-        <ul>
+        <ul class="search-module">
           <h4>No teams found</h4>
         </ul>
       {{/if}}
@@ -209,15 +209,26 @@
     {{#ifExists services}}
       <h3>Services</h3>
       {{#ifNotEmpty services}}
-        <ul>
-          {{#each services}}
-            <li class="result">
-              <h4>
-                <a href="/team/{{this}}" data-navigo>{{@key}} - <i>{{this}}</i></a>
-              </h4>
-            </li>
-          {{/each}}
-        </ul>
+        <div class="search-module">
+          <table>
+            <thead>
+              <th> Team </th>
+              <th> Services </th>
+            </thead>
+            {{#each services}}
+              <tr>
+                <td class="result"><h4> <a href="/team/{{@key}}" data-navigo>{{@key}} </a> </h4></td>
+                <td>
+                {{#each this}}
+                  <li data-service-name="{{this}}" title="{{this}}">
+                    <span>{{this}}</span>
+                  </li>
+                {{/each}}
+                </td>
+              </tr>
+            {{/each}}
+          </table>
+        </div>
       {{else}}
         <ul>
           <h4>No services found</h4>
