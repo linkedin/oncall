@@ -547,6 +547,10 @@ body[data-authenticated="false"] #pinned-teams {
   width: 100%;
 }
 
+.search-results table {
+  width: 100%;
+}
+
 .search-results th:first-child {
   width: 22%;
 }
@@ -556,6 +560,7 @@ body[data-authenticated="false"] #pinned-teams {
   border: 1px solid #dddedf;
   padding: 5px 10px;
 }
+
 .landing-teams h3,
 .recently-viewed h3 {
   margin-top: 10px;
