@@ -3,8 +3,8 @@
 
 import time
 from operator import itemgetter
-from falcon import HTTPNotFound, HTTPForbidden, HTTPBadRequest, HTTP_204
-from ... import db
+from falcon import HTTPNotFound, HTTPBadRequest, HTTP_204
+from ... import db, constants
 from ...utils import (
     create_notification, create_audit, load_json_body, user_in_team_by_name
 )
@@ -36,7 +36,8 @@ def on_delete(req, resp, link_id):
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
 
-    cursor.execute('''SELECT `team`.`name` AS `team`, `event`.`team_id`, `role`.`name` AS `role`,
+    try:
+        cursor.execute('''SELECT `team`.`name` AS `team`, `event`.`team_id`, `role`.`name` AS `role`,
                              `event`.`role_id`, `event`.`start`, `user`.`full_name`, `event`.`user_id`
                       FROM `event`
                       JOIN `team` ON `event`.`team_id` = `team`.`id`
@@ -44,30 +45,25 @@ def on_delete(req, resp, link_id):
                       JOIN `user` ON `event`.`user_id` = `user`.`id`
                       WHERE `event`.`link_id` = %s
                       ORDER BY `event`.`start`''', link_id)
-    if cursor.rowcount == 0:
-        cursor.close()
-        connection.close()
-        raise HTTPNotFound()
-    data = cursor.fetchall()
-    ev = data[0]
-
-    try:
+        if cursor.rowcount == 0:
+            raise HTTPNotFound()
+        data = cursor.fetchall()
+        ev = data[0]
+        event_start = min(data, key=itemgetter('start'))['start']
         check_calendar_auth(ev['team'], req)
-    except HTTPForbidden:
+        if event_start < time.time() - constants.GRACE_PERIOD:
+            raise HTTPBadRequest('Invalid event update',
+                                 'Deleting events in the past not allowed')
+        cursor.execute('DELETE FROM `event` WHERE `link_id`=%s', link_id)
+
+        context = {'team': ev['team'], 'full_name': ev['full_name'], 'role': ev['role']}
+        create_notification(context, ev['team_id'], [ev['role_id']], EVENT_DELETED, [ev['user_id']], cursor,
+                            start_time=ev['start'])
+        create_audit({'old_event': data}, ev['team'], EVENT_DELETED, req, cursor)
+        connection.commit()
+    finally:
         cursor.close()
         connection.close()
-        raise
-
-    cursor.execute('DELETE FROM `event` WHERE `link_id`=%s', link_id)
-
-    context = {'team': ev['team'], 'full_name': ev['full_name'], 'role': ev['role']}
-    create_notification(context, ev['team_id'], [ev['role_id']], EVENT_DELETED, [ev['user_id']], cursor,
-                        start_time=ev['start'])
-    create_audit({'old_event': data}, ev['team'], EVENT_DELETED, req, cursor)
-
-    connection.commit()
-    cursor.close()
-    connection.close()
 
 
 @login_required
@@ -126,7 +122,7 @@ def on_put(req, resp, link_id):
             raise HTTPBadRequest('Invalid event update', 'Event user must be part of the team')
 
         now = time.time()
-        if event_summary['end'] < now:
+        if event_summary['start'] < now - constants.GRACE_PERIOD:
             raise HTTPBadRequest('Invalid event update',
                                  'Editing events in the past not allowed')
         check_calendar_auth(event_summary['team'], req)

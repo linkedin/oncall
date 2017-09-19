@@ -4,7 +4,7 @@
 from falcon import HTTPError, HTTPBadRequest, HTTPNotFound
 import time
 
-from ... import db
+from ... import db, constants
 from ...utils import load_json_body, create_notification, create_audit
 from ...auth import login_required, check_calendar_auth_by_id
 from ...constants import EVENT_SWAPPED
@@ -76,7 +76,7 @@ def on_post(req, resp):
         events = events_0 + events_1
         # Validation checks
         now = time.time()
-        if any(map(lambda ev: ev['start'] < now, events)):
+        if any(map(lambda ev: ev['start'] < now - constants.GRACE_PERIOD, events)):
             raise HTTPBadRequest('Invalid event swap request',
                                  'Cannot edit events in the past')
         if len(set(ev['team_id'] for ev in events)) > 1:
