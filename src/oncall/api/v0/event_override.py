@@ -6,7 +6,7 @@ from ujson import dumps as json_dumps
 import time
 
 from ...auth import login_required, check_calendar_auth_by_id
-from ... import db
+from ... import db, constants
 from ...utils import load_json_body, user_in_team, create_notification, create_audit
 from ...constants import EVENT_SUBSTITUTED
 
@@ -89,7 +89,7 @@ def on_post(req, resp):
 
         check_calendar_auth_by_id(team_id, req)
         # Check that events are not in the past
-        if any([ev['end'] < now for ev in events]):
+        if any([ev['start'] < now - constants.GRACE_PERIOD for ev in events]):
             raise HTTPBadRequest('Invalid override request', 'Cannot edit events in the past')
         # Check that events are from the same team
         if any([ev['team_id'] != team_id for ev in events]):

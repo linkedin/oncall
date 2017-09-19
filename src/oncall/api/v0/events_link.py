@@ -5,7 +5,7 @@ from falcon import HTTP_201, HTTPError, HTTPBadRequest
 import time
 
 from ujson import dumps as json_dumps
-from ... import db
+from ... import db, constants
 from ...utils import (
     load_json_body, gen_link_id, user_in_team_by_name
 )
@@ -104,7 +104,7 @@ def on_post(req, resp):
         ]
 
         for ev in events:
-            if ev['end'] < now:
+            if ev['start'] < now - constants.GRACE_PERIOD:
                 raise HTTPBadRequest('Invalid event',
                                      'Creating events in the past not allowed')
             if ev['start'] >= ev['end']:

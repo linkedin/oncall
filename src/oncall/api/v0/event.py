@@ -3,10 +3,10 @@
 
 import time
 from ujson import dumps as json_dumps
-from falcon import HTTPNotFound, HTTPBadRequest, HTTPForbidden
+from falcon import HTTPNotFound, HTTPBadRequest
 
 from ...auth import login_required, check_calendar_auth
-from ... import db
+from ... import db, constants
 from ...utils import (
     load_json_body, user_in_team_by_name, create_notification, create_audit
 )
@@ -135,7 +135,7 @@ def on_put(req, resp, event_id):
         for col in update_columns:
             new_event[col] = data.get(col, event_data[col])
         now = time.time()
-        if event_data['start'] < now or data['start'] < now:
+        if event_data['start'] < now - constants.GRACE_PERIOD or data['start'] < now - constants.GRACE_PERIOD:
             # Make an exception for editing event end times
             if not (all(event_data[key] == new_event[key] for key in ('role', 'start', 'user')) and
                     data['end'] > now):
@@ -189,32 +189,32 @@ def on_delete(req, resp, event_id):
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
 
-    cursor.execute('''SELECT `team`.`name` AS `team`, `event`.`team_id`, `role`.`name` AS `role`,
-                             `event`.`role_id`, `event`.`start`, `user`.`full_name`, `event`.`user_id`
-                      FROM `event`
-                      JOIN `team` ON `event`.`team_id` = `team`.`id`
-                      JOIN `role` ON `event`.`role_id` = `role`.`id`
-                      JOIN `user` ON `event`.`user_id` = `user`.`id`
-                      WHERE `event`.`id` = %s''', event_id)
-    if cursor.rowcount == 0:
-        cursor.close()
-        connection.close()
-        raise HTTPNotFound()
-    ev = cursor.fetchone()
     try:
+        cursor.execute('''SELECT `team`.`name` AS `team`, `event`.`team_id`, `role`.`name` AS `role`,
+                                 `event`.`role_id`, `event`.`start`, `user`.`full_name`, `event`.`user_id`
+                          FROM `event`
+                          JOIN `team` ON `event`.`team_id` = `team`.`id`
+                          JOIN `role` ON `event`.`role_id` = `role`.`id`
+                          JOIN `user` ON `event`.`user_id` = `user`.`id`
+                          WHERE `event`.`id` = %s''', event_id)
+        if cursor.rowcount == 0:
+            cursor.close()
+            connection.close()
+            raise HTTPNotFound()
+        ev = cursor.fetchone()
         check_calendar_auth(ev['team'], req)
-    except HTTPForbidden:
+        if ev['start'] < time.time() - constants.GRACE_PERIOD:
+            raise HTTPBadRequest('Invalid event update',
+                                 'Deleting events in the past not allowed')
+
+        cursor.execute('DELETE FROM `event` WHERE `id`=%s', event_id)
+
+        context = {'team': ev['team'], 'full_name': ev['full_name'], 'role': ev['role']}
+        create_notification(context, ev['team_id'], [ev['role_id']], EVENT_DELETED, [ev['user_id']], cursor,
+                            start_time=ev['start'])
+        create_audit({'old_event': ev}, ev['team'], EVENT_DELETED, req, cursor)
+
+        connection.commit()
+    finally:
         cursor.close()
         connection.close()
-        raise
-
-    cursor.execute('DELETE FROM `event` WHERE `id`=%s', event_id)
-
-    context = {'team': ev['team'], 'full_name': ev['full_name'], 'role': ev['role']}
-    create_notification(context, ev['team_id'], [ev['role_id']], EVENT_DELETED, [ev['user_id']], cursor,
-                        start_time=ev['start'])
-    create_audit({'old_event': ev}, ev['team'], EVENT_DELETED, req, cursor)
-
-    connection.commit()
-    cursor.close()
-    connection.close()

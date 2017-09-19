@@ -46,6 +46,7 @@ def test_events(team, user, role):
     ev_id = re.json()
     assert isinstance(ev_id, int)
 
+    # test end before start
     re = requests.post(api_v0('events'), json={
         'start': end,
         'end': start,
@@ -55,8 +56,9 @@ def test_events(team, user, role):
     })
     assert re.status_code == 400
 
+    # test create events in past
     re = requests.post(api_v0('events'), json={
-        'start': start - 10000,
+        'start': start - 100000,
         'end': start - 5000,
         'user': user_name,
         'team': team_name,

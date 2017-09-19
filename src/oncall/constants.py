@@ -33,6 +33,7 @@ CUSTOM = 'custom'
 DEFAULT_ROLES = None
 DEFAULT_MODES = None
 DEFAULT_TIMES = None
+GRACE_PERIOD = None
 
 SUPPORTED_TIMEZONES = None
 
@@ -42,7 +43,9 @@ def init(config):
     global DEFAULT_MODES
     global DEFAULT_TIMES
     global SUPPORTED_TIMEZONES
+    global GRACE_PERIOD
     DEFAULT_ROLES = config['notifications']['default_roles']
     DEFAULT_MODES = config['notifications']['default_modes']
     DEFAULT_TIMES = config['notifications']['default_times']
     SUPPORTED_TIMEZONES = config['supported_timezones']
+    GRACE_PERIOD = config.get('grace_period', 86400)

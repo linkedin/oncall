@@ -5,7 +5,7 @@ import time
 from falcon import HTTP_201, HTTPError, HTTPBadRequest
 from ujson import dumps as json_dumps
 from ...auth import login_required, check_calendar_auth
-from ... import db
+from ... import db, constants
 from ...utils import (
     load_json_body, user_in_team_by_name, create_notification, create_audit
 )
@@ -216,7 +216,8 @@ def on_post(req, resp):
     :statuscode 422: Event creation failed: nonexistent role/event/team
     """
     data = load_json_body(req)
-    if data['end'] < time.time():
+    now = time.time()
+    if data['start'] < now - constants.GRACE_PERIOD:
         raise HTTPBadRequest('Invalid event', 'Creating events in the past not allowed')
     if data['start'] >= data['end']:
         raise HTTPBadRequest('Invalid event', 'Event must start before it ends')
