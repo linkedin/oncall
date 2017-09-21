@@ -1403,11 +1403,13 @@
           .append('<label class="label-col">User: </label>')
           .append('<span class="data-col">' + evt.user + '</span>')
         )
-        .append(
-          $('<li />')
-          .append('<label class="label-col">Note: </label>')
-          .append('<span class="data-col">' + (evt.note || "") + '</span>')
-        )
+        .append(function(){
+          if (evt.note) {
+            return $('<li />')
+              .append('<label class="label-col">Note: </label>')
+              .append('<span class="data-col">' + (evt.note || "") + '</span>')
+          }
+        })
       )
       .append(
         $('<div class="inc-event-details inc-event-details-edit" />')
@@ -1424,7 +1426,7 @@
             )
           )
           .append(
-            $('<li />')
+            $('<li data-linked-editable="false" />')
             .append('<label class="label-col">Start: </label>')
             .append(
               $('<input type="text" class="' + this.options.datePickerClass + '" id="inc-event-start-date" name="inc-event-start-date" placeholder="YYYY/MM/DD" value="' + evt.origStartDateObj.format('YYYY/M/D') + '" style="width:100px" /> ')
@@ -1435,7 +1437,7 @@
             .append('<label class="small"> TZ: ' + (self.options.timezone ? self.options.timezone : 'System time') + '</label>')
           )
           .append(
-            $('<li />')
+            $('<li data-linked-editable="false" />')
             .append('<label class="label-col">End: </label>')
             .append(
               $('<input type="text" class="' + this.options.datePickerClass + '" id="inc-event-end-date" name="inc-event-end-date" placeholder="YYYY/MM/DD" value="' + evt.origEndDateObj.format('YYYY/M/D') + '" style="width:100px" /> ')
@@ -1470,35 +1472,32 @@
               .append('<input type="text" id="inc-event-note" name="inc-event-note" value="' + (evt.note || '') + '" style="width:100%" /> ')
             )
           )
-          .append(
-            $('<li class="toggle-input" />')
-            .append(
-              $('<label class="label-col label-swap-linked-to">Delete linked events</label>')
-            )
-            .append(
-              // #NOTE: This implementation is for deleting linked events
-              // but also for future editing linked events e.g. changing user.
-              // use the attribute 'data-edit-linked' on '.inv-event-details-edit'
-              // to determine if user wants changes to all linked events.
+          .append(function(){
+            if (evt.link_id) {
+              return $('<li class="toggle-input" />')
+                .append(
+                  $('<label class="label-col label-swap-linked-to">Modify all linked events</label>')
+                )
+                .append(
+                  $('<input type="checkbox" id="toggle-edit-linked">')
+                  .on('click', function(){
+                    var $this = $(this),
+                        $modal = $this.parents('.inc-event-details-modal'),
+                        $editEventTab = $this.parents('.inc-event-details-edit');
 
-              $('<input type="checkbox" id="toggle-edit-linked">')
-              .on('click', function(){
-                var $this = $(this),
-                    $modal = $this.parents('.inc-event-details-modal'),
-                    $editEventTab = $this.parents('.inc-event-details-edit');
-
-                if ($(this).prop('checked')) {
-                  $editEventTab.attr('data-edit-linked', true);
-                  $calendar.find('.inc-event[data-link-id="' + evt.link_id + '"]').attr('data-force-highlighted', true);
-                } else {
-                  $editEventTab.attr('data-edit-linked', false);
-                  $calendar.find('.inc-event[data-link-id="' + evt.link_id + '"]').attr('data-force-highlighted', false);
-                  $eventItem.attr('data-force-highlighted', true);
-                }
-              })
-            )
-            .append('<label for="toggle-edit-linked"></label>')
-          )
+                    if ($(this).prop('checked')) {
+                      $editEventTab.attr('data-edit-linked', true);
+                      $calendar.find('.inc-event[data-link-id="' + evt.link_id + '"]').attr('data-force-highlighted', true);
+                    } else {
+                      $editEventTab.attr('data-edit-linked', false);
+                      $calendar.find('.inc-event[data-link-id="' + evt.link_id + '"]').attr('data-force-highlighted', false);
+                      $eventItem.attr('data-force-highlighted', true);
+                    }
+                  })
+                )
+                .append('<label for="toggle-edit-linked"></label>')
+            }
+          })
         )
         .append(
           $('<div class="inc-modal-actions" />')
@@ -1517,6 +1516,7 @@
 
               //#TODO: Figure out a way to format event specifically for what the api accepts. currently the API accepts seconds
               updatedEvt.id = evt.id;
+              updatedEvt.link_id = evt.link_id;
               updatedEvt.role = $modal.find('#inc-role').val();
               updatedEvt.start = self._createMoment($modal.find('#inc-event-start-date').val() + ' ' + $modal.find('#inc-event-start-time').val()).valueOf();
               updatedEvt.end = self._createMoment($modal.find('#inc-event-end-date').val() + ' ' + $('#inc-event-end-time').val()).valueOf();
@@ -1657,13 +1657,14 @@
     updateEvent: function ($modal, evt) {
       var self = this,
           events = self.options.events,
-          url = this.options.eventsUrl + '/' + evt.id,
+          linked = $modal.find('.inc-event-details-edit').data('edit-linked'),
+          url = this.options.eventsUrl + '/' + ( linked ? 'link/' + evt.link_id : evt.id );
           submitModel = {
             role: evt.role,
             start: evt.start / 1000,
             end: evt.end / 1000,
             user: evt.user,
-            note: evt.note,
+            note: evt.note
           }
 
       // #TODO: convert times to second for API. find a better solution for interacting with api.
@@ -1674,16 +1675,20 @@
         contentType: 'application/json',
         data: JSON.stringify(submitModel)
       }).done(function(data){
-        self.removeEventFromRowSlots(evt);
         self.options.events.map(function(item){
-          if (item.id === evt.id) {
-            item.start = evt.start;
-            item.end = evt.end;
+          var match = linked ? item.link_id === evt.link_id : item.id === evt.id;
+
+          if (match) {
+            if (!linked) {
+              item.start = evt.start;
+              item.end = evt.end;
+              item.link_id = null; // break link on individual event swap
+            }
+            self.removeEventFromRowSlots(item);
             item.role = evt.role;
             item.user = evt.user;
             item.note = evt.note;
             item.formatted = false;
-            item.link_id = null; // break link on individual event swap
             delete item.full_name;
           }
         });
