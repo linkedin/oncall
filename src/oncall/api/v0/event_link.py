@@ -11,6 +11,12 @@ from ...utils import (
 from ...auth import login_required, check_calendar_auth
 from ...constants import EVENT_DELETED, EVENT_EDITED
 
+update_columns = {
+    'role': '`role_id`=(SELECT `id` FROM `role` WHERE `name`=%(role)s)',
+    'user': '`user_id`=(SELECT `id` FROM `user` WHERE `name`=%(user)s)',
+    'note': '`note`=%(note)s'
+}
+
 
 @login_required
 def on_delete(req, resp, link_id):
@@ -85,9 +91,10 @@ def on_put(req, resp, link_id):
 
     """
     data = load_json_body(req)
-    user = data.get('user')
-    if user is None:
-        raise HTTPBadRequest('Bad request for linked event update', 'Missing user param')
+    try:
+        update_cols = ', '.join(update_columns[col] for col in data)
+    except KeyError:
+        raise HTTPBadRequest('Invalid event update', 'Invalid column')
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
 
@@ -114,6 +121,7 @@ def on_put(req, resp, link_id):
         event_summary = event_data[0].copy()
         event_summary['end'] = max(event_data, key=itemgetter('end'))['end']
         event_summary['start'] = min(event_data, key=itemgetter('start'))['start']
+        user = data.get('user', event_summary['user'])
         if not user_in_team_by_name(cursor, user, event_summary['team']):
             raise HTTPBadRequest('Invalid event update', 'Event user must be part of the team')
 
@@ -123,21 +131,20 @@ def on_put(req, resp, link_id):
                                  'Editing events in the past not allowed')
         check_calendar_auth(event_summary['team'], req)
 
-        cursor.execute('SELECT `id` FROM `user` WHERE `name` = %s', user)
+        update = 'UPDATE `event` SET %s WHERE link_id = %%(link_id)s' % update_cols
+        data['link_id'] = link_id
+        cursor.execute(update, data)
         if cursor.rowcount == 0:
-            raise HTTPBadRequest('Invalid event update', 'No user found with specified name')
-        user_id = cursor.fetchone()['id']
-        cursor.execute('''UPDATE `event`
-                          SET `user_id` = %s
-                          WHERE link_id = %s''',
-                       (user_id, link_id))
+            raise HTTPNotFound()
         create_audit({'old_event': event_summary, 'request_body': data},
                      event_summary['team'], EVENT_EDITED, req, cursor)
 
+        cursor.execute('SELECT `user_id`, role_id FROM `event` WHERE `link_id` = %s', link_id)
+        new_ev = cursor.fetchone()
         context = {'full_name': event_summary['full_name'], 'role': event_summary['role'], 'team': event_summary['team'],
-                   'new_event': {'user': user}}
-        create_notification(context, event_summary['team_id'], {event_summary['role_id']},
-                            EVENT_EDITED, {event_summary['user_id'], user_id}, cursor,
+                   'new_event': new_ev}
+        create_notification(context, event_summary['team_id'], {event_summary['role_id'], new_ev['role_id']},
+                            EVENT_EDITED, {event_summary['user_id'], new_ev['user_id']}, cursor,
                             start_time=event_summary['start'])
         connection.commit()
     finally:
