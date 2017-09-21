@@ -505,7 +505,7 @@ nav.subnav li.active {
   width: 100px;
 }
 
-.search-results ul {
+.search-results .search-module {
   width: 100%;
   background: #fff;
   border: 1px solid #dddedf;
@@ -518,7 +518,8 @@ nav.subnav li.active {
 }
 
 .search-results .result {
-  border-bottom: 1px solid #dddedf;
+  border: 1px solid #dddedf;
+  border-top: none;
   background-clip: padding-box;
   position: relative;
   transition: background-color .2s;
@@ -546,7 +547,22 @@ body[data-authenticated="false"] #pinned-teams {
   width: 100%;
 }
 
-.landing-teams h3 {
+.search-results table {
+  width: 100%;
+}
+
+.search-results th:first-child {
+  width: 22%;
+}
+
+.search-results th,
+.search-results td {
+  border: 1px solid #dddedf;
+  padding: 5px 10px;
+}
+
+.landing-teams h3,
+.recently-viewed h3 {
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid #dddedf;
@@ -841,6 +857,10 @@ body[data-authenticated="false"] #pinned-teams {
 
 body[data-authenticated="false"] #escalate-btn {
   display: none;
+}
+
+#escalate-plan {
+  width: 35%;
 }
 
 #escalate-description {
@@ -1839,6 +1859,7 @@ select.form-control {
   transition: box-shadow .15s;
   color: rgba(0,0,0,.85);
   padding: 4px 12px;
+  padding-right: 25px;
   width: 100%;
   background: url('../images/chevron-bottom.svg') right 9px top 13px no-repeat transparent;
 }
