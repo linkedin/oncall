@@ -334,7 +334,7 @@ def test_events_link(team, user, role):
 
     # Test edit linked events
     re = requests.put(api_v0('events/link/%s' % link_id),
-                      json = {'user': user_name_2})
+                      json = {'user': user_name_2, 'role': role_name_2, 'note': 'foobar'})
     assert re.status_code == 204
     evs = [requests.get(api_v0('events/%d' % eid)).json() for eid in ev_ids]
     for ev in evs:
@@ -343,6 +343,8 @@ def test_events_link(team, user, role):
         assert ev['start'] == start
         assert ev['end'] == end
         assert ev['link_id'] == link_id
+        assert ev['role'] == role_name_2
+        assert ev['note'] == 'foobar'
 
     re = requests.delete(api_v0('events/link/%s' % link_id))
     assert re.status_code == 200
