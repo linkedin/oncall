@@ -42,7 +42,7 @@ def on_post(req, resp, team):
     elif plan == MEDIUM:
         plan_settings = iris.settings['medium_plan']
         dynamic = True
-    elif plan == CUSTOM  or plan is None:
+    elif plan == CUSTOM or plan is None:
         # Default to team's custom plan for backwards compatibility
         connection = db.connect()
         cursor = connection.cursor()
