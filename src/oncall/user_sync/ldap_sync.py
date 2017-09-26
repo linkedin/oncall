@@ -186,8 +186,12 @@ def sync(config, engine):
     # set of users in oncall but not ldap, assumed to be inactive
     inactive_users = oncall_usernames - ldap_usernames
     # users who need to be deactivated
-    rows = engine.execute('SELECT name FROM user WHERE active = TRUE AND name IN %s', inactive_users)
-    users_to_purge = (user.name for user in rows)
+    if inactive_users:
+        rows = engine.execute('SELECT name FROM user WHERE active = TRUE AND name IN %s', inactive_users)
+        users_to_purge = (user.name for user in rows)
+    else:
+        users_to_purge = []
+
 
     # set of inactive oncall users who appear in ldap
     rows = engine.execute('SELECT name FROM user WHERE active = FALSE AND name IN %s', ldap_usernames)
