@@ -72,6 +72,7 @@ def index(req, resp):
         user=user,
         slack_instance=SLACK_INSTANCE,
         user_setting_note=INDEX_CONTENT_SETTING['user_setting_note'],
+        missing_number_note=INDEX_CONTENT_SETTING['missing_number_note'],
         header_color=HEADER_COLOR,
         iris_plan_settings=IRIS_PLAN_SETTINGS,
         footer=INDEX_CONTENT_SETTING['footer'],

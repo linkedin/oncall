@@ -1753,7 +1753,7 @@ footer li:first-child {
 }
 
 .error-text {
-  color: #FF2C33;
+  color: #FF2C33 !important;
 }
 
 .btn {

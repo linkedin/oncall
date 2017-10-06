@@ -461,9 +461,25 @@
           <path d="M4 0l-4 4 1.5 1.5 2.5-2.5 2.5 2.5 1.5-1.5-4-4z" transform="translate(0 1)" />
         </svg>
       </i>
-      Call: <a href="tel:{{getUserInfo this @root.users 'contacts.call'}}"> {{getUserInfo this @root.users 'contacts.call'}} </a>
+      Call:
+      {{#isEqual 'Unknown' (getUserInfo this @root.users 'contacts.call') }}
+        {% endraw %}
+          {{missing_number_note|safe}}
+        {% raw %}
+      {{else}}
+        <a href="tel:{{getUserInfo this @root.users 'contacts.call'}}"> {{getUserInfo this @root.users 'contacts.call'}} </a>
+      {{/isEqual}}
       <ul class="card-inner-extra">
-        <li> SMS: <a href="tel:{{getUserInfo this @root.users 'contacts.sms'}}"> {{getUserInfo this @root.users 'contacts.sms'}} </a> </li>
+        <li>
+          SMS:
+          {{#isEqual 'Unknown' (getUserInfo this @root.users 'contacts.sms') }}
+            {% endraw %}
+              {{missing_number_note|safe}}
+            {% raw %}
+          {{else}}
+            <a href="tel:{{getUserInfo this @root.users 'contacts.sms'}}"> {{getUserInfo this @root.users 'contacts.sms'}} </a>
+          {{/isEqual}}
+        </li>
         <li> Slack: <a>{{getUserInfo this @root.users 'contacts.slack'}}</a> </li>
         <li> E-Mail: <a target="_blank" href="mailto:{{getUserInfo this @root.users 'contacts.email'}}"> {{getUserInfo this @root.users 'contacts.email'}} </a> </li>
       </ul>
@@ -1029,8 +1045,26 @@
       {{/ifExists}}
       <ul class="border-top card-content">
         <li> <a target="_blank" href="mailto:{{getUserInfo this @root.users 'contacts.email'}}"> {{getUserInfo this @root.users 'contacts.email'}} </a> </li>
-        <li> <span class="light"> Call </span> <a href="tel:{{getUserInfo this @root.users 'contacts.call'}}"> {{getUserInfo this @root.users 'contacts.call'}} </a> </li>
-        <li> <span class="light"> SMS </span> <a href="tel:{{getUserInfo this @root.users 'contacts.sms'}}"> {{getUserInfo this @root.users 'contacts.sms'}} </a> </li>
+        <li>
+          <span class="light"> Call </span>
+          {{#isEqual 'Unknown' (getUserInfo this @root.users 'contacts.call') }}
+            {% endraw %}
+              {{missing_number_note|safe}}
+            {% raw %}
+          {{else}}
+            <a href="tel:{{getUserInfo this @root.users 'contacts.call'}}"> {{getUserInfo this @root.users 'contacts.call'}} </a>
+          {{/isEqual}}
+        </li>
+        <li>
+          <span class="light"> SMS </span>
+          {{#isEqual 'Unknown' (getUserInfo this @root.users 'contacts.sms') }}
+            {% endraw %}
+              {{missing_number_note|safe}}
+            {% raw %}
+          {{else}}
+            <a href="tel:{{getUserInfo this @root.users 'contacts.sms'}}"> {{getUserInfo this @root.users 'contacts.sms'}} </a>
+          {{/isEqual}}
+        </li>
         <li> <span class="light"> Slack </span> <a> {{getUserInfo this @root.users 'contacts.slack'}} </a></li>
         <span class="close remove-card-item" data-admin-action="true" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.info.removeCardItem" data-modal-title="Remove {{getUserInfo this @root.users 'full_name'}}" data-modal-content="Delete {{getUserInfo this @root.users 'full_name'}} from roster?">
           <i class="svg-icon svg-icon-trash">
@@ -1125,13 +1159,29 @@
         <tr>
           <td>Phone</td>
           <td>
-            <span>{{contacts.call}}</span>
+            <span>
+            {{#if contacts.call}}
+              <a href="tel:{{contacts.call}}"> {{contacts.call}} </a>
+            {{else}}
+              {% endraw %}
+                {{missing_number_note|safe}}
+              {% raw %}
+            {{/if}}
+            </span>
           </td>
         </tr>
         <tr>
           <td>SMS Number</td>
           <td>
-            <span>{{contacts.sms}}</span>
+            <span>
+              {{#if contacts.sms}}
+                <a href="tel:{{contacts.sms}}"> {{contacts.sms}} </a>
+              {{else}}
+                {% endraw %}
+                  {{missing_number_note|safe}}
+                {% raw %}
+              {{/if}}
+            </span>
           </td>
         </tr>
         <tr>
