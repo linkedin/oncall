@@ -192,7 +192,6 @@ def sync(config, engine):
     else:
         users_to_purge = []
 
-
     # set of inactive oncall users who appear in ldap
     rows = engine.execute('SELECT name FROM user WHERE active = FALSE AND name IN %s', ldap_usernames)
     users_to_reactivate = (user.name for user in rows)
