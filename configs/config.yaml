@@ -54,6 +54,7 @@ index_content_setting:
       <li>Feedback</li>
       <li><a href="http://oncall.tools" target="_blank">About</a></li>
     </ul>
+  missing_number_note: 'No number'
 
 notifications:
   default_roles:

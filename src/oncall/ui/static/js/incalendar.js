@@ -1661,12 +1661,14 @@
           url = this.options.eventsUrl + '/' + ( linked ? 'link/' + evt.link_id : evt.id );
           submitModel = {
             role: evt.role,
-            start: evt.start / 1000,
-            end: evt.end / 1000,
             user: evt.user,
             note: evt.note
           }
-
+      // Can't modify start/end for linked events
+      if (!linked) {
+        submitModel['start'] = evt.start / 1000;
+        submitModel['end'] = evt.end / 1000;
+      }
       // #TODO: convert times to second for API. find a better solution for interacting with api.
       $.ajax({
         type: 'PUT',
