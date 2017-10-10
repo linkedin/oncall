@@ -5,7 +5,7 @@ from ujson import dumps as json_dumps
 from ... import db
 
 
-def on_get(req, resp, service, role):
+def on_get(req, resp, service, role=None):
     '''
     Get the current user on-call for a given service/role. Returns event start/end, contact info,
     and user name.
@@ -40,19 +40,25 @@ def on_get(req, resp, service, role):
         ]
 
     '''
-    get_oncall_query = '''SELECT `user`.`full_name` AS `user`, `event`.`start`, `event`.`end`,
-                              `contact_mode`.`name` AS `mode`, `user_contact`.`destination`
+    get_oncall_query = '''SELECT `user`.`full_name` AS `full_name`, `event`.`start`, `event`.`end`,
+                              `contact_mode`.`name` AS `mode`, `user_contact`.`destination`, `role`.`name` AS `role`,
+                              `team`.`name` AS `team`, `user`.`name` AS `user`
                           FROM `service` JOIN `team_service` ON `service`.`id` = `team_service`.`service_id`
                               JOIN `event` ON `event`.`team_id` = `team_service`.`team_id`
                               JOIN `user` ON `user`.`id` = `event`.`user_id`
-                              JOIN `role` ON `role`.`id` = `event`.`role_id` AND `role`.`name` = %s
+                              JOIN `role` ON `role`.`id` = `event`.`role_id`
+                              JOIN `team` ON `team`.`id` = `event`.`team_id`
                               LEFT JOIN `user_contact` ON `user`.`id` = `user_contact`.`user_id`
                               LEFT JOIN `contact_mode` ON `contact_mode`.`id` = `user_contact`.`mode_id`
                           WHERE UNIX_TIMESTAMP() BETWEEN `event`.`start` AND `event`.`end`
-                              AND `service`.`name` = %s'''
+                              AND `service`.`name` = %s '''
+    query_params = [service]
+    if role is not None:
+        get_oncall_query += ' AND `role`.`name` = %s'
+        query_params.append(role)
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
-    cursor.execute(get_oncall_query, (role, service))
+    cursor.execute(get_oncall_query, query_params)
     data = cursor.fetchall()
     ret = {}
     for row in data:

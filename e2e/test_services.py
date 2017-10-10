@@ -110,3 +110,8 @@ def test_api_v0_services_current_oncall(team, service, user, role, event):
     results = re.json()
     assert results[0]['start'] == start
     assert results[0]['end'] == end
+
+    re = requests.get(api_v0('services/%s/oncall' % service_name))
+    assert re.status_code == 200
+    results = re.json()
+    assert len(results) == 2
