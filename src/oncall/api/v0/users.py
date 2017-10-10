@@ -137,7 +137,7 @@ def on_get(req, resp):
 
     .. sourcecode:: http
 
-       GET /api/v0/events?team=foo-sre&end__gt=1487466146&role=primary HTTP/1.1
+       GET /api/v0/users?name=jdoe   HTTP/1.1
        Host: example.com
 
     **Example response**:

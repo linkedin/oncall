@@ -352,3 +352,7 @@ def test_api_v0_team_current_oncall(team, user, role, event):
     assert results[0]['start'] == start
     assert results[0]['end'] == end
 
+    re = requests.get(api_v0('teams/%s/oncall' % team_name))
+    assert re.status_code == 200
+    results = re.json()
+    assert len(results) == 2

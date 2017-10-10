@@ -5,23 +5,7 @@ from ujson import dumps as json_dumps
 from ... import db
 
 
-get_oncall_query = '''
-    SELECT `user`.`full_name` AS `full_name`,
-            `event`.`start`, `event`.`end`,
-            `contact_mode`.`name` AS `mode`,
-            `user_contact`.`destination`,
-            `user`.`name` as `user`
-    FROM `event`
-    JOIN `user` ON `event`.`user_id` = `user`.`id`
-    JOIN `team` ON `event`.`team_id` = `team`.`id`
-    JOIN `role` ON `role`.`id` = `event`.`role_id` AND `role`.`name` = %s
-    LEFT JOIN `user_contact` ON `user`.`id` = `user_contact`.`user_id`
-    LEFT JOIN `contact_mode` ON `contact_mode`.`id` = `user_contact`.`mode_id`
-    WHERE UNIX_TIMESTAMP() BETWEEN `event`.`start` AND `event`.`end`
-        AND `team`.`name` = %s'''
-
-
-def on_get(req, resp, team, role):
+def on_get(req, resp, team, role=None):
     """
     Get current active event for team based on given role.
 
@@ -68,9 +52,30 @@ def on_get(req, resp, team, role):
 
     :statuscode 200: no error
     """
+    get_oncall_query = '''
+        SELECT `user`.`full_name` AS `full_name`,
+               `event`.`start`, `event`.`end`,
+               `contact_mode`.`name` AS `mode`,
+               `user_contact`.`destination`,
+               `user`.`name` AS `user`,
+               `team`.`name` AS `team`,
+               `role`.`name` AS `role`
+        FROM `event`
+        JOIN `user` ON `event`.`user_id` = `user`.`id`
+        JOIN `team` ON `event`.`team_id` = `team`.`id`
+        JOIN `role` ON `role`.`id` = `event`.`role_id`
+        LEFT JOIN `user_contact` ON `user`.`id` = `user_contact`.`user_id`
+        LEFT JOIN `contact_mode` ON `contact_mode`.`id` = `user_contact`.`mode_id`
+        WHERE UNIX_TIMESTAMP() BETWEEN `event`.`start` AND `event`.`end`
+            AND `team`.`name` = %s'''
+
+    query_params = [team]
+    if role is not None:
+        get_oncall_query += 'AND `role`.`name` = %s'
+        query_params.append(role)
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
-    cursor.execute(get_oncall_query, (role, team))
+    cursor.execute(get_oncall_query, query_params)
     data = cursor.fetchall()
     ret = {}
     for row in data:

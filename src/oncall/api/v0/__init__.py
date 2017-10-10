@@ -7,6 +7,7 @@ def init(application, config):
     application.add_route('/api/v0/teams', teams)
     application.add_route('/api/v0/teams/{team}', team)
     application.add_route('/api/v0/teams/{team}/summary', team_summary)
+    application.add_route('/api/v0/teams/{team}/oncall', team_oncall)
     application.add_route('/api/v0/teams/{team}/oncall/{role}', team_oncall)
     application.add_route('/api/v0/teams/{team}/changes', team_changes)
 
@@ -36,6 +37,7 @@ def init(application, config):
     from . import services, service, service_oncall
     application.add_route('/api/v0/services', services)
     application.add_route('/api/v0/services/{service}', service)
+    application.add_route('/api/v0/services/{service}/oncall', service_oncall)
     application.add_route('/api/v0/services/{service}/oncall/{role}', service_oncall)
 
     from . import team_services, team_service, service_teams
