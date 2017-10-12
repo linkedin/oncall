@@ -318,7 +318,7 @@ def test_events_link(team, user, role):
         }
     ])
     assert re.status_code == 201
-    ev_ids = re.json()
+    ev_ids = re.json()['event_ids']
     assert isinstance(ev_ids, list)
     for eid in ev_ids:
         assert isinstance(eid, int)

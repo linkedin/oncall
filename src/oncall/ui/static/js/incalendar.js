@@ -1253,9 +1253,24 @@
               .append('<input type="text" id="inc-event-note" name="inc-event-note" value="" style="width:100%" /> ')
             )
           )
-          .append('<h5 class="divider-text"> Substitute </h5>')
           .append(
             $('<li class="toggle-input" />')
+            .append(
+              $('<label class="label-col label-override">12 Hour </label>')
+            )
+            .append(
+              $('<input type="checkbox" id="toggle-12-hour-mode">')
+              .on('click', function(){
+                var $this = $(this),
+                    $modal = $this.parents('.inc-create-event-modal');
+                    $modal.attr('data-12-hour', $this.prop('checked') ? true : false);
+              })
+            )
+            .append('<label for="toggle-12-hour-mode"></label>')
+          )
+          .append('<h5 class="divider-text override-content"> Substitute </h5>')
+          .append(
+            $('<li class="toggle-input override-content" />')
             .append(
               $('<label class="label-col label-override">Substitute <i class="inc-icon inc-icon-question-circle svg-icon-question" title="Learn about event substitution."><svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 10 10"><path d="M2.47 0c-.85 0-1.48.26-1.88.66-.4.4-.54.9-.59 1.28l1 .13c.04-.25.12-.5.31-.69.19-.19.49-.38 1.16-.38.66 0 1.02.16 1.22.34.2.18.28.4.28.66 0 .83-.34 1.06-.84 1.5-.5.44-1.16 1.08-1.16 2.25v.25h1v-.25c0-.83.31-1.06.81-1.5.5-.44 1.19-1.08 1.19-2.25 0-.48-.17-1.02-.59-1.41-.43-.39-1.07-.59-1.91-.59zm-.5 7v1h1v-1h-1z" transform="translate(2)" /></svg></i></label>')
               .on('click', function(){
@@ -1292,7 +1307,8 @@
           .on('click', function(){
             var $modal = $(this).parents('.inc-modal'),
                 event_ids = [],
-                override;
+                override,
+                twelveHour;
 
             //#TODO: Figure out a way to format event specifically for what the api accepts. currently the API accepts seconds vs ms
             var evt = {
@@ -1320,7 +1336,12 @@
                 return;
               }
             }
-            self.saveEvent($modal, evt, override);
+            if ($modal.attr('data-12-hour') === "true") {
+              // Can't override and create 12 hour event at the same time
+              override = false;
+              twelveHour = true;
+            }
+            self.saveEvent($modal, evt, override, twelveHour);
           })
         )
         .append(
@@ -1612,21 +1633,42 @@
       this.options.onEventDetailsModalClose($modal, $calendar);
       $modal.remove();
     },
-    saveEvent: function ($modal, evt, override) {
+    saveEvent: function ($modal, evt, override, twelveHour) {
       var self = this,
           url = override ? this.options.eventsUrl + '/override' : this.options.eventsUrl;
 
+      if (twelveHour) {
+        var start = evt.start,
+          evts = [];
+
+        url = this.options.eventsUrl + '/link';
+        // Make 12 hour events as long as the whole event fits in the given time frame
+        while (start + 43200000 <= evt.end) {
+          // Create a 12 hour long event, then move start forward one day
+          evts.push({
+            start: start / 1000,
+            end: start / 1000 + 43200,
+            team: evt.team,
+            role: evt.role,
+            user: evt.user,
+            note: evt.note
+          });
+          // Go one day forward and make a new event
+          start += 86400000;
+        }
+      }
       // #TODO: convert times to second for API. find a better solution for interacting with api.
       evt.start = evt.start / 1000;
       evt.end = evt.end / 1000;
 
+      var postData = twelveHour ? evts : evt;
       $.ajax({
         type: 'POST',
         url: url,
         dataType: 'html',
         contentType: 'application/json',
-        data: JSON.stringify(evt)
-      }).done(function(data){
+        data: JSON.stringify(postData)
+      }).done(function(data) {
         evt.start = evt.start * 1000;
         evt.end = evt.end * 1000;
         if (override) {
@@ -1643,6 +1685,17 @@
           // @TODO: instead of doing a full refresh, only update changed events
           // and rowSlots
           self.refreshCalendarEvents(self.options.events, true);
+        } else if (twelveHour) {
+          var response = JSON.parse(data)
+          evts = evts.map(function(e, idx){
+            e.link_id = response['link_id'];
+            e.id = response['event_ids'][idx];
+            e.start = e.start * 1000;
+            e.end = e.end * 1000;
+            return e;
+          });
+          self.options.events = self.options.events.concat(evts);
+          self.addCalendarEvents(evts);
         } else {
           evt.id = parseInt(data);
           self.options.events.push(evt);

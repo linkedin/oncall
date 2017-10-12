@@ -55,7 +55,10 @@ def on_post(req, resp):
         HTTP/1.1 201 Created
         Content-Type: application/json
 
-        [1, 2]
+        {
+            "link_id": "123456789abcdef0123456789abcdef0",
+            "event_ids": [1, 2]
+        }
 
     :statuscode 201: Event created
     :statuscode 400: Event validation checks failed
@@ -81,7 +84,7 @@ def on_post(req, resp):
     connection = db.connect()
     cursor = connection.cursor()
 
-    columns = ('`start`', '`end`', '`user_id`', '`team_id`', '`role_id`', '`link_id`')
+    columns = ('`start`', '`end`', '`user_id`', '`team_id`', '`role_id`', '`link_id`, `note`')
 
     try:
         cursor.execute('SELECT `id` FROM `team` WHERE `name`=%s', team)
@@ -96,6 +99,7 @@ def on_post(req, resp):
             '(SELECT `id` FROM `user` WHERE `name`=%s)',
             '%s',
             '(SELECT `id` FROM `role` WHERE `name`=%s)',
+            '%s',
             '%s'
         ]
 
@@ -114,12 +118,12 @@ def on_post(req, resp):
             if not user_in_team_by_name(cursor, ev['user'], team):
                 raise HTTPBadRequest('Invalid event',
                                      'User %s must be part of the team %s' % (ev['user'], team))
-            event_values.append((ev['start'], ev['end'], ev['user'], team_id, ev['role'], link_id))
+            event_values.append((ev['start'], ev['end'], ev['user'], team_id, ev['role'], link_id, ev.get('note')))
 
         insert_query = 'INSERT INTO `event` (%s) VALUES (%s)' % (','.join(columns), ','.join(values))
         cursor.executemany(insert_query, event_values)
         connection.commit()
-        cursor.execute('SELECT `id` FROM `event` WHERE `link_id`=%s', link_id)
+        cursor.execute('SELECT `id` FROM `event` WHERE `link_id`=%s ORDER BY `start`', link_id)
         ev_ids = [row[0] for row in cursor]
     except db.IntegrityError as e:
         err_msg = str(e.args[1])
@@ -135,4 +139,4 @@ def on_post(req, resp):
         connection.close()
 
     resp.status = HTTP_201
-    resp.body = json_dumps(ev_ids)
+    resp.body = json_dumps({'link_id': link_id, 'event_ids': ev_ids})
