@@ -443,7 +443,11 @@
   display: none;
 }
 
-.inc-create-event-modal[data-override="true"] .inc-event-override {
+.inc-create-event-modal[data-12-hour="true"] .override-content {
+  display: none;
+}
+
+.inc-create-event-modal[data-override="true"][data-12-hour="false"] .inc-event-override {
   display: block;
 }
 
