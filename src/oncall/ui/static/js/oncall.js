@@ -481,6 +481,7 @@ var oncall = {
             }
           }
         });
+
         teams = new Bloodhound({
           datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
           queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -543,7 +544,6 @@ var oncall = {
           });
 
         $input
-          .trigger('focus')
           .on('typeahead:asyncrequest', function(){
             $input.parents(self.data.searchForm).addClass('loading');
           })
@@ -559,7 +559,12 @@ var oncall = {
           .on('typeahead:selected', function(){
             router.navigate('/team/' + $(this).val());
           });
+
+        if (!query) {
+          $input.trigger('focus');
+        }
       });
+
     },
     events: function(){
       this.data.$page.on('submit', this.data.searchForm, this.updateSearch.bind(this));
@@ -623,7 +628,8 @@ var oncall = {
       router.navigate('/query/' + query);
     },
     renderResults: function(data){
-      var template = Handlebars.compile(this.data.searchResultsSource);
+      var template = Handlebars.compile(this.data.searchResultsSource),
+          serviceDisplayLimit = 5;
       if (data.services && data.teams && Object.keys(data.services).length === 0 && data.teams.length === 0) {
         // Mark object empty if not search results are returned
         data.noResults = true;
@@ -637,12 +643,19 @@ var oncall = {
           item = data.services[keys[i]];
           key = keys[i];
           if (!hash[item]) {
-            hash[item] = [];
-            hash[item].push(key);
+            hash[item] = {
+              total: 1,
+              list: []
+            };
+            hash[item].list.push(key);
           } else {
-            hash[item].push(key);
+            if (hash[item].list.length < serviceDisplayLimit) {
+              hash[item].list.push(key);
+            }
+            hash[item].total++;
           }
         }
+
         data.services = hash;
       }
 
@@ -2436,6 +2449,14 @@ var oncall = {
 
     Handlebars.registerHelper('isEqual', function(val1, val2, opts){
       return val1 === val2 ? opts.fn(this) : opts.inverse(this);
+    });
+
+    Handlebars.registerHelper('isGreaterThan', function(val1, val2, opts){
+      return val1 > val2 ? opts.fn(this) : opts.inverse(this);
+    });
+
+    Handlebars.registerHelper('isLessThan', function(val1, val2, opts){
+      return val1 < val2 ? opts.fn(this) : opts.inverse(this);
     });
 
     Handlebars.registerHelper('ifNotEmpty', function(val, opts){
