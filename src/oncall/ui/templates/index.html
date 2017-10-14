@@ -219,11 +219,14 @@
               <tr>
                 <td class="result"><h4> <a href="/team/{{@key}}" data-navigo>{{@key}} </a> </h4></td>
                 <td>
-                {{#each this}}
+                {{#each this.list}}
                   <li data-service-name="{{this}}" title="{{this}}">
                     <span>{{this}}</span>
                   </li>
                 {{/each}}
+                {{#isGreaterThan this.total 5}}
+                  <li><a href="/team/{{@key}}/info" data-navigo> View all {{this.total}} services &raquo; </a></li>
+                {{/isGreaterThan}}
                 </td>
               </tr>
             {{/each}}
