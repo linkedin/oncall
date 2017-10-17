@@ -19,9 +19,10 @@ def init(application, config):
     application.add_route('/api/v0/teams/{team}/users', team_users)
     application.add_route('/api/v0/teams/{team}/users/{user}', team_user)
 
-    from . import rosters, roster
+    from . import rosters, roster, roster_suggest
     application.add_route('/api/v0/teams/{team}/rosters', rosters)
     application.add_route('/api/v0/teams/{team}/rosters/{roster}', roster)
+    application.add_route('/api/v0/teams/{team}/rosters/{roster}/{role}/suggest', roster_suggest)
 
     from . import roster_users, roster_user
     application.add_route('/api/v0/teams/{team}/rosters/{roster}/users', roster_users)
