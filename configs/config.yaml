@@ -45,6 +45,7 @@ supported_timezones:
   - 'US/Alaska'
   - 'US/Hawaii'
   - 'Asia/Kolkata'
+  - 'Asia/Shanghai'
   - 'UTC'
 
 index_content_setting:
