@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from urllib import unquote
-from falcon import HTTPError, HTTP_201, HTTPBadRequest
+from falcon import HTTPError, HTTP_201, HTTPBadRequest, HTTPNotFound
 from ujson import dumps as json_dumps
 
 from ...auth import login_required, check_team_auth
@@ -121,15 +121,23 @@ def on_post(req, resp, team, roster):
         # also make sure user is in the team
         cursor.execute('''INSERT IGNORE INTO `team_user` (`team_id`, `user_id`) VALUES (%r, %r)''',
                        (team_id, user_id))
-        cursor.execute('''INSERT INTO `roster_user` (`user_id`, `roster_id`, `in_rotation`)
+        cursor.execute('''SELECT `roster`.`id`, COALESCE(MAX(`roster_user`.`roster_priority`), -1) + 1
+                          FROM `roster_user`
+                          JOIN `roster` ON `roster_id` = `roster`.`id`
+                          JOIN `team` ON `team`.`id`=`roster`.`team_id`
+                          WHERE `team`.`name`=%s AND `roster`.`name`=%s''',
+                       (team, roster))
+        if cursor.rowcount == 0:
+            raise HTTPNotFound()
+        roster_id, roster_priority = cursor.fetchone()
+        cursor.execute('''INSERT INTO `roster_user` (`user_id`, `roster_id`, `in_rotation`, `roster_priority`)
                           VALUES (
-                              %r,
-                              (SELECT `roster`.`id` FROM `roster`
-                               JOIN `team` ON `team`.`id`=`roster`.`team_id`
-                               WHERE `team`.`name`=%s AND `roster`.`name`=%s),
-                               %s
+                              %s,
+                              %s,
+                              %s,
+                              %s
                           )''',
-                       (user_id, team, roster, in_rotation))
+                       (user_id, roster_id, in_rotation, roster_priority))
         # subscribe user to notifications
         subscribe_notifications(team, user_name, cursor)
 

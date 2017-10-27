@@ -4,7 +4,7 @@
 import datetime
 import time
 import calendar
-from oncall.bin import scheduler
+import oncall.scheduler.default
 from pytz import utc, timezone
 
 MIN = 60
@@ -12,19 +12,21 @@ HOUR = 60 * MIN
 DAY = 24 * HOUR
 WEEK = 7 * DAY
 
+MOCK_SCHEDULE = {'team_id': 1, 'role_id': 2, 'roster_id': 3}
 
 def test_find_new_user_as_least_active_user(mocker):
-    mocker.patch('oncall.bin.scheduler.find_new_user_in_roster').return_value = set([123])
-    mocker.patch('oncall.bin.scheduler.get_roster_user_ids').return_value = set([135, 123])
-    mocker.patch('oncall.bin.scheduler.get_busy_user_by_event_range')
-    mocker.patch('oncall.bin.scheduler.find_least_active_user_id_by_team')
+    scheduler = oncall.scheduler.default.Scheduler()
+    mocker.patch('oncall.scheduler.default.Scheduler.find_new_user_in_roster').return_value = {123}
+    mocker.patch('oncall.scheduler.default.Scheduler.get_roster_user_ids').return_value = {135, 123}
+    mocker.patch('oncall.scheduler.default.Scheduler.get_busy_user_by_event_range')
+    mocker.patch('oncall.scheduler.default.Scheduler.find_least_active_user_id_by_team')
 
-    user_id = scheduler.find_least_active_available_user_id(1, 1, 1, [{'start': 0, 'end': 5}], None)
+    user_id = scheduler.find_least_active_available_user_id(MOCK_SCHEDULE, [{'start': 0, 'end': 5}], None)
     assert user_id == 123
 
 
 def test_calculate_future_events_7_24_shifts(mocker):
-    mocker.patch('oncall.bin.scheduler.get_schedule_last_epoch').return_value = None
+    mocker.patch('oncall.scheduler.default.Scheduler.get_schedule_last_epoch').return_value = None
     mock_dt = datetime.datetime(year=2017, month=2, day=7, hour=10)
     mocker.patch('time.time').return_value = time.mktime(mock_dt.timetuple())
     start = DAY + 10 * HOUR + 30 * MIN  # Monday at 10:30 am
@@ -36,6 +38,7 @@ def test_calculate_future_events_7_24_shifts(mocker):
             'duration': WEEK
         }]
     }
+    scheduler = oncall.scheduler.default.Scheduler()
     future_events, last_epoch = scheduler.calculate_future_events(schedule_foo, None)
     assert len(future_events) == 4
 
@@ -56,7 +59,7 @@ def test_calculate_future_events_7_24_shifts(mocker):
 
 
 def test_calculate_future_events_7_12_shifts(mocker):
-    mocker.patch('oncall.bin.scheduler.get_schedule_last_epoch').return_value = None
+    mocker.patch('oncall.scheduler.default.Scheduler.get_schedule_last_epoch').return_value = None
     mock_dt = datetime.datetime(year=2016, month=9, day=9, hour=10)
     mocker.patch('time.time').return_value = time.mktime(mock_dt.timetuple())
     start = 3 * DAY + 12 * HOUR  # Wednesday at noon
@@ -68,6 +71,7 @@ def test_calculate_future_events_7_12_shifts(mocker):
         'auto_populate_threshold': 7,
         'events': events
     }
+    scheduler = oncall.scheduler.default.Scheduler()
     future_events, last_epoch = scheduler.calculate_future_events(schedule_foo, None)
     assert len(future_events) == 2
     assert len(future_events[0]) == 7
@@ -85,7 +89,7 @@ def test_calculate_future_events_7_12_shifts(mocker):
 
 
 def test_calculate_future_events_14_12_shifts(mocker):
-    mocker.patch('oncall.bin.scheduler.get_schedule_last_epoch').return_value = None
+    mocker.patch('oncall.scheduler.default.Scheduler.get_schedule_last_epoch').return_value = None
     mock_dt = datetime.datetime(year=2016, month=9, day=9, hour=10)
     mocker.patch('time.time').return_value = time.mktime(mock_dt.timetuple())
     start = 3 * DAY + 12 * HOUR  # Wednesday at noon
@@ -97,6 +101,7 @@ def test_calculate_future_events_14_12_shifts(mocker):
         'auto_populate_threshold': 21,
         'events': events
     }
+    scheduler = oncall.scheduler.default.Scheduler()
     future_events, last_epoch = scheduler.calculate_future_events(schedule_foo, None)
     assert len(future_events) == 2
     assert len(future_events[1]) == 14
@@ -112,7 +117,7 @@ def test_calculate_future_events_14_12_shifts(mocker):
 
 
 def test_dst_ambiguous_schedule(mocker):
-    mocker.patch('oncall.bin.scheduler.get_schedule_last_epoch').return_value = None
+    mocker.patch('oncall.scheduler.default.Scheduler.get_schedule_last_epoch').return_value = None
     mock_dt = datetime.datetime(year=2016, month=10, day=29, hour=10)
     mocker.patch('time.time').return_value = time.mktime(mock_dt.timetuple())
     start = HOUR + 30 * MIN  # Sunday at 1:30 am
@@ -124,6 +129,7 @@ def test_dst_ambiguous_schedule(mocker):
             'duration': WEEK
         }]
     }
+    scheduler = oncall.scheduler.default.Scheduler()
     future_events, last_epoch = scheduler.calculate_future_events(schedule_foo, None)
 
     assert len(future_events) == 3
@@ -134,7 +140,7 @@ def test_dst_ambiguous_schedule(mocker):
 
 
 def test_dst_schedule(mocker):
-    mocker.patch('oncall.bin.scheduler.get_schedule_last_epoch').return_value = None
+    mocker.patch('oncall.scheduler.default.Scheduler.get_schedule_last_epoch').return_value = None
     mock_dt = datetime.datetime(year=2016, month=10, day=29, hour=10)
     mocker.patch('time.time').return_value = time.mktime(mock_dt.timetuple())
     start = DAY + 11 * HOUR   # Monday at 11:00 am
@@ -146,6 +152,7 @@ def test_dst_schedule(mocker):
             'duration': WEEK
         }]
     }
+    scheduler = oncall.scheduler.default.Scheduler()
     future_events, last_epoch = scheduler.calculate_future_events(schedule_foo, None)
 
     assert len(future_events) == 3
@@ -161,7 +168,7 @@ def test_dst_schedule(mocker):
 
 def test_existing_schedule(mocker):
     mock_dt = datetime.datetime(year=2017, month=2, day=5, hour=0, tzinfo=timezone('US/Pacific'))
-    mocker.patch('oncall.bin.scheduler.get_schedule_last_epoch').return_value = \
+    mocker.patch('oncall.scheduler.default.Scheduler.get_schedule_last_epoch').return_value = \
         calendar.timegm(mock_dt.astimezone(utc).timetuple())
     mocker.patch('time.time').return_value = time.mktime(datetime.datetime(year=2017, month=2, day=7).timetuple())
     start = DAY + 10 * HOUR + 30 * MIN  # Monday at 10:30 am
@@ -173,6 +180,7 @@ def test_existing_schedule(mocker):
             'duration': WEEK
         }]
     }
+    scheduler = oncall.scheduler.default.Scheduler()
     future_events, last_epoch = scheduler.calculate_future_events(schedule_foo, None)
     assert len(future_events) == 3
 
@@ -194,7 +202,7 @@ def test_existing_schedule(mocker):
 
 def test_existing_schedule_change_epoch(mocker):
     mock_dt = datetime.datetime(year=2017, month=2, day=5, hour=0, tzinfo=timezone('US/Eastern'))
-    mocker.patch('oncall.bin.scheduler.get_schedule_last_epoch').return_value = \
+    mocker.patch('oncall.scheduler.default.Scheduler.get_schedule_last_epoch').return_value = \
         calendar.timegm(mock_dt.astimezone(utc).timetuple())
     mocker.patch('time.time').return_value = time.mktime(datetime.datetime(year=2017, month=2, day=7).timetuple())
     start = DAY + 10 * HOUR + 30 * MIN  # Monday at 10:30 am
@@ -206,6 +214,7 @@ def test_existing_schedule_change_epoch(mocker):
             'duration': WEEK
         }]
     }
+    scheduler = oncall.scheduler.default.Scheduler()
     future_events, last_epoch = scheduler.calculate_future_events(schedule_foo, None)
     assert len(future_events) == 3
 
@@ -227,10 +236,10 @@ def test_existing_schedule_change_epoch(mocker):
 
 def test_find_least_active_available_user(mocker):
     mock_user_ids = [123, 456, 789]
-    mocker.patch('oncall.bin.scheduler.find_new_user_in_roster').return_value = set()
-    mocker.patch('oncall.bin.scheduler.get_roster_user_ids').return_value = [i for i in mock_user_ids]
-    mock_busy_user_by_range = mocker.patch('oncall.bin.scheduler.get_busy_user_by_event_range')
-    mock_active_user_by_team = mocker.patch('oncall.bin.scheduler.find_least_active_user_id_by_team')
+    mocker.patch('oncall.scheduler.default.Scheduler.find_new_user_in_roster').return_value = set()
+    mocker.patch('oncall.scheduler.default.Scheduler.get_roster_user_ids').return_value = [i for i in mock_user_ids]
+    mock_busy_user_by_range = mocker.patch('oncall.scheduler.default.Scheduler.get_busy_user_by_event_range')
+    mock_active_user_by_team = mocker.patch('oncall.scheduler.default.Scheduler.find_least_active_user_id_by_team')
 
     def mock_busy_user_by_range_side_effect(user_ids, team_id, events, cursor):
         assert user_ids == set(mock_user_ids)
@@ -240,17 +249,18 @@ def test_find_least_active_available_user(mocker):
     future_events = [{'start': 440, 'end': 570},
                      {'start': 570, 'end': 588},
                      {'start': 600, 'end': 700}]
-    scheduler.find_least_active_available_user_id(1, 2, 3, future_events, None)
+    scheduler = oncall.scheduler.default.Scheduler()
+    scheduler.find_least_active_available_user_id(MOCK_SCHEDULE, future_events, None)
 
-    mock_active_user_by_team.assert_called_with(set([456, 789]), 1, 440, 2, None)
+    mock_active_user_by_team.assert_called_with({456, 789}, 1, 440, 2, None)
 
 
 def test_find_least_active_available_user_conflicts(mocker):
     mock_user_ids = [123, 456, 789]
-    mocker.patch('oncall.bin.scheduler.find_new_user_in_roster').return_value = None
-    mocker.patch('oncall.bin.scheduler.get_roster_user_ids').return_value = [i for i in mock_user_ids]
-    mock_busy_user_by_range = mocker.patch('oncall.bin.scheduler.get_busy_user_by_event_range')
-    mock_active_user_by_team = mocker.patch('oncall.bin.scheduler.find_least_active_user_id_by_team')
+    mocker.patch('oncall.scheduler.default.Scheduler.find_new_user_in_roster').return_value = None
+    mocker.patch('oncall.scheduler.default.Scheduler.get_roster_user_ids').return_value = [i for i in mock_user_ids]
+    mock_busy_user_by_range = mocker.patch('oncall.scheduler.default.Scheduler.get_busy_user_by_event_range')
+    mock_active_user_by_team = mocker.patch('oncall.scheduler.default.Scheduler.find_least_active_user_id_by_team')
 
     def mock_busy_user_by_range_side_effect(user_ids, team_id, events, cursor):
         assert user_ids == set(mock_user_ids)
@@ -258,6 +268,7 @@ def test_find_least_active_available_user_conflicts(mocker):
 
     mock_busy_user_by_range.side_effect = mock_busy_user_by_range_side_effect
     future_events = [{'start': 440, 'end': 570}]
-    assert scheduler.find_least_active_available_user_id(1, 2, 3, future_events, None) is None
+    scheduler = oncall.scheduler.default.Scheduler()
+    assert scheduler.find_least_active_available_user_id(MOCK_SCHEDULE, future_events, None) is None
 
     mock_active_user_by_team.assert_not_called()

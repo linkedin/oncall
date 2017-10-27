@@ -22,7 +22,8 @@ columns = {
     'team': '`team`.`name` as `team`, `team`.`id` AS `team_id`',
     'events': '`schedule_event`.`start`, `schedule_event`.`duration`, `schedule`.`id` AS `schedule_id`',
     'advanced_mode': '`schedule`.`advanced_mode` AS `advanced_mode`',
-    'timezone': '`team`.`scheduling_timezone` AS `timezone`'
+    'timezone': '`team`.`scheduling_timezone` AS `timezone`',
+    'scheduler': '`scheduler`.`name` AS `scheduler`'
 }
 
 all_columns = columns.keys()
@@ -95,6 +96,8 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
         from_clause.append('JOIN `team` ON `team`.`id` = `schedule`.`team_id`')
     if 'role' in fields:
         from_clause.append('JOIN `role` ON `role`.`id` = `schedule`.`role_id`')
+    if 'scheduler' in fields:
+        from_clause.append('JOIN `scheduler` ON `scheduler`.`id` = `schedule`.`scheduler_id`')
     if 'events' in fields:
         from_clause.append('LEFT JOIN `schedule_event` ON `schedule_event`.`schedule_id` = `schedule`.`id`')
         events = True
@@ -362,19 +365,24 @@ def on_post(req, resp, team, roster):
         # default to autopopulate 3 weeks forward
         data['auto_populate_threshold'] = 21
 
+    if 'scheduler' not in data:
+        # default to "default" scheduling algorithm
+        data['scheduler'] = 'default'
+
     if not data['advanced_mode']:
         if not validate_simple_schedule(schedule_events):
             raise HTTPBadRequest('invalid schedule', 'invalid advanced mode setting')
 
     insert_schedule = '''INSERT INTO `schedule` (`roster_id`,`team_id`,`role_id`,
-                                                 `auto_populate_threshold`, `advanced_mode`)
+                                                 `auto_populate_threshold`, `advanced_mode`, `scheduler_id`)
                          VALUES ((SELECT `roster`.`id` FROM `roster`
                                       JOIN `team` ON `roster`.`team_id` = `team`.`id`
                                       WHERE `roster`.`name` = %(roster)s AND `team`.`name` = %(team)s),
                                  (SELECT `id` FROM `team` WHERE `name` = %(team)s),
                                  (SELECT `id` FROM `role` WHERE `name` = %(role)s),
                                  %(auto_populate_threshold)s,
-                                 %(advanced_mode)s)'''
+                                 %(advanced_mode)s,
+                                 (SELECT `id` FROM `scheduler` WHERE `name` = %(scheduler)s))'''
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
     try:
@@ -385,6 +393,12 @@ def on_post(req, resp, team, roster):
         err_msg = str(e.args[1])
         if err_msg == 'Column \'roster_id\' cannot be null':
             err_msg = 'roster "%s" not found' % roster
+        elif err_msg == 'Column \'role_id\' cannot be null':
+            err_msg = 'role not found'
+        elif err_msg == 'Column \'scheduler_id\' cannot be null':
+            err_msg = 'scheduler not found'
+        elif err_msg == 'Column \'team_id\' cannot be null':
+            err_msg = 'team "%s" not found' % team
         raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
 
     connection.commit()

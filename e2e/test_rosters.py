@@ -197,6 +197,36 @@ def test_api_v0_rotation(team, user, roster):
     assert isinstance(users, list)
     assert set(users) == set([user_name])
 
+
+@prefix('test_v0_roster_order')
+def test_api_v0_roster_order(team, user, roster):
+    team_name = team.create()
+    user_name = user.create()
+    user_name_2 = user.create()
+    user_name_3 = user.create()
+    roster_name = roster.create(team_name)
+    user.add_to_roster(user_name, team_name, roster_name)
+    user.add_to_roster(user_name_2, team_name, roster_name)
+    user.add_to_roster(user_name_3, team_name, roster_name)
+
+    re = requests.get(api_v0('teams/%s/rosters/%s' % (team_name, roster_name)))
+    data = re.json()
+    users = {u['name']: u for u in data['users']}
+    assert users[user_name]['roster_priority'] == 0
+    assert users[user_name_2]['roster_priority'] == 1
+    assert users[user_name_3]['roster_priority'] == 2
+
+    re = requests.put(api_v0('teams/%s/rosters/%s' % (team_name, roster_name)),
+                      json={'roster_order': [user_name_3, user_name_2, user_name]})
+    assert re.status_code == 200
+    re = requests.get(api_v0('teams/%s/rosters/%s' % (team_name, roster_name)))
+    data = re.json()
+    users = {u['name']: u for u in data['users']}
+    assert users[user_name]['roster_priority'] == 2
+    assert users[user_name_2]['roster_priority'] == 1
+    assert users[user_name_3]['roster_priority'] == 0
+
+
 # TODO: test invalid user or team
 
 # TODO: test out of rotation

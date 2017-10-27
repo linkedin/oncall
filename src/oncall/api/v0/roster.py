@@ -76,7 +76,8 @@ def on_get(req, resp, team, roster):
     roster_id = results[0]['roster']
     # get list of users in the roster
     cursor.execute('''SELECT `user`.`name` as `name`,
-                             `roster_user`.`in_rotation` AS `in_rotation`
+                             `roster_user`.`in_rotation` AS `in_rotation`,
+                             `roster_user`.`roster_priority`
                       FROM `roster_user`
                       JOIN `user` ON `roster_user`.`user_id`=`user`.`id`
                       WHERE `roster_user`.`roster_id`=%s''', roster_id)
@@ -111,27 +112,47 @@ def on_put(req, resp, team, roster):
     team, roster = unquote(team), unquote(roster)
     data = load_json_body(req)
     name = data.get('name')
+    roster_order = data.get('roster_order')
     check_team_auth(team, req)
 
-    if not name:
-        raise HTTPBadRequest('invalid team name', 'team name is missing')
-    if name == roster:
-        return
-    invalid_char = invalid_char_reg.search(name)
-    if invalid_char:
-        raise HTTPBadRequest('invalid team name',
-                             'team name contains invalid character "%s"' % invalid_char.group())
+    if not (name or roster_order):
+        raise HTTPBadRequest('invalid roster update', 'missing roster name or order')
 
     connection = db.connect()
     cursor = connection.cursor()
     try:
-        cursor.execute(
-            '''UPDATE `roster` SET `name`=%s
-               WHERE `team_id`=(SELECT `id` FROM `team` WHERE `name`=%s)
-                   AND `name`=%s''',
-            (name, team, roster))
-        create_audit({'old_name': roster, 'new_name': name}, team, ROSTER_EDITED, req, cursor)
-        connection.commit()
+        if roster_order:
+            cursor.execute('''SELECT `user`.`name` FROM `roster_user`
+                              JOIN `roster` ON `roster`.`id` = `roster_user`.`roster_id`
+                              JOIN `user` ON `roster_user`.`user_id` = `user`.`id`
+                              WHERE `roster_id` = (SELECT id FROM roster WHERE name = %s
+                                AND team_id = (SELECT id from team WHERE name = %s))''',
+                           (roster, team))
+            roster_users = {row[0] for row in cursor}
+            if not all(map(lambda x: x in roster_users, roster_order)):
+                raise HTTPBadRequest('Invalid roster order', 'All users in provided order must be part of the roster')
+            if not len(roster_order) == len(roster_users):
+                raise HTTPBadRequest('Invalid roster order', 'Roster order must include all roster members')
+
+            cursor.executemany('''UPDATE roster_user SET roster_priority = %s
+                                  WHERE roster_id = (SELECT id FROM roster WHERE name = %s
+                                    AND team_id = (SELECT id FROM team WHERE name = %s))
+                                  AND user_id = (SELECT id FROM user WHERE name = %s)''',
+                               ((idx, roster, team, user) for idx, user in enumerate(roster_order)))
+            connection.commit()
+
+        if name and name != roster:
+            invalid_char = invalid_char_reg.search(name)
+            if invalid_char:
+                raise HTTPBadRequest('invalid roster name',
+                                     'roster name contains invalid character "%s"' % invalid_char.group())
+            cursor.execute(
+                '''UPDATE `roster` SET `name`=%s
+                   WHERE `team_id`=(SELECT `id` FROM `team` WHERE `name`=%s)
+                       AND `name`=%s''',
+                (name, team, roster))
+            create_audit({'old_name': roster, 'new_name': name}, team, ROSTER_EDITED, req, cursor)
+            connection.commit()
     except db.IntegrityError as e:
         err_msg = str(e.args[1])
         if 'Duplicate entry' in err_msg:

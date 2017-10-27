@@ -13,7 +13,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `team` WRITE;
 /*!40000 ALTER TABLE `team` DISABLE KEYS */;
-INSERT INTO `team` VALUES (1,'Test Team','#team','team@example.com','US/Pacific',1,NULL);
+INSERT INTO `team` VALUES (1,'Test Team','#team','team@example.com','US/Pacific',1,NULL,0);
 /*!40000 ALTER TABLE `team` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -48,14 +48,14 @@ UNLOCK TABLES;
 
 LOCK TABLES `roster_user` WRITE;
 /*!40000 ALTER TABLE `roster_user` DISABLE KEYS */;
-INSERT INTO `roster_user` VALUES (1,3,1),(1,4,1),(2,2,1);
+INSERT INTO `roster_user` VALUES (1,3,1,0),(1,4,1,1),(2,2,1,0);
 /*!40000 ALTER TABLE `roster_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
 LOCK TABLES `schedule` WRITE;
 /*!40000 ALTER TABLE `schedule` DISABLE KEYS */;
-INSERT INTO `schedule` VALUES (1,1,1,1,21,0,1496559600),(2,1,2,4,21,0,1496559600);
+INSERT INTO `schedule` VALUES (1,1,1,1,21,0,1496559600,1),(2,1,2,4,21,0,1496559600,1);
 /*!40000 ALTER TABLE `schedule` ENABLE KEYS */;
 UNLOCK TABLES;
 
