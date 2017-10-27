@@ -125,6 +125,16 @@ VALUES ('primary', 1),
        ('unavailable', 6);
 
 -- -----------------------------------------------------
+-- Table `scheduler``
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `scheduler` (
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL UNIQUE,
+  `description` TEXT NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+-- -----------------------------------------------------
 -- Table `schedule`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `schedule` (
@@ -138,6 +148,8 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   -- 1: display schedule in "advanced mode" (individual events)
   `advanced_mode` TINYINT(1) NOT NULL,
   `last_epoch_scheduled` BIGINT(20) UNSIGNED,
+  `last_scheduled_user_id` BIGINT(20) UNSIGNED,
+  `scheduler_id` INT(11) UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `schedule_roster_id_idx` (`roster_id` ASC),
   INDEX `schedule_role_id_idx` (`role_id` ASC),
@@ -156,7 +168,18 @@ CREATE TABLE IF NOT EXISTS `schedule` (
     FOREIGN KEY (`team_id`)
     REFERENCES `team` (`id`)
     ON DELETE CASCADE
-    ON UPDATE CASCADE);
+    ON UPDATE CASCADE,
+  CONSTRAINT `schedule_scheduler_id_fk`
+    FOREIGN KEY (`scheduler_id`)
+    REFERENCES `scheduler` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `schedule_last_user_id_fk`
+    FOREIGN KEY (`last_scheduled_user_id`)
+    REFERENCES `user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
 
 -- -----------------------------------------------------
 -- Table `schedule_event`
@@ -247,6 +270,7 @@ CREATE TABLE IF NOT EXISTS `roster_user` (
   `roster_id` BIGINT(20) UNSIGNED NOT NULL,
   `user_id` BIGINT(20) UNSIGNED NOT NULL,
   `in_rotation` BOOLEAN NOT NULL DEFAULT 1,
+  `roster_priority` INT(11) UNSIGNED NOT NULL,
   PRIMARY KEY (`roster_id`, `user_id`),
   INDEX `roster_user_user_id_fk_idx` (`user_id` ASC),
   CONSTRAINT `roster_user_user_id_fk`
@@ -392,6 +416,14 @@ CREATE TABLE IF NOT EXISTS `application` (
   `key` varchar(64) NOT NULL,
   PRIMARY KEY (`id`)
 );
+
+INSERT INTO `scheduler` ( `name`, `description`)
+VALUES ('default',
+        'Default scheduling algorithm'),
+       ('round-robin',
+        'Round robin in roster order; does not respect vacations/conflicts'),
+  ('no-skip-matching',
+   'Default scheduling algorithm; doesn\'t skips creating events if matching events already exist on the calendar');
 
 -- -----------------------------------------------------
 -- Initialize notification types
