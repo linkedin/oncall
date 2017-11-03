@@ -40,24 +40,43 @@ def on_get(req, resp, service, role=None):
         ]
 
     '''
-    get_oncall_query = '''SELECT `user`.`full_name` AS `full_name`, `event`.`start`, `event`.`end`,
-                              `contact_mode`.`name` AS `mode`, `user_contact`.`destination`, `role`.`name` AS `role`,
-                              `team`.`name` AS `team`, `user`.`name` AS `user`
-                          FROM `service` JOIN `team_service` ON `service`.`id` = `team_service`.`service_id`
-                              JOIN `event` ON `event`.`team_id` = `team_service`.`team_id`
-                              JOIN `user` ON `user`.`id` = `event`.`user_id`
-                              JOIN `role` ON `role`.`id` = `event`.`role_id`
-                              JOIN `team` ON `team`.`id` = `event`.`team_id`
-                              LEFT JOIN `user_contact` ON `user`.`id` = `user_contact`.`user_id`
-                              LEFT JOIN `contact_mode` ON `contact_mode`.`id` = `user_contact`.`mode_id`
-                          WHERE UNIX_TIMESTAMP() BETWEEN `event`.`start` AND `event`.`end`
-                              AND `service`.`name` = %s '''
-    query_params = [service]
+    get_oncall_query = '''
+        SELECT `user`.`full_name` AS `full_name`,
+               `event`.`start`, `event`.`end`,
+               `contact_mode`.`name` AS `mode`,
+               `user_contact`.`destination`,
+               `user`.`name` AS `user`,
+               `team`.`name` AS `team`,
+               `role`.`name` AS `role`
+        FROM `event`
+        JOIN `user` ON `event`.`user_id` = `user`.`id`
+        JOIN `team` ON `event`.`team_id` = `team`.`id`
+        JOIN `role` ON `role`.`id` = `event`.`role_id`
+        LEFT JOIN `team_subscription` ON `subscription_id` = `team`.`id`
+            AND `team_subscription`.`role_id` = `role`.`id`
+        LEFT JOIN `user_contact` ON `user`.`id` = `user_contact`.`user_id`
+        LEFT JOIN `contact_mode` ON `contact_mode`.`id` = `user_contact`.`mode_id`
+        WHERE UNIX_TIMESTAMP() BETWEEN `event`.`start` AND `event`.`end`
+            AND (`team`.`id` IN %s OR `team_subscription`.`team_id` IN %s)'''
+
+    query_params = []
+    connection = db.connect()
+    cursor = connection.cursor(db.DictCursor)
+    # Get subscription teams for teams owning the service, along with the teams that own the service
+    cursor.execute('''SELECT `team_id` FROM `team_service`
+                      JOIN `service` ON `service`.`id` = `team_service`.`service_id`
+                      WHERE `service`.`name` = %s''',
+                   service)
+    team_ids = [row['team_id'] for row in cursor]
+    if not team_ids:
+        resp.body = json_dumps([])
+        cursor.close()
+        connection.close()
+        return
+    query_params += [team_ids, team_ids]
     if role is not None:
         get_oncall_query += ' AND `role`.`name` = %s'
         query_params.append(role)
-    connection = db.connect()
-    cursor = connection.cursor(db.DictCursor)
     cursor.execute(get_oncall_query, query_params)
     data = cursor.fetchall()
     ret = {}

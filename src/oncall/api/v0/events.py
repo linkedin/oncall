@@ -66,6 +66,8 @@ constraints = {
     'user__endswith': '`user`.`name` LIKE CONCAT("%%", %s)'
 }
 
+TEAM_PARAMS = {'team', 'team__eq', 'team__contains', 'team__startswith', 'team_endswith', 'team_id'}
+
 
 def on_get(req, resp):
     """
@@ -144,6 +146,10 @@ def on_get(req, resp):
     """
     fields = req.get_param_as_list('fields', transform=columns.__getitem__)
     req.params.pop('fields', None)
+    include_sub = req.get_param_as_bool('include_subscribed')
+    if include_sub is None:
+        include_sub = True
+    req.params.pop('include_subscribed', None)
     cols = ', '.join(fields) if fields else all_columns
     if any(key not in constraints for key in req.params):
         raise HTTPBadRequest('Bad constraint param')
@@ -154,17 +160,42 @@ def on_get(req, resp):
 
     where_params = []
     where_vals = []
-    for key in req.params:
+    connection = db.connect()
+    cursor = connection.cursor(db.DictCursor)
+
+    # Build where clause. If including subscriptions, deal with team parameters later
+    params = req.params.viewkeys() - TEAM_PARAMS if include_sub else req.params
+    for key in params:
         val = req.get_param(key)
         if key in constraints:
             where_params.append(constraints[key])
             where_vals.append(val)
+
+    # Deal with team subscriptions and team parameters
+    team_where = []
+    subs_vals = []
+    team_params = req.params.viewkeys() & TEAM_PARAMS
+    if include_sub and team_params:
+
+        for key in team_params:
+            val = req.get_param(key)
+            team_where.append(constraints[key])
+            subs_vals.append(val)
+        subs_and = ' AND '.join(team_where)
+        cursor.execute('''SELECT `subscription_id`, `role_id` FROM `team_subscription`
+                          JOIN `team` ON `team_id` = `team`.`id`
+                          WHERE %s''' % subs_and,
+                       subs_vals)
+        if cursor.rowcount != 0:
+        # Check conditions are true for either team OR subscriber
+            subs_and = '(%s OR (%s))' % (subs_and, ' OR '.join(['`team`.`id` = %s AND `role`.`id` = %s' %
+                                                                (row['subscription_id'], row['role_id']) for row in cursor]))
+        where_params.append(subs_and)
+        where_vals += subs_vals
+
     where_query = ' AND '.join(where_params)
     if where_query:
         query = '%s WHERE %s' % (query, where_query)
-
-    connection = db.connect()
-    cursor = connection.cursor(db.DictCursor)
     cursor.execute(query, where_vals)
     data = cursor.fetchall()
     cursor.close()

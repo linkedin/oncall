@@ -114,17 +114,32 @@ def on_get(req, resp, team):
     if cursor.rowcount < 1:
         raise HTTPNotFound()
     team_id = cursor.fetchone()['id']
-
     current_query = '''
-        SELECT `role`.`name` AS `role`, `user`.`full_name` AS `full_name`,
-               `event`.`start`, `event`.`end`, `user`.`photo_url`, `event`.`user_id`
+        SELECT `user`.`full_name` AS `full_name`,
+               `user`.`photo_url`,
+               `event`.`start`, `event`.`end`,
+               `event`.`user_id`,
+               `user`.`name` AS `user`,
+               `team`.`name` AS `team`,
+               `role`.`name` AS `role`
         FROM `event`
-            JOIN `role` ON `event`.`role_id` = `role`.`id`
-            JOIN `user` ON `event`.`user_id` = `user`.`id`
-        WHERE `event`.`team_id` = %s
-            AND UNIX_TIMESTAMP() >= `event`.`start`
-            AND UNIX_TIMESTAMP() < `event`.`end`'''
-    cursor.execute(current_query, team_id)
+        JOIN `user` ON `event`.`user_id` = `user`.`id`
+        JOIN `team` ON `event`.`team_id` = `team`.`id`
+        JOIN `role` ON `role`.`id` = `event`.`role_id`
+        WHERE UNIX_TIMESTAMP() BETWEEN `event`.`start` AND `event`.`end`'''
+    team_where = '`team`.`id` = %s'
+    cursor.execute('''SELECT `subscription_id`, `role_id` FROM `team_subscription`
+                      JOIN `team` ON `team_id` = `team`.`id`
+                      WHERE %s''' % team_where,
+                   team_id)
+
+    if cursor.rowcount != 0:
+        # Check conditions are true for either team OR subscriber
+        team_where = '(%s OR (%s))' % (team_where, ' OR '.join(['`event`.`team_id` = %s AND `event`.`role_id` = %s' %
+                                                            (row['subscription_id'], row['role_id']) for row in cursor]))
+
+
+    cursor.execute(' AND '.join((current_query, team_where)), team_id)
     payload = {}
     users = set([])
     payload['current'] = defaultdict(list)
@@ -133,18 +148,25 @@ def on_get(req, resp, team):
         users.add(event['user_id'])
 
     next_query = '''
-        SELECT `role`.`name` AS `role`, `user`.`full_name` AS `full_name`,
-               `event`.`start`, `event`.`end`, `user`.`photo_url`, `event`.`user_id`
+        SELECT `role`.`name` AS `role`,
+               `user`.`full_name` AS `full_name`,
+               `event`.`start`,
+               `event`.`end`,
+               `user`.`photo_url`,
+               `event`.`user_id`,
+               `event`.`role_id`,
+               `event`.`team_id`
         FROM `event`
-            JOIN `role` ON `event`.`role_id` = `role`.`id`
-            JOIN `user` ON `event`.`user_id` = `user`.`id`
-            JOIN (SELECT `role_id`, `team_id`, MIN(`start` - UNIX_TIMESTAMP()) AS dist
-                  FROM `event`
-                  WHERE `start` > UNIX_TIMESTAMP() AND `event`.`team_id` = %s
-                  GROUP BY role_id) AS t1
-                ON `event`.`role_id` = `t1`.`role_id`
-                    AND `event`.`start` - UNIX_TIMESTAMP() = `t1`.dist
-                    AND `event`.`team_id` = `t1`.`team_id`'''
+        JOIN `role` ON `event`.`role_id` = `role`.`id`
+        JOIN `user` ON `event`.`user_id` = `user`.`id`
+
+        JOIN (SELECT `event`.`role_id`, `event`.`team_id`, MIN(`event`.`start` - UNIX_TIMESTAMP()) AS dist
+              FROM `event` JOIN `team` ON `team`.`id` = `event`.`team_id`
+              WHERE `start` > UNIX_TIMESTAMP() AND %s
+              GROUP BY `event`.`role_id`, `event`.`team_id`) AS t1
+            ON `event`.`role_id` = `t1`.`role_id`
+                AND `event`.`start` - UNIX_TIMESTAMP() = `t1`.dist
+                AND `event`.`team_id` = `t1`.`team_id`''' % team_where
     cursor.execute(next_query, team_id)
     payload['next'] = defaultdict(list)
     for event in cursor:

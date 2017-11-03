@@ -14,7 +14,7 @@ def test_invalid_events():
 
 
 @prefix('test_events')
-def test_events(team, user, role):
+def test_events(event, team, user, role):
     team_name = team.create()
     team_name_2 = team.create()
     user_name = user.create()
@@ -24,6 +24,8 @@ def test_events(team, user, role):
     user.add_to_team(user_name, team_name)
     user.add_to_team(user_name_2, team_name)
     user.add_to_team(user_name_2, team_name_2)
+    event.teams.add(team_name)
+    event.teams.add(team_name_2)
 
     start, end = int(time.time()) + 100, int(time.time() + 36000)
 

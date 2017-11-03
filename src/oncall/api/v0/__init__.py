@@ -82,6 +82,10 @@ def init(application, config):
     from . import timezones
     application.add_route('/api/v0/timezones', timezones)
 
+    from . import team_subscription, team_subscriptions
+    application.add_route('/api/v0/teams/{team}/subscriptions', team_subscriptions)
+    application.add_route('/api/v0/teams/{team}/subscriptions/{subscription}/{role}', team_subscription)
+
     # Optional Iris integration
     from . import iris_settings
     application.add_route('/api/v0/iris_settings', iris_settings)
