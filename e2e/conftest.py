@@ -179,7 +179,7 @@ def event(team, role):
             for ev in self.created:
                 requests.delete(api_v0('events/%d' % ev))
             for t in self.teams:
-                re = requests.get(api_v0('events?team=' + t))
+                re = requests.get(api_v0('events?include_subscribed=false'), params={'team': t})
                 for ev in re.json():
                     requests.delete(api_v0('events/%d' % ev['id']))
 

@@ -4,6 +4,8 @@
 from ... import db
 from .events import all_columns
 from ujson import dumps as json_dumps
+from collections import defaultdict
+import operator
 
 
 def on_get(req, resp, user_name):
@@ -47,29 +49,39 @@ def on_get(req, resp, user_name):
 
 
     '''
-    connection = db.connect()
-    cursor = connection.cursor(db.DictCursor)
     role = req.get_param('role', None)
-    limit = req.get_param_as_int('limit', None)
+    limit = req.get_param_as_int('limit')
     query_end = ' ORDER BY `event`.`start` ASC'
-    query = '''SELECT %s, (SELECT COUNT(*) FROM `event` `counter`
-                           WHERE `counter`.`link_id` = `event`.`link_id`) AS num_events
+    query = '''SELECT %s
                FROM `event`
                JOIN `user` ON `user`.`id` = `event`.`user_id`
                JOIN `team` ON `team`.`id` = `event`.`team_id`
                JOIN `role` ON `role`.`id` = `event`.`role_id`
-               LEFT JOIN `event` `e2` ON `event`.link_id = `e2`.`link_id` AND `e2`.`start` < `event`.`start`
                WHERE `user`.`id` = (SELECT `id` FROM `user` WHERE `name` = %%s)
-                   AND `event`.`start` > UNIX_TIMESTAMP()
-                   AND `e2`.`start` IS NULL''' % all_columns
+                   AND `event`.`start` > UNIX_TIMESTAMP()''' % all_columns
 
     query_params = [user_name]
     if role:
         query_end = ' AND `role`.`name` = %s' + query_end
         query_params.append(role)
-    if limit:
-        query_end += ' LIMIT %s'
-        query_params.append(limit)
+    connection = db.connect()
+    cursor = connection.cursor(db.DictCursor)
     cursor.execute(query + query_end, query_params)
     data = cursor.fetchall()
-    resp.body = json_dumps(data)
+    cursor.close()
+    connection.close()
+    links = defaultdict(list)
+    formatted = []
+    for event in data:
+        if event['link_id'] is None:
+            formatted.append(event)
+        else:
+            links[event['link_id']].append(event)
+    for events in links.itervalues():
+        first_event = min(events, key=operator.itemgetter('start'))
+        first_event['num_events'] = len(events)
+        formatted.append(first_event)
+    formatted = sorted(formatted, key=operator.itemgetter('start'))
+    if limit is not None:
+        formatted = formatted[:limit]
+    resp.body = json_dumps(formatted)

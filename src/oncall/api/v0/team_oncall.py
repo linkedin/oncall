@@ -64,15 +64,18 @@ def on_get(req, resp, team, role=None):
         JOIN `user` ON `event`.`user_id` = `user`.`id`
         JOIN `team` ON `event`.`team_id` = `team`.`id`
         JOIN `role` ON `role`.`id` = `event`.`role_id`
+        LEFT JOIN `team_subscription` ON `subscription_id` = `team`.`id`
+            AND `team_subscription`.`role_id` = `role`.`id`
+        LEFT JOIN `team` `subscriber` ON `subscriber`.`id` = `team_subscription`.`team_id`
         LEFT JOIN `user_contact` ON `user`.`id` = `user_contact`.`user_id`
         LEFT JOIN `contact_mode` ON `contact_mode`.`id` = `user_contact`.`mode_id`
         WHERE UNIX_TIMESTAMP() BETWEEN `event`.`start` AND `event`.`end`
-            AND `team`.`name` = %s'''
-
-    query_params = [team]
+            AND (`team`.`name` = %s OR `subscriber`.`name` = %s)'''
+    query_params = [team, team]
     if role is not None:
-        get_oncall_query += 'AND `role`.`name` = %s'
+        get_oncall_query += ' AND `role`.`name` = %s'
         query_params.append(role)
+
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
     cursor.execute(get_oncall_query, query_params)
