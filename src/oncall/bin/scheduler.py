@@ -50,7 +50,7 @@ def main():
             try:
                 scheduler_name = row['name']
                 if scheduler_name not in schedulers:
-                    schedulers[scheduler_name] =  load_scheduler(scheduler_name)
+                    schedulers[scheduler_name] = load_scheduler(scheduler_name)
             except (ImportError, AttributeError):
                 logger.exception('Failed to load scheduler %s, skipping', row['name'])
 

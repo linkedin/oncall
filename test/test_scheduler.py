@@ -14,6 +14,7 @@ WEEK = 7 * DAY
 
 MOCK_SCHEDULE = {'team_id': 1, 'role_id': 2, 'roster_id': 3}
 
+
 def test_find_new_user_as_least_active_user(mocker):
     scheduler = oncall.scheduler.default.Scheduler()
     mocker.patch('oncall.scheduler.default.Scheduler.find_new_user_in_roster').return_value = {123}

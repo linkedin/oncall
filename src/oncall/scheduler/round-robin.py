@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger()
 
+
 class Scheduler(default.Scheduler):
 
     def guess_last_scheduled_user(self, schedule, start, roster, cursor):
