@@ -8,6 +8,7 @@ from schedules import get_schedules
 from falcon import HTTPNotFound
 from oncall.bin.scheduler import load_scheduler
 
+
 @login_required
 def on_post(req, resp, schedule_id):
     """
@@ -34,7 +35,10 @@ def on_post(req, resp, schedule_id):
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
-    cursor.execute('SELECT `scheduler`.`name` FROM `schedule` JOIN `scheduler` ON `schedule`.`scheduler_id` = `scheduler`.`id` WHERE `schedule`.`id` = %s', schedule_id)
+    cursor.execute('''SELECT `scheduler`.`name` FROM `schedule`
+                      JOIN `scheduler` ON `schedule`.`scheduler_id` = `scheduler`.`id`
+                      WHERE `schedule`.`id` = %s''',
+                   schedule_id)
     if cursor.rowcount == 0:
         raise HTTPNotFound()
     scheduler_name = cursor.fetchone()['name']
