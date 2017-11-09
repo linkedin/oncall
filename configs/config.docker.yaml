@@ -34,6 +34,17 @@ messengers:
 # allow_origins_list:
 #   - http://www.example.com
 
+supported_timezones:
+  - 'US/Pacific'
+  - 'US/Eastern'
+  - 'US/Central'
+  - 'US/Mountain'
+  - 'US/Alaska'
+  - 'US/Hawaii'
+  - 'Asia/Kolkata'
+  - 'Asia/Shanghai'
+  - 'UTC'
+
 index_content_setting:
   footer: |
     <ul>
@@ -41,6 +52,7 @@ index_content_setting:
       <li>Feedback</li>
       <li><a href="http://oncall.tools" target="_blank">About</a></li>
     </ul>
+  missing_number_note: 'No number'
 
 notifications:
   default_roles:
@@ -66,9 +78,3 @@ user_validator:
 
 slack_instance: foobar
 header_color: '#3a3a3a'
-iris_plan_integration:
-  activated: True
-  app: oncall
-  api_key: magic
-  api_host: http://localhost:16649
-  plan_url: '/v0/applications/oncall/plans'
