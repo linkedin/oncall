@@ -135,9 +135,9 @@ def on_get(req, resp, team):
 
     if cursor.rowcount != 0:
         # Check conditions are true for either team OR subscriber
-        team_where = '(%s OR (%s))' % (team_where, ' OR '.join(['`event`.`team_id` = %s AND `event`.`role_id` = %s' %
-                                                            (row['subscription_id'], row['role_id']) for row in cursor]))
-
+        team_where = '(%s OR (%s))' % (team_where, ' OR '.join(
+            ['`event`.`team_id` = %s AND `event`.`role_id` = %s' %
+             (row['subscription_id'], row['role_id']) for row in cursor]))
 
     cursor.execute(' AND '.join((current_query, team_where)), team_id)
     payload = {}

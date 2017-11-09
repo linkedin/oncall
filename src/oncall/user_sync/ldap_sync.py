@@ -27,17 +27,17 @@ logger.setLevel(logging.INFO)
 logger.addHandler(ch)
 
 stats = {
-  'ldap_found': 0,
-  'sql_errors': 0,
-  'users_added': 0,
-  'users_failed_to_add': 0,
-  'users_failed_to_update': 0,
-  'users_purged': 0,
-  'user_contacts_updated': 0,
-  'user_names_updated': 0,
-  'user_photos_updated': 0,
-  'users_reactivated': 0,
-  'users_failed_to_reactivate': 0,
+    'ldap_found': 0,
+    'sql_errors': 0,
+    'users_added': 0,
+    'users_failed_to_add': 0,
+    'users_failed_to_update': 0,
+    'users_purged': 0,
+    'user_contacts_updated': 0,
+    'user_names_updated': 0,
+    'user_photos_updated': 0,
+    'users_reactivated': 0,
+    'users_failed_to_reactivate': 0,
 }
 
 LDAP_SETTINGS = {}
@@ -143,7 +143,7 @@ def fetch_ldap():
 
         pctrls = [
             c for c in serverctrls if c.controlType == SimplePagedResultsControl.controlType
-            ]
+        ]
 
         cookie = pctrls[0].cookie
         if not cookie:
