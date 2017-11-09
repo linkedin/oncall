@@ -187,7 +187,7 @@ def on_get(req, resp):
                           WHERE %s''' % subs_and,
                        subs_vals)
         if cursor.rowcount != 0:
-        # Check conditions are true for either team OR subscriber
+            # Build where clause based on team params and subscriptions
             subs_and = '(%s OR (%s))' % (subs_and, ' OR '.join(['`team`.`id` = %s AND `role`.`id` = %s' %
                                                                 (row['subscription_id'], row['role_id']) for row in cursor]))
         where_params.append(subs_and)
