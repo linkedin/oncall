@@ -5,6 +5,7 @@ EMAIL_SUPPORT = 'email'
 SMS_SUPPORT = 'sms'
 CALL_SUPPORT = 'call'
 SLACK_SUPPORT = 'slack'
+ROCKET_SUPPORT = 'rocketchat'
 
 ONCALL_REMINDER = 'oncall_reminder'
 OFFCALL_REMINDER = 'offcall_reminder'

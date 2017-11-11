@@ -16,22 +16,19 @@ var oncall = {
     irisSettingsUrl: '/api/v0/iris_settings',
     rolesUrl: '/api/v0/roles/',
     timezonesUrl: '/api/v0/timezones/',
+    modesUrl: '/api/v0/modes',
     roles: null,  // will be fetched from API
     irisSettings: null,  // will be fetched from API
     timezones: null,  // will be fetched from API
-    modes: [
-      'email',
-      'sms',
-      'slack',
-      'call'
-    ],
+    modes: null,  // will be fetched from API
     userTimezone: null,
     userInfo: null,
     csrfKey: 'csrf-key',
     userInfoPromise: $.Deferred(),
     irisSettingsPromise: $.Deferred(),
     rolesPromise: $.Deferred(),
-    timezonesPromise: $.Deferred()
+    timezonesPromise: $.Deferred(),
+    modesPromise: $.Deferred()
   },
   callbacks: {
     onLogin: function (data){
@@ -162,6 +159,13 @@ var oncall = {
       });
       self.data.rolesPromise.resolve();
     });
+  },
+  getModes: function() {
+      var self = this;
+      $.get(this.data.modesUrl).done(function (data) {
+          self.data.modes = data;
+          self.data.modesPromise.resolve();
+      });
   },
   getTimezones: function() {
     var self = this;
@@ -2088,6 +2092,7 @@ var oncall = {
         Handlebars.registerPartial('module-notification', this.data.moduleNotificationTemplate);
         Handlebars.registerPartial('module-notification-create', this.data.moduleNotificationCreateTemplate);
         this.getData();
+        oncall.getModes();
         oncall.multiSelect.init();
       },
       events: function(){
@@ -2107,7 +2112,8 @@ var oncall = {
             $.get(this.data.url + oncall.data.user + '/notifications'),
             $.get(this.data.url + oncall.data.user + '/teams'),
             $.get(this.data.typesUrl),
-            oncall.data.rolesPromise
+            oncall.data.rolesPromise,
+            oncall.data.modesPromise
           ).done(function(notificationData, teamsData, types){
             types[0].map(function(i){
               if (typeof(self.data.typeMap[i.name]) !== 'undefined') {
