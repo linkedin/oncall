@@ -30,6 +30,11 @@ notifier:
   skipsend: True
 healthcheck_path: /tmp/status
 messengers:
+#   - type: rocketchat_messenger
+#     user: username
+#     password: abc123
+#     refresh: 60000
+#     api_host: https://example.rocket.chat
   - type: dummy
     application: oncall
     iris_api_key: magic

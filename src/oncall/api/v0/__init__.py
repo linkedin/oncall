@@ -66,8 +66,9 @@ def init(application, config):
     from . import user_notification
     application.add_route('/api/v0/notifications/{notification_id}', user_notification)
 
-    from . import notification_types
+    from . import notification_types, modes
     application.add_route('/api/v0/notification_types', notification_types)
+    application.add_route('/api/v0/modes', modes)
 
     from . import search
     application.add_route('/api/v0/search', search)
