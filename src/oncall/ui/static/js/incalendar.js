@@ -224,10 +224,10 @@
           .append(
             function () {
               if (todayBtn) {
-                $('<button id="inc-controls-today" class="btn btn-blue">Today</button>')
-                .click(function () {
-                  self.stepToDate(self.options.today);
-                });
+                return $('<button id="inc-controls-today" class="btn btn-blue">Today</button>')
+                        .click(function () {
+                          self.stepToDate(self.options.today);
+                        });
               }
             }
           )
