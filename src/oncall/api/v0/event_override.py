@@ -89,7 +89,7 @@ def on_post(req, resp):
 
         check_calendar_auth_by_id(team_id, req)
         # Check that events are not in the past
-        if any([ev['start'] < now - constants.GRACE_PERIOD for ev in events]):
+        if start < now - constants.GRACE_PERIOD:
             raise HTTPBadRequest('Invalid override request', 'Cannot edit events in the past')
         # Check that events are from the same team
         if any([ev['team_id'] != team_id for ev in events]):
