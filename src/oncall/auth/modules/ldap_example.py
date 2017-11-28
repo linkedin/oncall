@@ -1,7 +1,8 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
-import ldap
 import logging
+import os
+import ldap
 
 logger = logging.getLogger(__name__)
 
@@ -14,11 +15,8 @@ class Authenticator:
 
         if 'ldap_cert_path' in config:
             self.cert_path = config['ldap_cert_path']
-            try:
-                with open(self.cert_path) as fp:
-                    ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, self.cert_path)
-            except IOError as err:
-                logger.error("Failed to read cert_path: %s", err)
+            if not os.access(self.cert_path, os.R_OK):
+                logger.error("Failed to read certificate")
                 return False
 
         if 'ldap_bind_user' in config:
