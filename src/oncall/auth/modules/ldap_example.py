@@ -1,8 +1,8 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
-import logging
-import os
 import ldap
+import os
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -30,18 +30,19 @@ class Authenticator:
 
 
     def ldap_auth(self, username, password):
-        connection = ldap.initialize(self.ldap_url)
-        connection.set_option(ldap.OPT_REFERRALS, 0)
-
         bind_user = username + self.user_suffix
         bind_password = password
 
-        # override bind user and password if they have been specified in the config
         try:
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, self.cert_path)
+            # override bind user and password if they have been specified in the config
             bind_user = self.bind_user
             bind_password = self.bind_password
         except AttributeError:
             pass
+
+        connection = ldap.initialize(self.ldap_url)
+        connection.set_option(ldap.OPT_REFERRALS, 0)
 
         try:
             if password:
