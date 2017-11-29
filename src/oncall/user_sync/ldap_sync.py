@@ -117,7 +117,12 @@ def fetch_ldap():
                 logger.error('ERROR: invalid ldap entry for dn: %s' % dn)
                 continue
 
-            username = ldap_dict['sAMAccountName'][0]
+            try:
+                username_field = LDAP_SETTINGS['attrs']['username']
+            except KeyError:
+                username_field = "sAMAccountName"
+
+            username = ldap_dict[username_field][0]
 
             mobile = ldap_dict.get(LDAP_SETTINGS['attrs']['mobile'])
             mail = ldap_dict.get(LDAP_SETTINGS['attrs']['mail'])
