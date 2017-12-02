@@ -12,6 +12,8 @@ def user_validator(config):
     body = config['body']
     sleep_time = config.get('interval', 86400)
     while 1:
+        # Sleep first so bouncing notifier doesn't spam
+        sleep(sleep_time)
         connection = db.connect()
         cursor = connection.cursor()
         cursor.execute('''SELECT `user`.`name`
@@ -28,4 +30,3 @@ def user_validator(config):
             messengers.send_message(message)
         connection.close()
         cursor.close()
-        sleep(sleep_time)

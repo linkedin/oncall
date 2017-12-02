@@ -141,19 +141,25 @@ def main():
         config = yaml.safe_load(config_file)
 
     init_notifier(config)
+    metrics_on = False
     if 'metrics' in config:
         metrics.init(config, 'oncall-notifier', {'message_blackhole_cnt': 0, 'message_sent_cnt': 0, 'message_fail_cnt': 0})
-        spawn(metrics_sender)
+        metrics_worker = spawn(metrics_sender)
+        metrics_on = True
     else:
         logger.warning('Not running with metrics')
 
     init_messengers(config.get('messengers', []))
 
     worker_tasks = [spawn(worker) for x in xrange(100)]
+    reminder_on = False
     if config['reminder']['activated']:
-        spawn(reminder.reminder, config['reminder'])
+        reminder_worker = spawn(reminder.reminder, config['reminder'])
+        reminder_on = True
+    validator_on = False
     if config['user_validator']['activated']:
-        spawn(user_validator.user_validator, config['user_validator'])
+        validator_worker = spawn(user_validator.user_validator, config['user_validator'])
+        validator_on = True
 
     interval = 60
 
@@ -171,6 +177,16 @@ def main():
                 bad_workers.append(i)
         for i in bad_workers:
             worker_tasks[i] = spawn(worker)
+        # Check greenlet health for metrics, reminder, and validator tasks
+        if metrics_on and not bool(metrics_worker):
+            logger.error("metrics worker failed, %s", metrics_worker.exception)
+            metrics_worker = spawn(metrics_sender)
+        if reminder_on and not bool(reminder_worker):
+            logger.error("reminder worker failed, %s", reminder_worker.exception)
+            reminder_worker = spawn(reminder.reminder, config['reminder'])
+        if validator_on and not bool(validator_worker):
+            logger.error("user validator failed, %s", validator_worker.exception)
+            validator_worker = spawn(user_validator.user_validator, config['user_validator'])
 
         now = time.time()
         elapsed_time = now - runtime
