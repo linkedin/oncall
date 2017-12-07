@@ -67,7 +67,7 @@ connect to LDAP.
         mobile: 'mobile'
       image_url: 'https://image.example.com/api/%s/picture'
 
-User syncronization is a seperate process which needs to be started manually,
+User synchronization is a seperate process which needs to be started manually,
 but will continue to run in a loop, updating users as necessary.
 
 To run this process, you simply point to the configuration file:
