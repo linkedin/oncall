@@ -39,6 +39,9 @@ messengers:
     application: oncall
     iris_api_key: magic
 
+## To run Oncall without https, set this value to True
+#allow_http: False
+
 # allow_origins_list:
 #   - http://www.example.com
 
