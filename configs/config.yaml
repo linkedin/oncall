@@ -26,6 +26,11 @@ auth:
 #   ldap_url: 'ldaps://example.com'
 #   ldap_user_suffix: '@example.biz'
 #   ldap_cert_path: '/etc/ldap_cert.pem'
+#   if you need to lookup the DN of the user first
+#   ldap_bind_user: 'cn=binduser,ou=services,dc=company,dc=org'
+#   ldap_bind_password: 'abc123'
+#   ldap_base_dn: 'ou=accounts,dc=company,dc=org'
+#   ldap_search_filter: '(uid=%s)'
 notifier:
   skipsend: True
 healthcheck_path: /tmp/status
