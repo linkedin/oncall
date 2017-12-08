@@ -55,22 +55,10 @@ class Scheduler(object):
 
         query = '''
                 SELECT DISTINCT `user_id` FROM `event`
-                WHERE `user_id` in %%s AND (%s)
+                WHERE `user_id` in %%s AND team_id = %%s AND (%s)
                 ''' % ' OR '.join(range_check)
 
-        team_where = '`team`.`id` = %s'
-        cursor.execute('''SELECT `subscription_id`, `role_id` FROM `team_subscription`
-                          JOIN `team` ON `team_id` = `team`.`id`
-                          WHERE %s''' % team_where,
-                       team_id)
-
-        if cursor.rowcount != 0:
-            # Check conditions are true for either team OR subscriber
-            team_where = '(%s OR (%s))' % (team_where, ' OR '.join(
-                ['`event`.`team_id` = %s AND `event`.`role_id` = %s' %
-                 (row['subscription_id'], row['role_id']) for row in cursor]))
-
-        cursor.execute(' AND '.join((query, team_where)), (user_ids, team_id))
+        cursor.execute(query, (user_ids, team_id))
         return [r['user_id'] for r in cursor.fetchall()]
 
     def find_least_active_user_id_by_team(self, user_ids, team_id, start_time, role_id, cursor):
