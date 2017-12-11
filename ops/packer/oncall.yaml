@@ -1,15 +1,15 @@
 variables:
-    app_name: "oncall"
-    app_version: ""
-    git_tag: "master"
+  app_name: "oncall"
+  app_version: ""
+  git_tag: "master"
 
 builders:
-    - type: "docker"
-      image: "ubuntu:16.04"
-      changes:
-        - 'EXPOSE 8080'
-        - 'CMD ["sudo", "-EHu", "oncall", "bash", "-c", "source /home/oncall/env/bin/activate && python /home/oncall/entrypoint.py"]'
-      commit: True
+  - type: "docker"
+    image: "ubuntu:16.04"
+    changes:
+      - 'EXPOSE 8080'
+      - 'CMD ["sudo", "-EHu", "oncall", "bash", "-c", "source /home/oncall/env/bin/activate && python /home/oncall/entrypoint.py"]'
+    commit: True
 
 provisioners:
   - type: "shell"
@@ -66,3 +66,14 @@ provisioners:
     inline:
       - "sudo -Hu oncall mv -f /home/oncall/daemons/uwsgi-docker.yaml /home/oncall/daemons/uwsgi.yaml"
       - sudo -Hu oncall cp /home/oncall/source/configs/config.docker.yaml /home/oncall/config/config.yaml
+
+post-processors:
+  - type: "docker-tag"
+    repository: "quay.io/oncall/oncall"
+    tag: "{{ user `app_version` }}"
+    only: ["docker"]
+
+  - type: "docker-tag"
+    repository: "quay.io/oncall/oncall"
+    tag: "latest"
+    only: ["docker"]
