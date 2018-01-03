@@ -1159,46 +1159,27 @@
             </select>
           </td>
         </tr>
+        {{#each contactmodes}}
         <tr>
-          <td>Phone</td>
+          <td>{{key}}</td>
           <td>
             <span>
-            {{#if contacts.call}}
-              <a href="tel:{{contacts.call}}"> {{contacts.call}} </a>
-            {{else}}
-              {% endraw %}
-                {{missing_number_note|safe}}
-              {% raw %}
-            {{/if}}
-            </span>
-          </td>
-        </tr>
-        <tr>
-          <td>SMS Number</td>
-          <td>
-            <span>
-              {{#if contacts.sms}}
-                <a href="tel:{{contacts.sms}}"> {{contacts.sms}} </a>
+            {{#inArray key ../telmodes}}
+              {{#if value}}
+                <a href="tel:{{value}}"> {{value}} </a>
               {{else}}
                 {% endraw %}
                   {{missing_number_note|safe}}
                 {% raw %}
               {{/if}}
+            {{/inArray}}
+            {{^inArray key ../telmodes}}
+              {{value}}
+            {{/inArray}}
             </span>
           </td>
         </tr>
-        <tr>
-          <td>Email</td>
-          <td>
-            <span>{{contacts.email}}</span>
-          </td>
-        </tr>
-        <tr>
-          <td>Slack ID</td>
-          <td>
-            <span>{{contacts.slack}}</span>
-          </td>
-        </tr>
+        {{/each}}
       </table>
       <button type="submit" id="save-settings" class="btn btn-primary btn-sm pull-right"><span class="btn-text">Save Changes</span> <i class="loader loader-small"></i></button>
     </form>
