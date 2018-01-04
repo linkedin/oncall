@@ -63,7 +63,7 @@ INDEX_CONTENT_SETTING = {
 SLACK_INSTANCE = None
 HEADER_COLOR = None
 IRIS_PLAN_SETTINGS = None
-USERCONTACT_UI_STATE = "readonly"
+USERCONTACT_UI_READONLY = None
 
 
 def index(req, resp):
@@ -76,7 +76,7 @@ def index(req, resp):
         missing_number_note=INDEX_CONTENT_SETTING['missing_number_note'],
         header_color=HEADER_COLOR,
         iris_plan_settings=IRIS_PLAN_SETTINGS,
-        usercontact_ui_state=USERCONTACT_UI_STATE,
+        usercontact_ui_readonly=USERCONTACT_UI_READONLY,
         footer=INDEX_CONTENT_SETTING['footer'],
         timezones=SUPPORTED_TIMEZONES
     )
@@ -120,14 +120,11 @@ def init(application, config):
     global SLACK_INSTANCE
     global HEADER_COLOR
     global IRIS_PLAN_SETTINGS
-    global USERCONTACT_UI_STATE
+    global USERCONTACT_UI_READONLY
     SLACK_INSTANCE = config.get('slack_instance')
     HEADER_COLOR = config.get('header_color', '#3a3a3a')
     IRIS_PLAN_SETTINGS = config.get('iris_plan_integration')
-    usercontact_ui_readonly = config.get('usercontact_ui_readonly', True)
-    USERCONTACT_UI_STATE = ''
-    if usercontact_ui_readonly:
-        USERCONTACT_UI_STATE = 'readonly'
+    USERCONTACT_UI_READONLY = config.get('usercontact_ui_readonly', False)
 
     application.add_sink(index, '/')
     application.add_route('/static/bundles/{filename}',
