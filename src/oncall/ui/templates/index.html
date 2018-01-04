@@ -1161,20 +1161,19 @@
         </tr>
         {{#each contactmodes}}
         <tr>
-          <td>{{key}}</td>
+          <td>{{label}}</td>
           <td>
             <span>
-            {{#inArray key ../telmodes}}
+            {{#inArray mode ../telmodes}}
               {{#if value}}
-                <a href="tel:{{value}}"> {{value}} </a>
+                <input type="text" name="contactmode-{{mode}}" id="{{mode}}" class="form-control" value="{{value}}" />
+                <!-- <a href="tel:{{value}}"> {{value}} </a> -->
               {{else}}
-                {% endraw %}
-                  {{missing_number_note|safe}}
-                {% raw %}
+                <input type="text" name="contactmode-{{mode}}" id="{{mode}}" class="form-control" placeholder="{% endraw %}{{missing_number_note|safe}}{% raw %}" />
               {{/if}}
             {{/inArray}}
-            {{^inArray key ../telmodes}}
-              {{value}}
+            {{^inArray mode ../telmodes}}
+              <input type="text" name="contactmode-{{mode}}" id="{{mode}}" class="form-control" value="{{value}}" />
             {{/inArray}}
             </span>
           </td>

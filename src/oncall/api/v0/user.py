@@ -122,7 +122,7 @@ def on_put(req, resp, user_name):
     :statuscode 204: Successful edit
     :statuscode 404: User not found
     """
-    contacts_query = '''INSERT INTO user_contact (`user_id`, `mode_id`, `destination`) VALUES
+    contacts_query = '''REPLACE INTO user_contact (`user_id`, `mode_id`, `destination`) VALUES
                            ((SELECT `id` FROM `user` WHERE `name` = %(user)s),
                             (SELECT `id` FROM `contact_mode` WHERE `name` = %(mode)s),
                             %(destination)s)
