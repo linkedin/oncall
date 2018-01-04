@@ -124,7 +124,7 @@ def init(application, config):
     SLACK_INSTANCE = config.get('slack_instance')
     HEADER_COLOR = config.get('header_color', '#3a3a3a')
     IRIS_PLAN_SETTINGS = config.get('iris_plan_integration')
-    USERCONTACT_UI_READONLY = config.get('usercontact_ui_readonly', False)
+    USERCONTACT_UI_READONLY = config.get('usercontact_ui_readonly', True)
 
     application.add_sink(index, '/')
     application.add_route('/static/bundles/{filename}',
