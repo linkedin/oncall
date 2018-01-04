@@ -1166,14 +1166,14 @@
             <span>
             {{#inArray mode ../telmodes}}
               {{#if value}}
-                <input type="text" name="contactmode-{{mode}}" id="{{mode}}" class="form-control" value="{{value}}" />
+                <input type="text" name="contactmode-{{mode}}" id="{{mode}}" class="form-control" value="{{value}}" {% endraw %} {{ usercontact_ui_state }} {% raw %} />
                 <!-- <a href="tel:{{value}}"> {{value}} </a> -->
               {{else}}
-                <input type="text" name="contactmode-{{mode}}" id="{{mode}}" class="form-control" placeholder="{% endraw %}{{missing_number_note|safe}}{% raw %}" />
+                <input type="text" name="contactmode-{{mode}}" id="{{mode}}" class="form-control" placeholder="{% endraw %}{{missing_number_note|safe}} {{ usercontact_ui_state }} {% raw %} " />
               {{/if}}
             {{/inArray}}
             {{^inArray mode ../telmodes}}
-              <input type="text" name="contactmode-{{mode}}" id="{{mode}}" class="form-control" value="{{value}}" />
+              <input type="text" name="contactmode-{{mode}}" id="{{mode}}" class="form-control" value="{{value}}" {% endraw %} {{ usercontact_ui_state }} {% raw %} />
             {{/inArray}}
             </span>
           </td>
