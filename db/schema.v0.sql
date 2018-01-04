@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `team` (
   `active` BOOLEAN NOT NULL DEFAULT TRUE,
   `iris_plan` VARCHAR(255),
   `iris_enabled` BOOLEAN NOT NULL DEFAULT FALSE,
+  `override_phone_number` VARCHAR(255),
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_unique` (`name` ASC));
 

@@ -58,7 +58,8 @@ def test_api_v0_get_team(team, role, roster, schedule):
     assert re.status_code == 200
     team = re.json()
     assert isinstance(team, dict)
-    expected_set = {'users', 'admins', 'services', 'rosters', 'name', 'id', 'slack_channel', 'email', 'scheduling_timezone', 'iris_plan', 'iris_enabled'}
+    expected_set = {'users', 'admins', 'services', 'rosters', 'name', 'id', 'slack_channel', 'email',
+        'scheduling_timezone', 'iris_plan', 'iris_enabled', 'override_phone_number'}
     assert expected_set == set(team.keys())
 
     # it should also support filter by fields
@@ -66,7 +67,8 @@ def test_api_v0_get_team(team, role, roster, schedule):
     assert re.status_code == 200
     team = re.json()
     assert isinstance(team, dict)
-    expected_set = {'users', 'admins', 'services', 'name', 'id', 'slack_channel', 'email', 'scheduling_timezone', 'iris_plan', 'iris_enabled'}
+    expected_set = {'users', 'admins', 'services', 'name', 'id', 'slack_channel', 'email',
+                    'scheduling_timezone', 'iris_plan', 'iris_enabled', 'override_phone_number'}
     assert expected_set == set(team.keys())
 
 
@@ -86,6 +88,7 @@ def test_api_v0_update_team(team):
     new_team_name = "new-moninfra-update"
     email = 'abc@gmail.com'
     slack = '#slack'
+    override_num = '1234'
 
     # setup DB state
     requests.delete(api_v0('teams/'+new_team_name))
@@ -95,7 +98,10 @@ def test_api_v0_update_team(team):
     re = requests.get(api_v0('teams/'+team_name))
     assert re.status_code == 200
     # edit team name/email/slack
-    re = requests.put(api_v0('teams/'+team_name), json={'name': new_team_name, 'email': email, 'slack_channel': slack})
+    re = requests.put(api_v0('teams/'+team_name), json={'name': new_team_name,
+                                                        'email': email,
+                                                        'slack_channel': slack,
+                                                        'override_phone_number': override_num})
     assert re.status_code == 200
     team.mark_for_cleaning(new_team_name)
     # verify result
@@ -106,6 +112,7 @@ def test_api_v0_update_team(team):
     data = re.json()
     assert data['email'] == email
     assert data['slack_channel'] == slack
+    assert data['override_phone_number'] == override_num
 
 
 @prefix('test_v0_team_admin')
@@ -356,3 +363,38 @@ def test_api_v0_team_current_oncall(team, user, role, event):
     assert re.status_code == 200
     results = re.json()
     assert len(results) == 2
+
+
+@prefix('test_v0_team_override_number')
+def test_api_v0_team_override_number(team, user, role, event):
+    team_name = team.create()
+    user_name = user.create()
+    user_name_2 = user.create()
+    user.add_to_team(user_name, team_name)
+    user.add_to_team(user_name_2, team_name)
+
+    start, end = int(time.time()), int(time.time()+36000)
+    event_data_1 = {'start': start,
+                    'end': end,
+                    'user': user_name,
+                    'team': team_name,
+                    'role': 'primary'}
+    event.create(event_data_1)
+
+    override_num = '12345'
+    re = requests.put(api_v0('teams/'+team_name), json={'override_phone_number': override_num})
+
+    re = requests.get(api_v0('teams/%s/oncall/%s' % (team_name, 'primary')))
+    assert re.status_code == 200
+    results = re.json()
+    assert results[0]['start'] == start
+    assert results[0]['end'] == end
+    assert results[0]['contacts']['call'] == override_num
+
+    re = requests.get(api_v0('teams/%s/oncall' % team_name))
+    assert re.status_code == 200
+    results = re.json()
+    assert results[0]['contacts']['call'] == override_num
+
+    re = requests.get(api_v0('teams/%s/summary' % team_name))
+    assert results[0]['contacts']['call'] == override_num

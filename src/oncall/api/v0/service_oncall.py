@@ -63,11 +63,14 @@ def on_get(req, resp, service, role=None):
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
     # Get subscription teams for teams owning the service, along with the teams that own the service
-    cursor.execute('''SELECT `team_id` FROM `team_service`
+    cursor.execute('''SELECT `team_id`, `team`.`override_phone_number`, `team`.`name` FROM `team_service`
                       JOIN `service` ON `service`.`id` = `team_service`.`service_id`
+                      JOIN `team` ON `team`.`id` = `team_service`.`team_id`
                       WHERE `service`.`name` = %s''',
                    service)
-    team_ids = [row['team_id'] for row in cursor]
+    data = cursor.fetchall()
+    team_ids = [row['team_id'] for row in data]
+    team_override_numbers = {row['name']: row['override_phone_number'] for row in data}
     if not team_ids:
         resp.body = json_dumps([])
         cursor.close()
@@ -92,6 +95,11 @@ def on_get(req, resp, service, role=None):
         dest = row.pop('destination')
         ret[user]['contacts'][mode] = dest
     data = ret.values()
+    for event in data:
+        override_number = team_override_numbers.get(event['team'])
+        if override_number and event['role'] == 'primary':
+            event['contacts']['call'] = override_number
+            event['contacts']['sms'] = override_number
 
     cursor.close()
     connection.close()

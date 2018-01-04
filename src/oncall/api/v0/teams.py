@@ -149,6 +149,9 @@ def on_post(req, resp):
     email = data.get('email')
     iris_plan = data.get('iris_plan')
     iris_enabled = data.get('iris_enabled', False)
+    override_number = data.get('override_phone_number')
+    if not override_number:
+        override_number = None
 
     # validate Iris plan if provided and Iris is configured
     if iris_plan is not None and iris.client is not None:
@@ -160,8 +163,10 @@ def on_post(req, resp):
     cursor = connection.cursor()
     try:
         cursor.execute('''
-            INSERT INTO `team` (`name`, `slack_channel`, `email`, `scheduling_timezone`, `iris_plan`, `iris_enabled`)
-            VALUES (%s, %s, %s, %s, %s, %s)''', (team_name, slack, email, scheduling_timezone, iris_plan, iris_enabled))
+            INSERT INTO `team` (`name`, `slack_channel`, `email`, `scheduling_timezone`, `iris_plan`, `iris_enabled`,
+                                `override_phone_number`)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)''',
+            (team_name, slack, email, scheduling_timezone, iris_plan, iris_enabled, override_number))
 
         team_id = cursor.lastrowid
         query = '''

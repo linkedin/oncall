@@ -80,6 +80,9 @@ def on_get(req, resp, team, role=None):
     cursor = connection.cursor(db.DictCursor)
     cursor.execute(get_oncall_query, query_params)
     data = cursor.fetchall()
+    cursor.execute('SELECT `override_phone_number` FROM team WHERE `name` = %s', team)
+    team = cursor.fetchone()
+    override_number = team['override_phone_number'] if team else None
     ret = {}
     for row in data:
         user = row['user']
@@ -93,6 +96,10 @@ def on_get(req, resp, team, role=None):
         dest = row.pop('destination')
         ret[user]['contacts'][mode] = dest
     data = ret.values()
+    for event in data:
+        if override_number and event['role'] == 'primary':
+            event['contacts']['call'] = override_number
+            event['contacts']['sms'] = override_number
 
     cursor.close()
     connection.close()
