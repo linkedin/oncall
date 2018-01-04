@@ -2033,12 +2033,13 @@ var oncall = {
         {
           let currentMode = oncall.data.modes.find(x => x.name === key);
           contactModes.push({
-            key: currentMode.label,
+            label: currentMode.label,
+            mode: key,
             value: data.contacts[key]
           });
         }
         data.contactmodes = contactModes;
-        data.telmodes = ["Phone", "SMS Number"];
+        data.telmodes = ["call", "sms"];
       });
       var template = Handlebars.compile(this.data.pageSource),
            self = this;
@@ -2055,6 +2056,13 @@ var oncall = {
           url = this.data.url + oncall.data.user,
           data = $form.find('select[name="time_zone"]').val();
 
+      let userContactsElements = this.data.$form + ' input[type=text][name^="contactmode-"]';
+      let userContacts = {};
+      $(userContactsElements).each(function(){
+        let mode = $( this ).attr('id');
+        userContacts[mode] = $( this ).val();
+      });
+
       $cta.addClass('loading disabled').prop('disabled', true);
 
       $.ajax({
@@ -2067,11 +2075,21 @@ var oncall = {
         oncall.data.userTimezone = data;
         oncall.alerts.createAlert('Settings saved.', 'success', $form);
       }).fail(function(data){
-        var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Update failed.';
+        var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Update timezone failed.';
         oncall.alerts.createAlert(error, 'danger');
-      }).always(function(){
+      }).then($.ajax({
+        type: 'PUT',
+        url: url,
+        dataType: 'html',
+        contentType: 'application/json',
+        data: JSON.stringify({contacts: userContacts})
+      }).fail(function(data){
+        var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Update contacts failed.';
+        oncall.alerts.createAlert(error, 'danger');
+      })).always(function(){
         $cta.removeClass('loading disabled').prop('disabled', false);
       });
+
     },
     notifications: {
       data: {
@@ -2144,7 +2162,7 @@ var oncall = {
             notificationData.types = types[0];
             notificationData.typeMap = self.data.typeMap;
             notificationData.roles = oncall.data.roles;
-            notificationData.modes = oncall.data.modes;
+            notificationData.modes = oncall.data.modes.map(x => x.name);
             notificationData.teams = teamsData[0];
             notificationData.name = oncall.data.user; // using key `name` instead of `username` here because thats what API returns for /users
             self.data.notificationData = notificationData;
