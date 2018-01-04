@@ -2068,23 +2068,14 @@ var oncall = {
         url: url,
         dataType: 'html',
         contentType: 'application/json',
-        data: JSON.stringify({time_zone: data})
+        data: JSON.stringify({contacts: userContacts, time_zone: data})
       }).done(function(){
         oncall.data.userTimezone = data;
         oncall.alerts.createAlert('Settings saved.', 'success', $form);
       }).fail(function(data){
-        var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Update timezone failed.';
+        var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Update failed.';
         oncall.alerts.createAlert(error, 'danger');
-      }).then($.ajax({
-        type: 'PUT',
-        url: url,
-        dataType: 'html',
-        contentType: 'application/json',
-        data: JSON.stringify({contacts: userContacts})
-      }).fail(function(data){
-        var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Update contacts failed.';
-        oncall.alerts.createAlert(error, 'danger');
-      })).always(function(){
+      }).always(function(){
         $cta.removeClass('loading disabled').prop('disabled', false);
       });
 
