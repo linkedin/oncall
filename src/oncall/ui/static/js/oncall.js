@@ -2031,12 +2031,13 @@ var oncall = {
         {
           let currentMode = oncall.data.modes.find(x => x.name === key);
           contactModes.push({
-            key: currentMode.label,
+            label: currentMode.label,
+            mode: key,
             value: data.contacts[key]
           });
         }
         data.contactmodes = contactModes;
-        data.telmodes = ["Phone", "SMS Number"];
+        data.telmodes = ["call", "sms"];
       });
       var template = Handlebars.compile(this.data.pageSource),
            self = this;

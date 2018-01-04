@@ -1161,10 +1161,10 @@
         </tr>
         {{#each contactmodes}}
         <tr>
-          <td>{{key}}</td>
+          <td>{{label}}</td>
           <td>
             <span>
-            {{#inArray key ../telmodes}}
+            {{#inArray mode ../telmodes}}
               {{#if value}}
                 <a href="tel:{{value}}"> {{value}} </a>
               {{else}}
@@ -1173,7 +1173,7 @@
                 {% raw %}
               {{/if}}
             {{/inArray}}
-            {{^inArray key ../telmodes}}
+            {{^inArray mode ../telmodes}}
               {{value}}
             {{/inArray}}
             </span>
