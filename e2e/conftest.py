@@ -62,7 +62,7 @@ def user(request):
 
 
 @pytest.fixture(scope="function")
-def team(request, user):
+def team(request, user, service):
 
     class TeamFactory(object):
 

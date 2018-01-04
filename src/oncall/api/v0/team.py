@@ -13,7 +13,8 @@ from ...utils import load_json_body, invalid_char_reg, create_audit
 from ...constants import TEAM_DELETED, TEAM_EDITED
 
 
-cols = set(['name', 'slack_channel', 'email', 'scheduling_timezone', 'iris_plan', 'iris_enabled'])
+cols = set(['name', 'slack_channel', 'email', 'scheduling_timezone', 'iris_plan', 'iris_enabled',
+             'override_phone_number'])
 
 
 def populate_team_users(cursor, team_dict):
@@ -145,7 +146,7 @@ def on_get(req, resp, team):
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
-    cursor.execute('SELECT `id`, `name`, `email`, `slack_channel`, `scheduling_timezone`, `iris_plan`, `iris_enabled` '
+    cursor.execute('SELECT `id`, `name`, `email`, `slack_channel`, `scheduling_timezone`, `iris_plan`, `iris_enabled`, `override_phone_number` '
                    'FROM `team` WHERE `name`=%s AND `active` = %s', (team, active))
     results = cursor.fetchall()
     if not results:
@@ -203,7 +204,7 @@ def on_put(req, resp, team):
             raise HTTPBadRequest('invalid team name',
                                  'team name contains invalid character "%s"' % invalid_char.group())
 
-    if 'iris_plan' in data:
+    if 'iris_plan' in data and data['iris_plan']:
         iris_plan = data['iris_plan']
         plan_resp = iris.client.get(iris.client.url + 'plans?name=%s&active=1' % iris_plan)
         if plan_resp.status_code != 200 or plan_resp.json() == []:

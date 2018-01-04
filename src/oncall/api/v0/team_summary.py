@@ -110,10 +110,12 @@ def on_get(req, resp, team):
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
 
-    cursor.execute('SELECT `id` FROM `team` WHERE `name` = %s', team)
+    cursor.execute('SELECT `id`, `override_phone_number` FROM `team` WHERE `name` = %s', team)
     if cursor.rowcount < 1:
         raise HTTPNotFound()
-    team_id = cursor.fetchone()['id']
+    data = cursor.fetchone()
+    team_id = data['id']
+    override_num = data['override_phone_number']
     current_query = '''
         SELECT `user`.`full_name` AS `full_name`,
                `user`.`photo_url`,
@@ -196,5 +198,13 @@ def on_get(req, resp, team):
 
     cursor.close()
     connection.close()
+    if override_num is not None:
+        try:
+            for event in payload['current']['primary']:
+                event['user_contacts']['call'] = override_num
+                event['user_contacts']['sms'] = override_num
+        except KeyError:
+            # No current primary events exist, do nothing
+            pass
 
     resp.body = dumps(payload)

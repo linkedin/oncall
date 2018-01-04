@@ -115,3 +115,38 @@ def test_api_v0_services_current_oncall(team, service, user, role, event):
     assert re.status_code == 200
     results = re.json()
     assert len(results) == 2
+
+
+@prefix('test_v0_service_override_number')
+def test_api_v0_service_override_number(team, user, role, event, service):
+    team_name = team.create()
+    user_name = user.create()
+    user_name_2 = user.create()
+    service_name = service.create()
+    user.add_to_team(user_name, team_name)
+    user.add_to_team(user_name_2, team_name)
+
+    start, end = int(time.time()), int(time.time()+36000)
+    event_data_1 = {'start': start,
+                    'end': end,
+                    'user': user_name,
+                    'team': team_name,
+                    'role': 'primary'}
+    event.create(event_data_1)
+
+    re = requests.post(api_v0('teams/%s/services' % team_name),
+                       json={'name': service_name})
+    override_num = '12345'
+    re = requests.put(api_v0('teams/'+team_name), json={'override_phone_number': override_num})
+
+    re = requests.get(api_v0('services/%s/oncall/%s' % (service_name, 'primary')))
+    assert re.status_code == 200
+    results = re.json()
+    assert results[0]['start'] == start
+    assert results[0]['end'] == end
+    assert results[0]['contacts']['call'] == override_num
+
+    re = requests.get(api_v0('services/%s/oncall' % service_name))
+    assert re.status_code == 200
+    results = re.json()
+    assert results[0]['contacts']['call'] == override_num
