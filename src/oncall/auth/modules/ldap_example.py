@@ -30,7 +30,6 @@ class Authenticator:
 
 
     def ldap_auth(self, username, password):
-        return True
         ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, self.cert_path)
 
         connection = ldap.initialize(self.ldap_url)
