@@ -40,7 +40,6 @@ setuptools.setup(
             'requests',
             'gunicorn',
             'flake8',
-            'pyflakes',
             'Sphinx==1.5.6',
             'sphinxcontrib-httpdomain',
             'sphinx_rtd_theme',
