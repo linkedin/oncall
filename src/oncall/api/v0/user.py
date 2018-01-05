@@ -146,7 +146,8 @@ def on_put(req, resp, user_name):
         query_data = ()
         for field in data:
             if field != 'contacts':
-                query_data += (data[field], user_name)
+                query_data += (data[field],)
+        query_data += (user_name,)
 
         cursor.execute(query, query_data)
         if cursor.rowcount != 1:
