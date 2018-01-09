@@ -2005,7 +2005,8 @@ var oncall = {
       pageSource: $('#settings-template').html(),
       $form: '#user-settings-form',
       settingsSubheaderTemplate: $('#settings-subheader-template').html(),
-      subheaderWrapper: '.subheader-wrapper'
+      subheaderWrapper: '.subheader-wrapper',
+      telmodes = ["call", "sms"]
     },
     init: function(){
       Handlebars.registerPartial('settings-subheader', this.data.settingsSubheaderTemplate);
@@ -2038,7 +2039,6 @@ var oncall = {
           });
         }
         data.contactmodes = contactModes;
-        data.telmodes = ["call", "sms"];
       });
       var template = Handlebars.compile(this.data.pageSource),
            self = this;
