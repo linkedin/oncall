@@ -296,7 +296,7 @@ CREATE TABLE IF NOT EXISTS `contact_mode` (
 -- Initialize contact modes
 -- -----------------------------------------------------
 INSERT INTO `contact_mode` (`name`, `label`)
-VALUES ('email','Email'), ('sms','SMS'), ('call','Phone Number'), ('slack','Slack ID');
+VALUES ('email'), ('sms'), ('call'), ('slack');
 
 -- -----------------------------------------------------
 -- Table `user_contact`
