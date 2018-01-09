@@ -1173,7 +1173,8 @@
                       {{missing_number_note|safe}}
                     {% raw %}
                   {{/if}}
-              {{^}}
+              {{/inArray}}
+              {{^inArray mode ../telmodes}}
                 <span>{{value}}</span>
               {{/inArray}}
             {% endraw %} {% else %} {% raw %}
