@@ -2031,9 +2031,8 @@ var oncall = {
 
         for(let key in data.contacts)
         {
-          let currentMode = oncall.data.modes.find(x => x.name === key);
           contactModes.push({
-            label: currentMode.label,
+            label: key.substr(0, 1).toUpperCase() + key.substr(1),
             mode: key,
             value: data.contacts[key]
           });
@@ -2055,9 +2054,9 @@ var oncall = {
           $cta = $form.find('button[type="submit"]'),
           url = this.data.url + oncall.data.user,
           data = $form.find('select[name="time_zone"]').val();
+          userContactsElements = this.data.$form + ' input[type=text][name^="contactmode-"]';
+          userContacts = {};
 
-      let userContactsElements = this.data.$form + ' input[type=text][name^="contactmode-"]';
-      let userContacts = {};
       $(userContactsElements).each(function(){
         let mode = $( this ).attr('id');
         userContacts[mode] = $( this ).val();
@@ -2153,7 +2152,7 @@ var oncall = {
             notificationData.types = types[0];
             notificationData.typeMap = self.data.typeMap;
             notificationData.roles = oncall.data.roles;
-            notificationData.modes = oncall.data.modes.map(x => x.name);
+            notificationData.modes = oncall.data.modes;
             notificationData.teams = teamsData[0];
             notificationData.name = oncall.data.user; // using key `name` instead of `username` here because thats what API returns for /users
             self.data.notificationData = notificationData;
