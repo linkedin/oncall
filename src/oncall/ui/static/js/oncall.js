@@ -2004,7 +2004,7 @@ var oncall = {
       $form: '#user-settings-form',
       settingsSubheaderTemplate: $('#settings-subheader-template').html(),
       subheaderWrapper: '.subheader-wrapper',
-      telmodes = ["call", "sms"]
+      telmodes: ["call", "sms"]
     },
     init: function(){
       Handlebars.registerPartial('settings-subheader', this.data.settingsSubheaderTemplate);
@@ -2042,6 +2042,7 @@ var oncall = {
            self = this;
       oncall.data.timezonesPromise.done(function() {
         data.timezones = oncall.data.timezones;
+        data.telmodes = self.data.telmodes;
         self.data.$page.html(template(data));
         self.events();
       });
