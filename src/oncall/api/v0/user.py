@@ -143,11 +143,11 @@ def on_put(req, resp, user_name):
     cursor = connection.cursor()
     if set_clause:
         query = 'UPDATE `user` SET {0} WHERE `name` = %s'.format(set_clause)
-        query_data = ()
+        query_data = []
         for field in data:
             if field != 'contacts':
-                query_data += (data[field],)
-        query_data += (user_name,)
+                query_data.append(data[field])
+        query_data.append(user_name)
 
         cursor.execute(query, query_data)
         if cursor.rowcount != 1:

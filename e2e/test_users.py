@@ -31,6 +31,10 @@ def test_api_v0_users():
     re = requests.put(api_v0('users/'+user_name), json={'full_name': 'John Doe', 'time_zone': 'PDT'})
     assert re.status_code == 204
 
+    # test updating user contacts
+    re = requests.put(api_v0('users/'+user_name), json={'full_name': 'John Doe', 'contacts': {'call': '+1 333-333-3339'}})
+    assert re.status_code == 204
+
     # make sure update has gone through, test get
     re = requests.get(api_v0('users/'+user_name))
     assert re.status_code == 200
@@ -43,11 +47,12 @@ def test_api_v0_users():
     response = re.json()
     assert response[0]['full_name'] == 'John Doe'
 
-    re = requests.get(api_v0('users'), params={'name': user_name, 'fields': ['full_name', 'time_zone']})
+    re = requests.get(api_v0('users'), params={'name': user_name, 'fields': ['full_name', 'time_zone', 'contacts']})
     assert re.status_code == 200
     response = json.loads(re.text)
     assert response[0]['full_name'] == 'John Doe'
     assert response[0]['time_zone'] == 'PDT'
+    assert response[0]['contacts']['call'] == '+1 333-333-3339'
 
     clean_up()
 
