@@ -2009,6 +2009,7 @@ var oncall = {
     },
     init: function(){
       Handlebars.registerPartial('settings-subheader', this.data.settingsSubheaderTemplate);
+      oncall.getModes();
       this.getData();
     },
     events: function(){
@@ -2023,6 +2024,23 @@ var oncall = {
       }
     },
     renderPage: function(data){
+      $.when(
+        oncall.data.modesPromise
+      ).done(function() {
+        let contactModes = [];
+
+        for(let key in data.contacts)
+        {
+          let currentMode = oncall.data.modes.find(x => x.name === key);
+          contactModes.push({
+            label: currentMode.label,
+            mode: key,
+            value: data.contacts[key]
+          });
+        }
+        data.contactmodes = contactModes;
+        data.telmodes = ["call", "sms"];
+      });
       var template = Handlebars.compile(this.data.pageSource),
            self = this;
       oncall.data.timezonesPromise.done(function() {
