@@ -981,6 +981,11 @@ var oncall = {
             data.isAdmin = true;
           }
         }
+        for (var i in data.gods) {
+          if (data.gods[i].name === oncall.data.user) {
+            data.isAdmin = true;
+          }
+        }
 
         this.data.$page.attr('data-admin', data.isAdmin);
       },
@@ -1234,6 +1239,11 @@ var oncall = {
 
         for (var i in data.admins) {
           if (data.admins[i].name === oncall.data.user) {
+            data.isAdmin = true;
+          }
+        }
+        for (var i in data.gods) {
+          if (data.gods[i].name === oncall.data.user) {
             data.isAdmin = true;
           }
         }
