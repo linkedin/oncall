@@ -33,12 +33,6 @@ def populate_team_admins(cursor, team_dict):
     team_dict['admins'] = [{'name': r['name']} for r in cursor]
 
 
-def populate_gods(cursor, team_dict):
-    cursor.execute('''SELECT `name` FROM `user`
-                      WHERE `god`=1''')
-    team_dict['gods'] = [{'name': r['name']} for r in cursor]
-
-
 def populate_team_services(cursor, team_dict):
     cursor.execute('''SELECT `service`.`name` FROM `team_service`
                       JOIN `service` ON `team_service`.`service_id`=`service`.`id`
@@ -54,7 +48,6 @@ def populate_team_rosters(cursor, team_dict):
 populate_map = {
     'users': populate_team_users,
     'admins': populate_team_admins,
-    'gods': populate_gods,
     'services': populate_team_services,
     'rosters': populate_team_rosters
 }

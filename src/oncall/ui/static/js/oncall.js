@@ -125,6 +125,7 @@ var oncall = {
     return $.get(this.data.userUrl + this.data.user).done(function(data){
       self.data.userInfo = data;
       self.data.user = data.name;
+      self.data.userIsGod = data.god;
       self.data.userTimezone = data.time_zone;
       self.data.userInfoPromise.resolve();
       self.renderUserInfo.call(self, data);
@@ -976,14 +977,13 @@ var oncall = {
 
         data.isAdmin = false;
 
-        for (var i in data.admins) {
-          if (data.admins[i].name === oncall.data.user) {
-            data.isAdmin = true;
-          }
-        }
-        for (var i in data.gods) {
-          if (data.gods[i].name === oncall.data.user) {
-            data.isAdmin = true;
+        if (oncall.data.userIsGod === 1) {
+          data.isAdmin = true;
+        } else {
+          for (var i in data.admins) {
+            if (data.admins[i].name === oncall.data.user) {
+              data.isAdmin = true;
+            }
           }
         }
 
@@ -1236,15 +1236,13 @@ var oncall = {
         var data = this.data.teamData;
 
         data.isAdmin = false;
-
-        for (var i in data.admins) {
-          if (data.admins[i].name === oncall.data.user) {
-            data.isAdmin = true;
-          }
-        }
-        for (var i in data.gods) {
-          if (data.gods[i].name === oncall.data.user) {
-            data.isAdmin = true;
+        if (oncall.data.userIsGod === 1) {
+          data.isAdmin = true;
+        } else {
+          for (var i in data.admins) {
+            if (data.admins[i].name === oncall.data.user) {
+              data.isAdmin = true;
+            }
           }
         }
 
