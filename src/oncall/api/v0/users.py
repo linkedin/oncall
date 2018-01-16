@@ -21,6 +21,7 @@ columns = {
                  '`user_contact`.`destination` AS `destination`, '
                  '`user`.`id` AS `contact_id`'),
     'active': '`user`.`active` as `active`',
+    'god': '`user`.`god` as `god`',
 }
 
 all_columns = ', '.join(columns.values())
