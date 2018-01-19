@@ -33,8 +33,8 @@ class rocketchat_messenger(object):
         connection = db.connect()
         cursor = connection.cursor()
         try:
-            cursor.execute('''SELECT `destination` FROM `user_contact` 
-                              WHERE `user_id` = (SELECT `id` FROM `user` WHERE `name` = %s) 
+            cursor.execute('''SELECT `destination` FROM `user_contact`
+                              WHERE `user_id` = (SELECT `id` FROM `user` WHERE `name` = %s)
                               AND `mode_id` = (SELECT `id` FROM `contact_mode` WHERE `name` = 'rocketchat')''',
                            message['user'])
             if cursor.rowcount == 0:

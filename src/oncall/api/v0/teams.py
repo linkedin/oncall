@@ -162,11 +162,10 @@ def on_post(req, resp):
     connection = db.connect()
     cursor = connection.cursor()
     try:
-        cursor.execute('''
-            INSERT INTO `team` (`name`, `slack_channel`, `email`, `scheduling_timezone`, `iris_plan`, `iris_enabled`,
-                                `override_phone_number`)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)''',
-            (team_name, slack, email, scheduling_timezone, iris_plan, iris_enabled, override_number))
+        cursor.execute('''INSERT INTO `team` (`name`, `slack_channel`, `email`, `scheduling_timezone`, `iris_plan`, `iris_enabled`,
+                                              `override_phone_number`)
+                          VALUES (%s, %s, %s, %s, %s, %s, %s)''',
+                       (team_name, slack, email, scheduling_timezone, iris_plan, iris_enabled, override_number))
 
         team_id = cursor.lastrowid
         query = '''

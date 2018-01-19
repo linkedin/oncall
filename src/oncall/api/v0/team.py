@@ -14,7 +14,7 @@ from ...constants import TEAM_DELETED, TEAM_EDITED
 
 
 cols = set(['name', 'slack_channel', 'email', 'scheduling_timezone', 'iris_plan', 'iris_enabled',
-             'override_phone_number'])
+            'override_phone_number'])
 
 
 def populate_team_users(cursor, team_dict):
