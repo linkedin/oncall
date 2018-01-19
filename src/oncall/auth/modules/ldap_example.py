@@ -6,6 +6,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Authenticator:
     def __init__(self, config):
         if config.get('debug'):
@@ -27,7 +28,6 @@ class Authenticator:
         self.base_dn = config.get('ldap_base_dn')
 
         self.user_suffix = config.get('ldap_user_suffix')
-
 
     def ldap_auth(self, username, password):
         ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, self.cert_path)
@@ -57,7 +57,6 @@ class Authenticator:
             logger.warn("%s", err)
             return None
         return True
-
 
     def debug_auth(self, username, password):
         return True
