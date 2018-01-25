@@ -766,6 +766,10 @@
           {{/if}}
         </ul>
       </li>
+      <li>
+        <label class="light label-col" title="Scheduler">Scheduler:</label>
+        <span class="data-col schedule-algorithm">{{scheduler}}</span>
+      </li>
     </ul>
     <div class="schedule-actions text-actions">
       <span class="populate-schedule pull-left" data-toggle="modal" data-target="#populate-schedule-modal">
@@ -790,13 +794,13 @@
 
 <!-- // schedule create partial -->
 <script id="module-schedule-create-template" type="text/x-handlebars-template">
-  <form class="module module-card module-schedule-create" data-advanced="{{#ifExists selected_schedule}}{{selected_schedule.advanced_mode}}{{else}}0{{/ifExists}}" {{#if selected_schedule.id}} data-edit-id="{{selected_schedule.id}}" {{/if}} {{#if selected_schedule.role}} data-role="{{selected_schedule.role}}" {{/if}}>
+  <form class="module module-card module-schedule-create" data-advanced="{{#ifExists selected_schedule}}{{selected_schedule.advanced_mode}}{{else}}0{{/ifExists}}" {{#if selected_schedule.id}} data-edit-id="{{selected_schedule.id}}" {{/if}} {{#if selected_schedule.role}} data-role="{{selected_schedule.role}}" {{/if}} data-scheduler="{{#if selected_schedule.scheduler}}{{selected_schedule.scheduler}}{{else}}default{{/if}}">
     <div class="module-heading module-card-heading border-bottom">
       <h4>
         {{#if selected_schedule.id}}
           Edit schedule {{selected_schedule.id}}
         {{else}}
-          New Schedule
+          Create a new schedule
         {{/if}}
         <div class="pull-right">
           <div class="toggle-input pull-right">
@@ -806,58 +810,89 @@
         </div>
       </h4>
     </div>
-    <ul class="schedule-details">
-      <li>
-        <label class="light label-col">Roster:</label>
-        <span class="data-col">
-          <select name="from" class="form-control schedule-roster">
-            {{#each rosters}}
-              <option value="{{@key}}" {{isSelected ../selected_schedule.roster @key}}>{{@key}}</option>
-            {{/each}}
-          </select>
-        </span>
-        <label class="light label-col">Role:</label>
-        <span class="data-col">
-          <select name="from" class="form-control schedule-role">
-            {{#each roles}}
-              <option value="{{this.name}}" {{isSelected ../selected_schedule.role this.name}}>
-                {{this.name}}
-              </option>
-            {{/each}}
-          </select>
-        </span>
-        <label class="light label-col">Auto Populate Threshold:</label>
-        <span class="data-col">
-          <input type="number" class="form-control auto-populate-threshold" value="{{#ifExists selected_schedule.auto_populate_threshold}}{{selected_schedule.auto_populate_threshold}}{{else}}21{{/ifExists}}" placeholder="Days"> Days
-        </span>
-      </li>
-      <ul class="schedule-basic">
-        {{#if selected_schedule.events}}
-          {{#if selected_schedule.is_12_hr}}
-            {{>rotation-item selected_schedule.events.[0] simple=true is_12_hr=true}}
-          {{else}}
-            {{>rotation-item selected_schedule.events.[0] simple=true}}
-          {{/if}}
-        {{else}}
-          {{>rotation-item simple=true}}
-        {{/if}}
-      </ul>
-      <ul class="schedule-advanced">
-        {{#if selected_schedule.events}}
-          {{#each selected_schedule.events}}
-            {{>rotation-item this}}
-          {{/each}}
-        {{else}}
-          {{>rotation-item}}
-        {{/if}}
-      <span class="add-rotation-item light">
-        <i class="svg-icon svg-icon-plus grey-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 8 8"><path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" /></svg>
-        </i>
-        Add another row
-      </span>
-      </ul>
-    </ul>
+    <div class="clearfix">
+      <div class="schedule-details col-md-9">
+        <div class="schedule-row clearfix">
+          <div class="col-md-4">
+            <label class="label-col">Role:</label>
+            <span class="data-col">
+              <select name="from" class="form-control schedule-role">
+                {{#each roles}}
+                  <option value="{{this.name}}" {{isSelected ../selected_schedule.role this.name}}>
+                    {{this.name}}
+                  </option>
+                {{/each}}
+              </select>
+            </span>
+          </div>
+          <div class="col-md-4">
+            <label class="label-col">Roster:</label>
+            <span class="data-col">
+              <select name="from" class="form-control schedule-roster">
+                {{#each rosters}}
+                  <option value="{{@key}}" {{isSelected ../selected_schedule.roster @key}}>{{@key}}</option>
+                {{/each}}
+              </select>
+            </span>
+          </div>
+          <div class="col-md-4">
+            <label class="label-col">Auto Populate Threshold (Set in days):</label>
+            <br>
+            <span class="data-col">
+              <input type="number" class="form-control auto-populate-threshold" value="{{#ifExists selected_schedule.auto_populate_threshold}}{{selected_schedule.auto_populate_threshold}}{{else}}21{{/ifExists}}" placeholder="Days">
+            </span>
+          </div>
+        </div>
+        <div class="schedule-row clearfix">
+          <ul class="schedule-basic">
+            {{#if selected_schedule.events}}
+              {{#if selected_schedule.is_12_hr}}
+                {{>rotation-item selected_schedule.events.[0] simple=true is_12_hr=true}}
+              {{else}}
+                {{>rotation-item selected_schedule.events.[0] simple=true}}
+              {{/if}}
+            {{else}}
+              {{>rotation-item simple=true}}
+            {{/if}}
+          </ul>
+          {{#unless selected_schedule.advanced_mode}}
+            <div class="schedule-row schedule-is-12-hr clearfix">
+              <input type="checkbox" id="twelve-hour" {{#if selected_schedule.is_12_hr}} checked {{/if}}>
+              <label for="twelve-hour">Limit shifts to 12 hours</label>
+            </div>
+          {{/unless}}
+          <ul class="schedule-advanced">
+            {{#if selected_schedule.events}}
+              {{#each selected_schedule.events}}
+                {{>rotation-item this}}
+              {{/each}}
+            {{else}}
+              {{>rotation-item}}
+            {{/if}}
+            <div class="schedule-row">
+              <span class="add-rotation-item light col-md-4">
+                <i class="svg-icon svg-icon-plus grey-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 8 8"><path d="M3 0v3h-3v2h3v3h2v-3h3v-2h-3v-3h-2z" /></svg>
+                </i>
+                Add another row
+              </span>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <div class="schedule-algo col-md-3">
+        <label class="label-col">Scheduling Algorithms:</label>
+        <br>
+        <select name="from" class="form-control schedule-algorithm" id="schedule-algorithm">
+          <option value="default" {{isSelected 'default' selected_schedule.scheduler}}> Default </option>
+          <option value="round-robin" {{isSelected 'round-robin' selected_schedule.scheduler}}> Round Robin </option>
+          <option value="custom-order" {{isSelected 'custom-order' selected_schedule.scheduler}}> Custom Order </option>
+        </select>
+        <div class="scheduler-type-container light">
+          <!-- scheduler specific data renders here -->
+        </div>
+      </div>
+    </div>
     <div class="border-top schedule-actions">
       <div class="pull-right">
         <button class="btn btn-primary preview-schedule" type="button"> Preview </button>
@@ -875,44 +910,89 @@
 
 <!-- // rotation item partial -->
 <script id="rotation-item-template" type="text/x-handlebars-template">
-  <li class="rotation-item">
-    <label class="light">Start:</label>
-    <select name="from" class="form-control rotation-start-day">
-      <option data-index="0" {{isSelected startDayIndex 0}}>Sunday</option>
-      <option data-index="1" {{isSelected startDayIndex 1}}>Monday</option>
-      <option data-index="2" {{isSelected startDayIndex 2}}>Tuesday</option>
-      <option data-index="3" {{isSelected startDayIndex 3}}>Wednesday</option>
-      <option data-index="4" {{isSelected startDayIndex 4}}>Thursday</option>
-      <option data-index="5" {{isSelected startDayIndex 5}}>Friday</option>
-      <option data-index="6" {{isSelected startDayIndex 6}}>Saturday</option>
-    </select>
-    <input class="form-control rotation-start-time" value="{{startTime}}" maxlength="5" placeholder="HH:MM" >
+  <li class="rotation-item clearfix">
+    <div class="col-md-2">
+      <label for="rotation-start-day">Start day:</label>
+      <br>
+      <select name="from" class="form-control rotation-start-day" id="rotation-start-day">
+        <option data-index="0" {{isSelected startDayIndex 0}}>Sunday</option>
+        <option data-index="1" {{isSelected startDayIndex 1}}>Monday</option>
+        <option data-index="2" {{isSelected startDayIndex 2}}>Tuesday</option>
+        <option data-index="3" {{isSelected startDayIndex 3}}>Wednesday</option>
+        <option data-index="4" {{isSelected startDayIndex 4}}>Thursday</option>
+        <option data-index="5" {{isSelected startDayIndex 5}}>Friday</option>
+        <option data-index="6" {{isSelected startDayIndex 6}}>Saturday</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label for="rotation-start-time">Time:</label>
+      <br>
+      <input class="form-control rotation-start-time" value="{{startTime}}" maxlength="5" placeholder="HH:MM" id="rotation-start-time">
+    </div>
     {{#if simple}}
-      <label class="light">Rotate:</label>
-      <select name="time" class="form-control rotation-end-duration">
-        <option value="7" {{#if totalEvents}} {{isSelected totalEvents 7}} {{else}} {{isSelected duration 7}} {{/if}}>Weekly</option>
-        <option value="14" {{#if totalEvents}} {{isSelected totalEvents 14}} {{else}} {{isSelected duration 14}} {{/if}}>Bi-Weekly</option>
-      </select>
-      <input type="checkbox" id="twelve-hour" {{#if is_12_hr}} checked {{/if}}>
-      <label for="twelve-hour">12 Hour</label>
+      <div class="col-md-4">
+        <label>Rotate:</label>
+        <br>
+        <select name="time" class="form-control rotation-end-duration">
+          <option value="7" {{#if totalEvents}} {{isSelected totalEvents 7}} {{else}} {{isSelected duration 7}} {{/if}}>Weekly</option>
+          <option value="14" {{#if totalEvents}} {{isSelected totalEvents 14}} {{else}} {{isSelected duration 14}} {{/if}}>Bi-Weekly</option>
+        </select>
+      </div>
     {{else}}
-      <label class="light">Duration:</label>
-      <input type="number" class="form-control rotation-end-val" value="{{#if duration}}{{duration}}{{else}}1{{/if}}">
-      <select name="time" class="form-control rotation-end-duration">
-        <option value="minutes" {{isSelected durationUnit "minutes"}}>Minutes</option>
-        <option value="hours" {{isSelected durationUnit "hours"}}>Hours</option>
-        <option value="days"  {{isSelected durationUnit "days"}} {{#unless duration}}selected{{/unless}}>Days</option>
-        <option value="weeks" {{isSelected durationUnit "weeks"}}>Weeks</option>
-      </select>
-      <span class="remove-rotation-item light">
-        <i class="svg-icon svg-icon-close grey-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 8 8" style="fill:currentColor">
-            <path d="M1.41 0l-1.41 1.41.72.72 1.78 1.81-1.78 1.78-.72.69 1.41 1.44.72-.72 1.81-1.81 1.78 1.81.69.72 1.44-1.44-.72-.69-1.81-1.78 1.81-1.81.72-.72-1.44-1.41-.69.72-1.78 1.78-1.81-1.78-.72-.72z" />
-          </svg>
-        </i>
-      </span>
+      <div class="col-md-2">
+        <label>Duration:</label>
+        <br>
+        <input type="number" class="form-control rotation-end-val" value="{{#if duration}}{{duration}}{{else}}1{{/if}}">
+      </div>
+      <div class="col-md-5">
+        <label></label>
+        <br>
+        <select name="time" class="form-control rotation-end-duration">
+          <option value="minutes" {{isSelected durationUnit "minutes"}}>Minutes</option>
+          <option value="hours" {{isSelected durationUnit "hours"}}>Hours</option>
+          <option value="days"  {{isSelected durationUnit "days"}} {{#unless duration}}selected{{/unless}}>Days</option>
+          <option value="weeks" {{isSelected durationUnit "weeks"}}>Weeks</option>
+        </select>
+        <span class="remove-rotation-item light">
+          <i class="svg-icon svg-icon-close grey-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 8 8" style="fill:currentColor">
+              <path d="M1.41 0l-1.41 1.41.72.72 1.78 1.81-1.78 1.78-.72.69 1.41 1.44.72-.72 1.81-1.81 1.78 1.81.69.72 1.44-1.44-.72-.69-1.81-1.78 1.81-1.81.72-.72-1.44-1.41-.69.72-1.78 1.78-1.81-1.78-.72-.72z" />
+            </svg>
+          </i>
+        </span>
+      </div>
     {{/if}}
   </li>
+</script>
+
+<!-- //****
+      Scheduler algorithm templates
+      ***** -->
+
+<!-- // default-scheduler-template -->
+<script id="default-scheduler-template" type="text/x-handlebars-template">
+  The default scheduler prioritizes users who haven't been on-call for the longest period of time. It respects conflicting events on the team's calendar as well (for example, it will not schedule someone to be on-call if that user has a vacation marked).
+</script>
+
+<!-- // round-robin-scheduler-template -->
+<script id="round-robin-scheduler-template" type="text/x-handlebars-template">
+  Round robin description.
+</script>
+
+<!-- // custom-order-scheduler-template -->
+<script id="custom-order-scheduler-template" type="text/x-handlebars-template">
+  Determines employee order
+  <div class="custom-order-scheduler">
+    Set Order <span class="light">(Drag to reorder)</span>
+    <ul class="draggable">
+      {{#each this}}
+        <li draggable="true" data-user="{{this.name}}">
+          <svg aria-hidden="true" data-fa-processed="" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="svg-inline--fa fa-bars fa-w-14"><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z" class=""></path></svg>
+          {{this.name}}
+        </li>
+      {{/each}}
+    </ul>
+  </div>
 </script>
 
 <!--// **********************
@@ -1029,7 +1109,7 @@
         <li> <a target="_blank" href="mailto:{{user.contacts.email}}"> {{user.contacts.email}} </a> </li>
         <li> <span class="light"> Call </span> {{#if user.contacts.call}} <a href="tel:{{user.contacts.call}}" target="_blank"> {{user.contacts.call}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
         <li> <span class="light"> SMS </span> {{#if user.contacts.sms}} <a href="tel:{{user.contacts.sms}}" target="_blank"> {{user.contacts.sms}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
-        <li> <span class="light"> Slack </span> <a> {{user.contacts.slack}} <a/> </li>
+        <li> <span class="light"> Slack </span> <a> {{user.contacts.slack}} </a> </li>
         <span class="close remove-card-item" data-admin-action="true" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.info.removeCardItem" data-modal-title="Remove {{user.full_name}}" data-modal-content="Delete {{user.full_name}} from roster?">
           <i class="svg-icon svg-icon-trash">
             <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
