@@ -971,7 +971,7 @@ div[data-admin="false"] .team-info .toggle-rotation {
 }
 
 .module-schedule-create .form-control {
-  width: 230px;
+  max-width: 230px;
   display: inline-block;
 }
 
@@ -983,10 +983,6 @@ div[data-admin="false"] .team-info .toggle-rotation {
   text-transform: capitalize;
 }
 
-.module-schedule-create .auto-populate-threshold {
-  width: 60px;
-}
-
 .module-schedule-create .rotation-item {
   margin: 14px 0 8px 0;
 }
@@ -996,9 +992,12 @@ div[data-admin="false"] .team-info .toggle-rotation {
   top: 3px;
 }
 
-.module-schedule-create .rotation-start-day,
-.module-schedule-create .rotation-start-time {
+.module-schedule-create .rotation-start-day {
   width: 115px;
+}
+
+.module-schedule-create .rotation-start-time {
+  width: 95px;
 }
 
 .module-schedule-create .remove-rotation-item .svg-icon-close {
@@ -1046,6 +1045,63 @@ div[data-admin="false"] .team-info .toggle-rotation {
 
 .module-schedule-create[data-role="unavailable"] .border-bottom {
   border-color: #FF91CF;
+}
+
+.module-schedule-create .schedule-type-container {
+  margin-top: 5px;
+  font-size: .9em;
+}
+
+.module-schedule-create .schedule-algo {
+  border-left: 1px solid #ccc;
+}
+
+.module-schedule-create .schedule-algo #schedule-algorithm {
+  width: 250px;
+  max-width: 250px;
+  margin-bottom: 5px;
+}
+
+.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler {
+  border: 1px solid #ccc;
+  color: #5c5b5c;
+  border-radius: 4px;
+  margin: 5px 0;
+  padding: 10px;
+}
+
+.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler ul {
+  margin-top: 5px;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler li {
+  cursor: move;
+  padding: 2px;
+  transition: background .3s;
+  user-select: none;
+}
+
+.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler svg {
+  display: inline-block;
+  font-size: inherit;
+  height: 1em;
+  overflow: visible;
+  vertical-align: -.125em;
+  width: 25px;
+}
+
+.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler li:hover {
+  background: #efefef;
+}
+
+.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler .dragging {
+  opacity: .3;
+}
+
+.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler .drag-over {
+  border-bottom: 1px dashed #ccc;
 }
 
 .module-schedule {
@@ -1140,6 +1196,7 @@ overflow: hidden;
 }
 
 .module-schedule-create[data-advanced="1"] .schedule-basic,
+.module-schedule-create[data-advanced="1"] .schedule-is-12-hr,
 .module-schedule-create[data-advanced="0"] .schedule-advanced {
   display: none;
 }
