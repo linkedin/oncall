@@ -243,7 +243,7 @@ def sync(config, engine):
             if full_name != db_contacts.get('full_name'):
                 engine.execute(name_update_sql, (full_name, username))
                 stats['user_names_updated'] += 1
-            if not db_contacts.get('photo_url'):
+            if 'image_url' in LDAP_SETTINGS and not db_contacts.get('photo_url'):
                 photo_url_tpl = LDAP_SETTINGS.get('image_url')
                 photo_url = photo_url_tpl % username if photo_url_tpl else None
                 engine.execute(photo_update_sql, (photo_url, username))
