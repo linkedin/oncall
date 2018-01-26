@@ -83,7 +83,7 @@ def sync_action(slack_client):
     connection = db.connect()
     # cache mode ids
     cursor = connection.cursor()
-    cursor.execute('SELECT `id`, `name` FROM `contact_mode')
+    cursor.execute('SELECT `id`, `name` FROM `contact_mode`')
     mode_ids = {row[1]: row[0] for row in cursor}
     cursor.close()
 
