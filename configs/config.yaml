@@ -1,7 +1,9 @@
+#######################
+### Oncall-api settings
+#######################
 server:
   host: 0.0.0.0
   port: 8080
-debug: True
 oncall_host: http://localhost:8080
 metrics: dummy
 db:
@@ -16,12 +18,34 @@ db:
     str: "%(scheme)s://%(user)s@%(host)s/%(database)s?charset=%(charset)s"
   kwargs:
     pool_recycle: 3600
+healthcheck_path: /tmp/status
+
+# Keys for encrypting/signing session cookies.
+# Change to random long values in production.
 session:
   encrypt_key: 'abc'
   sign_key: '123'
+
+# Debug mode toggle. Disable in production.
+# Debug mode disables authentication, allows access to debug-only API endpoints
+# (used for testing), allows HTTP access, and removes some security headers
+# from responses.
+debug: True
+
+## To run Oncall without https, set this value to True
+## WARNING: use this only for debugging purposes, to avoid sending
+## usernames and passwords in plain text.
+#allow_http: False
+
+# Pluggable authentication module configuration.
+# Additional auth modules can be added by implementing the Authenticator
+# class, with two required methods: __init__(self, config) and
+# authenticate(self, username, password)
 auth:
   debug: True
-  module: 'oncall.auth.modules.debug'
+  module: 'oncall.auth.modules.debug'  # Auth module where Authenticator is implemented
+
+# Example configuration for LDAP-based auth
 #   module: 'oncall.auth.modules.ldap_example'
 #   ldap_url: 'ldaps://example.com'
 #   ldap_user_suffix: '@example.biz'
@@ -31,27 +55,62 @@ auth:
 #   ldap_bind_password: 'abc123'
 #   ldap_base_dn: 'ou=accounts,dc=company,dc=org'
 #   ldap_search_filter: '(uid=%s)'
+
+############################
+### Oncall-notifier settings
+############################
 notifier:
+  # Skip sending messages, log instead
   skipsend: True
-healthcheck_path: /tmp/status
+
+# Reminder notification settings
+notifications:
+  # The notifier will send reminders for events with these roles
+  default_roles:
+    - "primary"
+    - "secondary"
+    - "shadow"
+    - "manager"
+  # Reminders will be sent $x seconds before events start, for $x in this list
+  default_times:
+    - 86400
+    - 604800
+  # Reminders are sent using these modes of contact
+  default_modes:
+    - "email"
+
+# Reminder task settings
+reminder:
+  activated: True
+  polling_interval: 360  # In seconds, the reminder will poll DB for events every $n seconds
+  default_timezone: 'US/Pacific'  # Dates/times in the reminders are formatted in this timezone
+
+# User validator checks that people scheduled for on-call events have defined phone numbers
+user_validator:
+  activated: True
+  subject: 'Warning: Missing phone number in Oncall'
+  body: 'You are scheduled for an on-call shift in the future, but have no phone number recorded. Please update your information in Oncall.'
+
+# Reminders sent using these messengers
 messengers:
 #   - type: rocketchat_messenger
 #     user: username
 #     password: abc123
 #     refresh: 60000
 #     api_host: https://example.rocket.chat
+#
+#  - type: iris_messenger
+#    application: oncall
+#    iris_api_key: magic
+#    api_host: http://localhost:16649
+
   - type: dummy
     application: oncall
     iris_api_key: magic
 
-## To run Oncall without https, set this value to True
-## WARNING: use this only for debugging purposes, to avoid sending
-## usernames and passwords in plain text.
-#allow_http: False
-
-# allow_origins_list:
-#   - http://www.example.com
-
+############################
+### Oncall frontend settings
+############################
 supported_timezones:
   - 'US/Pacific'
   - 'US/Eastern'
@@ -64,63 +123,64 @@ supported_timezones:
   - 'UTC'
 
 index_content_setting:
+  # Page footer contents
   footer: |
     <ul>
       <li>Oncall © LinkedIn 2017</li>
       <li>Feedback</li>
       <li><a href="http://oncall.tools" target="_blank">About</a></li>
     </ul>
+  # Note displayed when a user has no phone number
   missing_number_note: 'No number'
-
-notifications:
-  default_roles:
-    - "primary"
-    - "secondary"
-    - "shadow"
-    - "manager"
-  default_times:
-    - 86400
-    - 604800
-  default_modes:
-    - "email"
-
-reminder:
-  activated: True
-  polling_interval: 360
-  default_timezone: 'US/Pacific'
-
-user_validator:
-  activated: True
-  subject: 'Warning: Missing phone number in Oncall'
-  body: 'You are scheduled for an on-call shift in the future, but have no phone number recorded. Please update your information in Oncall.'
-
-slack_instance: foobar
 header_color: '#3a3a3a'
+
+# Integration with Iris, allowing for escalation from Oncall
 iris_plan_integration:
   activated: True
+  # Iris app and key settings
   app: oncall
   api_key: magic
   api_host: http://localhost:16649
+  # API url to get a list of Oncall-compatible plans
+  # This will be /v0/applications/$app_name/plans
   plan_url: '/v0/applications/oncall/plans'
+  # Plan to follow with urgent escalations; must be a dynamic plan
   urgent_plan:
-    name: 'Oncall Urgent'
+    name: 'Oncall test'
+    # In the Iris plan, dynamic target $n will map to dynamic_targets[$n].
+    # For example, here, Iris target 0 will be the oncall-primary of the
+    # team, target 1 will be the team, and target 2 will be the manager
     dynamic_targets:
       - role: 'oncall-primary'
       - role: 'team'
       - role: 'manager'
+  # Similar to above, but for medium teams.
   medium_plan:
-    name: 'Oncall Medium'
+    name: 'Oncall test'
     dynamic_targets:
       - role: 'oncall-primary'
       - role: 'team'
       - role: 'manager'
+# CORS settings
+# allow_origins_list:
+#   - http://www.example.com
 
+# Configures whether Slack settings will appear in the frontend
+slack_instance: foobar
 
+##########################
+### Oncall user management
+##########################
+
+# # Configure which user_sync module is being used
+# user_sync:
+#   module: 'oncall.user_sync.ldap_sync'
+#
+# # User management by syncing from Slack
 # slack:
 #   oauth_access_token: 'foo'
 #
-# user_sync:
-#   module: 'oncall.user_sync.ldap_sync'
+# # User management by syncing from LDAP
 # ldap_sync:
 #   url: 'ldaps://example.com'
 #   base: 'ou=Staff Users,dc=multiforest,dc=biz'
@@ -128,6 +188,7 @@ iris_plan_integration:
 #   password: 'password'
 #   cert_path: '/etc/ldap_cert.pem'
 #   query: '(&(objectClass=userProxy)(employeeId=*))'
+#   # Map of Oncall user information to LDAP attribute
 #   attrs:
 #     username: 'sAMAccountName'
 #     full_name: 'displayName'

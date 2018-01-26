@@ -86,3 +86,22 @@ creating a new message to be sent.
 
 .. NOTE::
     It is also possible to use Oncall-admin_ to do manual user administration
+
+
+Iris Integration
+````````````````
+To allow Oncall users to escalate issues via Iris, you will need to configure
+the ``iris_plan_integration`` section of the Oncall config. This lets you define
+a dynamic Iris plan for urgent and non-urgent escalations from the Oncall
+frontend, and also allows teams to define a custom escalation plan that may
+be triggered. The example Iris/Oncall installations should be configured with a
+working Oncall escalation plan called "Oncall test". To configure this setting,
+do the following:
+
+1. In the Iris frontend logged in as an admin user (demo by default), create an application corresponding to Oncall ("oncall" in the example data). This application must define the "requester" and "description" variables.
+#. Update the Oncall config file with this name, along with the Iris API key and host
+#. Create a template in Iris that has an application template for Oncall.
+#. Create a dynamic plan in Iris ("Oncall test" in the example).
+#. Ensure CORS is allowed from Oncall to Iris in the Iris configuration file.
+#. Update the Oncall config file with this dynamic plan name, and map roles/targets to that plan's dynamic targets. In the example, target 0 in "Oncall test" maps to a team's primary oncall, target 1 maps to all members of the team, and target 2 maps to the manager of the team.
+#. Test the integration via the Oncall frontend. Oncall should create an Iris incident and trigger the configured Iris plan's escalation steps.
