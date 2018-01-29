@@ -144,7 +144,9 @@ def on_get(req, resp):
     :statuscode 200: no error
     :statuscode 400: bad request
     """
-    fields = req.get_param_as_list('fields', transform=columns.__getitem__)
+    fields = req.get_param_as_list('fields')
+    if fields:
+        fields = [columns[f] for f in fields if f in columns]
     req.params.pop('fields', None)
     include_sub = req.get_param_as_bool('include_subscribed')
     if include_sub is None:
