@@ -313,7 +313,7 @@ def test_api_v0_team_summary(team, user, role, event):
     re = requests.get(api_v0('teams/%s/summary' % team_name))
     assert re.status_code == 200
     results = re.json()
-    keys = ['start', 'end', 'role']
+    keys = ['start', 'end', 'role', 'user']
 
     assert all(results['current'][role_name][0][key] == event_data_1[key] for key in keys)
     assert all(results['current'][role_name_2][0][key] == event_data_2[key] for key in keys)
