@@ -44,6 +44,7 @@ def on_get(req, resp, team):
                         "photo_url": "example.image.com",
                         "role": "manager",
                         "start": 1495436400,
+                        "user": "jdoe",
                         "user_contacts": {
                             "call": "+1 111-111-1111",
                             "email": "jdoe@example.com",
@@ -60,6 +61,7 @@ def on_get(req, resp, team):
                         "photo_url": "example.image.com",
                         "role": "primary",
                         "start": 1495350000,
+                        "user": "asmith",
                         "user_contacts": {
                             "call": "+1 222-222-2222",
                             "email": "asmith@example.com",
@@ -78,6 +80,7 @@ def on_get(req, resp, team):
                         "photo_url": "example.image.com",
                         "role": "manager",
                         "start": 1495436400,
+                        "user": "jdoe",
                         "user_contacts": {
                             "call": "+1 111-111-1111",
                             "email": "jdoe@example.com",
@@ -94,6 +97,7 @@ def on_get(req, resp, team):
                         "photo_url": "example.image.com",
                         "role": "primary",
                         "start": 1495350000,
+                        "user": "asmith",
                         "user_contacts": {
                             "call": "+1 222-222-2222",
                             "email": "asmith@example.com",
@@ -155,6 +159,7 @@ def on_get(req, resp, team):
                `event`.`start`,
                `event`.`end`,
                `user`.`photo_url`,
+               `user`.`name` AS `user`,
                `event`.`user_id`,
                `event`.`role_id`,
                `event`.`team_id`
