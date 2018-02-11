@@ -1612,8 +1612,8 @@ var oncall = {
             item.startDayIndex = weekObject.daysSince;
             item.startTime = weekObject.hoursSince + ':' + weekObject.minutesSince;
             item.durationMs = item.end - item.start;
-            item.duration = parseFloat((item.durationMs / 86400000).toFixed(2));
-            item.durationUnit = 'days';
+            item.duration = Handlebars.helpers.scaleSeconds(item.durationMs / 1000, 'duration');
+            item.durationUnit = Handlebars.helpers.scaleSeconds(item.durationMs / 1000, 'unit');
           }
           if (data.advanced_mode === 0 && data.events.length > 1) {
             data.is_12_hr = true;
