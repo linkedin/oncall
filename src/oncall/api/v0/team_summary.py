@@ -198,7 +198,7 @@ def on_get(req, resp, team):
 
     cursor.close()
     connection.close()
-    if override_num is not None:
+    if override_num:
         try:
             for event in payload['current']['primary']:
                 event['user_contacts']['call'] = override_num
