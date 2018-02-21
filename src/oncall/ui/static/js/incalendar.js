@@ -1148,7 +1148,7 @@
           self = this,
           $calendar = self.$calendar,
           $calBody = $calendar.find('.inc-body'),
-          $modal = $('<div class="inc-modal inc-create-event-modal" />'),
+          $modal = $('<div class="inc-modal inc-create-event-modal" data-12-hour="false"/>'),
           startDate = $calendar.find('.selecting:first').attr('data-date'),
           endDate = $calendar.find('.selecting:last').attr('data-date'),
           startTime = $calendar.find('.selecting:first').attr('data-time'),
