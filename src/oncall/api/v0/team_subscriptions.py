@@ -10,14 +10,14 @@ logger = logging.getLogger('oncall-api')
 
 def on_get(req, resp, team):
     connection = db.connect()
-    cursor = connection.cursor()
-    cursor.execute('''SELECT `subscription`.`name`, `role`.`name` FROM `team`
+    cursor = connection.cursor(db.DictCursor)
+    cursor.execute('''SELECT `subscription`.`name` AS `subscription`, `role`.`name` AS `role` FROM `team`
                       JOIN `team_subscription` ON `team`.`id` = `team_subscription`.`team_id`
                       JOIN `team` `subscription` ON `subscription`.`id` = `team_subscription`.`subscription_id`
                       JOIN `role` ON `role`.`id` = `team_subscription`.`role_id`
                       WHERE `team`.`name` = %s''',
                    team)
-    data = [row[0] for row in cursor]
+    data = [row for row in cursor]
     cursor.close()
     connection.close()
     resp.body = json_dumps(data)
@@ -31,6 +31,8 @@ def on_post(req, resp, team):
     role_name = data.get('role')
     if not sub_name or not role_name:
         raise HTTPBadRequest('Invalid subscription', 'Missing subscription name or role name')
+    if sub_name == team:
+        raise HTTPBadRequest('Invalid subscription', 'Subscription team must be different from subscribing team')
     connection = db.connect()
     cursor = connection.cursor()
     try:
@@ -42,12 +44,15 @@ def on_post(req, resp, team):
     except db.IntegrityError as e:
         err_msg = str(e.args[1])
         if err_msg == 'Column \'team_id\' cannot be null':
-            err_msg = 'team "%s" not found' % team
+            err_msg = 'Team "%s" not found' % team
         elif err_msg == 'Column \'role_id\' cannot be null':
-            err_msg = 'role "%s" not found' % role_name
+            err_msg = 'Role "%s" not found' % role_name
         elif err_msg == 'Column \'subscription_id\' cannot be null':
-            err_msg = 'team "%s" not found' % sub_name
-        logger.exception('Unknown integrity error in team_subscriptions')
+            err_msg = 'Team "%s" not found' % sub_name
+        elif err_msg.startswith('Duplicate entry'):
+            err_msg = 'Subscription already exists'
+        else:
+            logger.exception('Unknown integrity error in team_subscriptions')
         raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
     else:
         connection.commit()

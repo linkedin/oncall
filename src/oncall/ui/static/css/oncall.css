@@ -1238,6 +1238,75 @@ overflow: hidden;
 }
 
 /*
+ * Team subscription page
+ */
+
+.subscription-actions {
+  padding-top: 10px;
+}
+
+.module-subscription {
+  width: 24%;
+  margin: 0 .5%;
+  float: left;
+  transition: box-shadow .15s;
+}
+
+.module-subscription .subscription-actions {
+  border-top: 5px solid #FDE3D2;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.module-subscription .subscription-actions > span {
+  cursor: pointer;
+  color: #000;
+  opacity: .3;
+  font-weight: bold;
+}
+
+.module-subscription .subscription-actions > span .grey-icon {
+  opacity: 1;
+}
+
+.module-subscription .subscription-actions > span:hover {
+  opacity: .5;
+}
+
+.module-subscription .label-col {
+  width: 27%;
+  max-width: 110px;
+  vertical-align: top;
+}
+
+.module-subscription .data-col {
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.module-subscription .data-col.subscription-role {
+  display: inline-block;
+  width: 167px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.module-subscription .subscription-actions {
+  border-top: 5px solid #CCC;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.module-subscription-create .form-control,
+#subscription-team-container {
+    width: 150px;
+    display: inline-block;
+    margin: 5px;
+    vertical-align: middle !important;
+}
+
+/*
  * User notifications page
  */
 

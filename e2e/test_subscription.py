@@ -18,8 +18,8 @@ def test_api_v0_team_subscription(team, role):
     re = requests.get(api_v0('teams/%s/subscriptions' % team_name))
     assert re.status_code == 200
     data = re.json()
-    assert team_name_2 in data
-    assert team_name_3 in data
+    assert {'role': role_name, 'subscription': team_name_2} in data
+    assert {'role': role_name, 'subscription': team_name_3} in data
     assert len(data) == 2
 
     re = requests.delete(api_v0('teams/%s/subscriptions/%s/%s' % (team_name, team_name_3, role_name)))
@@ -28,7 +28,7 @@ def test_api_v0_team_subscription(team, role):
     re = requests.get(api_v0('teams/%s/subscriptions' % team_name))
     assert re.status_code == 200
     data = re.json()
-    assert team_name_2 in data
+    assert {'role': role_name, 'subscription': team_name_2} in data
     assert len(data) == 1
 
 

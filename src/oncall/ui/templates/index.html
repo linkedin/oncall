@@ -322,6 +322,7 @@
       <li {{#isEqual page "calendar"}}class="active"{{/isEqual}} href="/team/{{name}}" data-navigo> Calendar </li>
       <li {{#isEqual page "info"}}class="active"{{/isEqual}} href="/team/{{name}}/info" data-navigo> Team Info </li>
       <li data-admin-action="true" {{#isEqual page "schedules"}}class="active"{{/isEqual}} href="/team/{{name}}/schedules" data-navigo> Schedule Templates </li>
+      <li data-admin-action="true" {{#isEqual page "subscriptions"}}class="active"{{/isEqual}} href="/team/{{name}}/subscriptions" data-navigo> Subscriptions </li>
       {{#isEqual page "calendar"}}
         <span class="timezone-display-container pull-right">
           Display Timezone:
@@ -601,6 +602,89 @@
       </form>
     </div>
   </div>
+</script>
+
+<!--// **********************
+  Team.subscriptions Page
+*********************** //-->
+<script id="team-subscriptions-template" type="text/x-handlebars-template">
+  {{#if error}}
+    {{>error-page this}}
+  {{else}}
+    <div class="subheader-wrapper">
+      {{>team-subheader name=name page="subscriptions"}}
+    </div>
+    <div class="main container-fluid">
+      <h3 class="module-heading"> Subscriptions <button id="add-subscription" class="btn btn-primary pull-right">+ New Subscription</button></h3>
+      <div class="add-subscription-container">
+        <!--// create form renders here -->
+      </div>
+      <div class="module module-subscriptions-container">
+        <h4 class="module-heading border-bottom"> You have <span class="subscription-count"> 0 </span> subscriptions </h4>
+        <div class="module-subscriptions-wrapper clearfix" data-type="subscription">
+          {{#each this.subscriptions}}
+            {{>module-subscription viewType="schedule-item"}}
+          {{/each}}
+        </div>
+      </div>
+    </div>
+{{/if}}
+</script>
+
+<script id="module-subscription-template" type="text/x-handlebars-template">
+  <div class="module module-card module-subscription" data-role="{{role}}" data-team="{{subscription}}">
+    <ul class="subscription-details">
+      <li>
+        <label class="light label-col">Team:</label>
+        <span class="data-col">{{subscription}}</span>
+      </li>
+      <li>
+        <label class="light label-col">Role:</label>
+        <span class="data-col">{{role}} </span>
+      </li>
+    </ul>
+    <div class="subscription-actions border-top">
+        <span class="delete-{{viewType}}" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.subscriptions.deleteSubscription" data-modal-title="Delete subscription" data-modal-content="Delete subscription to {{role}} events from {{subscription}}?">
+          <i class="svg-icon svg-icon-trash grey-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
+              <path d="M3 0c-.55 0-1 .45-1 1h-1c-.55 0-1 .45-1 1h7c0-.55-.45-1-1-1h-1c0-.55-.45-1-1-1h-1zm-2 3v4.81c0 .11.08.19.19.19h4.63c.11 0 .19-.08.19-.19v-4.81h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1z" />
+            </svg>
+          </i>
+        Delete
+      </span>
+    </div>
+  </div>
+</script>
+
+<!-- subscription create partial -->
+<script id="module-subscription-create-template" type="text/x-handlebars-template">
+  <form class="module module-card module-subscription-create" >
+    <div class="module-heading module-card-heading border-bottom">
+      <h4>
+          Create a new subscription
+      </h4>
+    </div>
+    <div class="subscription-create-body">
+        Add
+          <select name="from" class="form-control subscription-role">
+            {{#each roles}}
+              <option value="{{this.name}}" {{isSelected ../selected_subscription.role this.name}}>
+                {{this.name}}
+              </option>
+            {{/each}}
+          </select>
+        events from the
+        <span id="subscription-team-container">
+          <input type="text" class="form-control typeahead subscription-team" placeholder="Team" data-type="teams" />
+        </span>
+        calendar to this team's calendar.
+    <div class="border-top subscription-actions clearfix">
+      <div class="pull-right">
+        <button id="save-subscription" class="btn btn-primary" type="submit"><span class="btn-text">Save</span> <i class="loader loader-small"></i> </button>
+        <button class="btn btn-blue delete-subscription" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.subscriptions.deleteSubscriptionItem" data-modal-title="Your changes are unsaved" data-modal-content="Aborting now will lose unsaved changes."> Cancel </button>
+      </div>
+    </div>
+  </form>
 </script>
 
 <!--// **********************
