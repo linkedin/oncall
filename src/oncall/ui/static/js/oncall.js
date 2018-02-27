@@ -1083,9 +1083,10 @@ var oncall = {
             userPromise = $.Deferred(),
             self = this;
 
-        if (userData !== undefined) {
+        if (userData !== undefined || $eventItem.attr('data-disabled') === '1') {
           userPromise.resolve();
         } else {
+          $eventItem.attr('data-disabled', '1');
           $.ajax({
             type: 'GET',
             url: this.data.userUrl + evt.user,
@@ -1095,8 +1096,10 @@ var oncall = {
             userData = JSON.parse(response);
             self.data.teamData.users[evt.user] = userData;
             userPromise.resolve();
-          }).fail(function(data){
+          }).fail(function(){
             userPromise.reject();
+          }).always(function(){
+            $eventItem.attr('data-disabled', '0');
           })
         }
         userPromise.done(function() {
@@ -2836,7 +2839,7 @@ var oncall = {
             type = $this.attr('data-type') || 'users',
             results;
 
-        if (type === 'services' || type == 'teams') {
+        if (type === 'services' || type === 'teams') {
           results = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,

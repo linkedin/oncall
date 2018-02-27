@@ -1282,10 +1282,6 @@ overflow: hidden;
 .module-subscription .data-col {
   text-transform: capitalize;
   display: inline-block;
-}
-
-.module-subscription .data-col.subscription-role {
-  display: inline-block;
   width: 167px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1296,6 +1292,7 @@ overflow: hidden;
   border-top: 5px solid #CCC;
   padding-top: 10px;
   margin-top: 10px;
+  text-align: right;
 }
 
 .module-subscription-create .form-control,
@@ -1306,6 +1303,9 @@ overflow: hidden;
     vertical-align: middle !important;
 }
 
+#subscription-team-container .tt-menu {
+  width: 200%;
+}
 /*
  * User notifications page
  */
