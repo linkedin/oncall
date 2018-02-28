@@ -1,0 +1,37 @@
+version: 2
+jobs:
+  build:
+    services:
+      - docker
+    docker:
+      - image: circleci/python:2.7-stretch-browsers
+      - image: mysql/mysql-server:5.7
+        environment:
+          - MYSQL_ALLOW_EMPTY_PASSWORD=1
+          - MYSQL_ROOT_HOST=%
+
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev mysql-server
+      - run:
+          name: Prepare virtualenv
+          command: |
+            virtualenv venv
+            source venv/bin/activate
+            python setup.py develop
+            pip install -e .[dev]
+      - run:
+          name: Setup MySQL
+          command: |
+            bash .ci/setup_mysql.sh
+      - run:
+          name: Run tests
+          command: |
+            source venv/bin/activate
+            make serve &
+            make check
+
