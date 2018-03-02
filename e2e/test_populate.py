@@ -189,7 +189,6 @@ def test_api_v0_populate_skip(user, team, roster, role, schedule, event):
     user.add_to_roster(user_name, team_name, roster_name)
     user.add_to_roster(user_name_2, team_name, roster_name)
 
-
     re = requests.post(api_v0('schedules/%s/populate' % schedule_id), json = {'start': time.time()})
     assert re.status_code == 200
 
@@ -217,3 +216,55 @@ def test_api_v0_populate_skip(user, team, roster, role, schedule, event):
     schedule_ids = set([ev['schedule_id'] for ev in events])
     assert None in schedule_ids
     assert schedule_id in schedule_ids
+
+
+# Test populate with subscription events in calendar
+@prefix('test_v0_populate_subscription')
+def test_api_v0_populate_subscription(user, team, roster, role, schedule, event):
+    user_name = user.create()
+    user_name_2 = user.create()
+    team_name = team.create()
+    team_name_2 = team.create()
+    role_name = role.create()
+    roster_name = roster.create(team_name)
+    schedule_id = schedule.create(team_name,
+                                  roster_name,
+                                  {'role': role_name,
+                                   'events': [{'start': 0, 'duration': 604800}],
+                                   'advanced_mode': 0,
+                                   'auto_populate_threshold': 14})
+    user.add_to_roster(user_name, team_name, roster_name)
+    user.add_to_roster(user_name_2, team_name, roster_name)
+    user.add_to_team(user_name, team_name_2)
+    re = requests.post(api_v0('teams/%s/subscriptions' % team_name), json={'role': role_name, 'subscription': team_name_2})
+    assert re.status_code == 201
+
+    # Populate for team 1
+    re = requests.post(api_v0('schedules/%s/populate' % schedule_id), json = {'start': time.time()})
+    assert re.status_code == 200
+
+    # Create conflicting events in team 2 for user 1
+    re = requests.get(api_v0('events?team=%s' % team_name))
+    assert re.status_code == 200
+    events = re.json()
+    assert len(events) == 2
+    assert events[0]['user'] != events[1]['user']
+    for e in events:
+        event.create({
+            'start': e['start'],
+            'end': e['end'],
+            'user': user_name,
+            'team': team_name_2,
+            'role': role_name,
+        })
+
+    # Populate again for team 1
+    re = requests.post(api_v0('schedules/%s/populate' % schedule_id), json = {'start': time.time()})
+    assert re.status_code == 200
+
+    # Ensure events are both for user 2 (since user 1 is busy in team 2)
+    re = requests.get(api_v0('events?team=%s&include_subscribed=false' % team_name))
+    assert re.status_code == 200
+    events = re.json()
+    assert len(events) == 2
+    assert events[0]['user'] == events[1]['user'] == user_name_2
