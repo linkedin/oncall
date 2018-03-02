@@ -49,16 +49,29 @@ class Scheduler(object):
 
     def get_busy_user_by_event_range(self, user_ids, team_id, events, cursor):
         ''' Find which users have overlapping events for the same team in this time range'''
+        query_params = [user_ids]
         range_check = []
         for e in events:
-            range_check.append('(%r < `end` AND `start` < %r)' % (e['start'], e['end']))
+            range_check.append('(%s < `end` AND `start` < %s)')
+            query_params += [e['start'], e['end']]
+
+        cursor.execute('''SELECT `subscription_id`, `role_id`
+                          FROM `team_subscription`
+                          WHERE `team_id` = %s''',
+                       team_id)
+        subscriptions = cursor.fetchall()
+        team_check = ['team_id = %s']
+        query_params.append(team_id)
+        for sub in subscriptions:
+            team_check.append('(team_id = %s AND role_id = %s)')
+            query_params += [sub['subscription_id'], sub['role_id']]
 
         query = '''
                 SELECT DISTINCT `user_id` FROM `event`
-                WHERE `user_id` in %%s AND team_id = %%s AND (%s)
-                ''' % ' OR '.join(range_check)
+                WHERE `user_id` in %%s AND (%s) AND (%s)
+                ''' % (' OR '.join(range_check), ' OR '.join(team_check))
 
-        cursor.execute(query, (user_ids, team_id))
+        cursor.execute(query, query_params)
         return [r['user_id'] for r in cursor.fetchall()]
 
     def find_least_active_user_id_by_team(self, user_ids, team_id, start_time, role_id, cursor):
