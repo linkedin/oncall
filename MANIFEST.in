@@ -1,0 +1,2 @@
+recursive-include src/oncall/ui/templates *
+recursive-include src/oncall/ui/static *
