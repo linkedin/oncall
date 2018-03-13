@@ -37,17 +37,22 @@ def on_delete(req, resp, team, roster, user):
     check_team_auth(team, req)
     connection = db.connect()
     cursor = connection.cursor()
-
-    cursor.execute('''DELETE FROM `roster_user`
-                      WHERE `roster_id`=(
-                          SELECT `roster`.`id` FROM `roster`
-                          JOIN `team` ON `team`.`id`=`roster`.`team_id`
-                          WHERE `team`.`name`=%s AND `roster`.`name`=%s)
-                      AND `user_id`=(SELECT `id` FROM `user` WHERE `name`=%s)''',
-                   (team, roster, user))
-    deleted = cursor.rowcount
-    if deleted == 0:
+    cursor.execute('''SELECT `id` FROM `roster`
+                      WHERE `team_id` = (SELECT `id` FROM `team` WHERE name = %s)
+                      AND `name` = %s''',
+                   (team, roster))
+    roster_id = cursor.fetchone()
+    if roster_id is None:
         raise HTTPNotFound()
+    cursor.execute('''DELETE FROM `roster_user`
+                      WHERE `roster_id`= %s
+                      AND `user_id`=(SELECT `id` FROM `user` WHERE `name`=%s)''',
+                   (roster_id, user))
+    cursor.execute('''DELETE `schedule_order` FROM `schedule_order`
+                      JOIN `schedule` ON `schedule`.`id` = `schedule_order`.`schedule_id`
+                      WHERE `roster_id` = %s
+                      AND user_id = (SELECT `id` FROM `user` WHERE `name` = %s)''',
+                   (roster_id, user))
     create_audit({'roster': roster, 'user': user}, team, ROSTER_USER_DELETED, req, cursor)
 
     # Remove user from the team if needed

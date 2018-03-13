@@ -138,6 +138,15 @@ def on_post(req, resp, team, roster):
                               %s
                           )''',
                        (user_id, roster_id, in_rotation, roster_priority))
+        cursor.execute('''INSERT INTO `schedule_order`
+                          SELECT `schedule_id`, %s, COALESCE(MAX(`schedule_order`.`priority`), -1) + 1
+                          FROM `schedule_order`
+                          JOIN `schedule` ON `schedule`.`id` = `schedule_order`.`schedule_id`
+                          JOIN `roster` ON `roster`.`id` = `schedule`.`roster_id`
+                          JOIN `team` ON `roster`.`team_id` = `team`.`id`
+                          WHERE `roster`.`name` = %s AND `team`.`name` = %s
+                          GROUP BY `schedule_id`''',
+                       (user_id, roster, team))
         # subscribe user to notifications
         subscribe_notifications(team, user_name, cursor)
 

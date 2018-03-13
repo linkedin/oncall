@@ -1062,7 +1062,7 @@ div[data-admin="false"] .team-info .toggle-rotation {
   margin-bottom: 5px;
 }
 
-.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler {
+.module-schedule-create[data-scheduler="round-robin"] .round-robin-scheduler {
   border: 1px solid #ccc;
   color: #5c5b5c;
   border-radius: 4px;
@@ -1070,20 +1070,20 @@ div[data-admin="false"] .team-info .toggle-rotation {
   padding: 10px;
 }
 
-.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler ul {
+.module-schedule-create[data-scheduler="round-robin"] .round-robin-scheduler ul {
   margin-top: 5px;
   max-height: 300px;
   overflow-y: scroll;
 }
 
-.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler li {
+.module-schedule-create[data-scheduler="round-robin"] .round-robin-scheduler li {
   cursor: move;
   padding: 2px;
   transition: background .3s;
   user-select: none;
 }
 
-.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler svg {
+.module-schedule-create[data-scheduler="round-robin"] .round-robin-scheduler svg {
   display: inline-block;
   font-size: inherit;
   height: 1em;
@@ -1092,15 +1092,15 @@ div[data-admin="false"] .team-info .toggle-rotation {
   width: 25px;
 }
 
-.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler li:hover {
+.module-schedule-create[data-scheduler="round-robin"] .round-robin-scheduler li:hover {
   background: #efefef;
 }
 
-.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler .dragging {
+.module-schedule-create[data-scheduler="round-robin"] .round-robin-scheduler .dragging {
   opacity: .3;
 }
 
-.module-schedule-create[data-scheduler="custom-order"] .custom-order-scheduler .drag-over {
+.module-schedule-create[data-scheduler="round-robin"] .round-robin-scheduler .drag-over {
   border-bottom: 1px dashed #ccc;
 }
 

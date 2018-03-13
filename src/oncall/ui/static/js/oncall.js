@@ -1668,7 +1668,6 @@ var oncall = {
         scheduleItem: '.module-card',
         schedulerTemplates: {
           'default': $('#default-scheduler-template').html(),
-          'custom-order': $('#custom-order-scheduler-template').html(),
           'round-robin': $('#round-robin-scheduler-template').html()
         },
         schedulerTypeContainer: '.scheduler-type-container',
@@ -2195,9 +2194,9 @@ var oncall = {
               data: []
             };
 
-        if (type == 'custom-order') {
+        if (type === 'round-robin') {
           // if custom order is selected, send user list along with type
-          $form.find('.custom-order-scheduler li').each(function(i){
+          $form.find('.round-robin-scheduler li').each(function(i){
             schedulerData.data.push($(this).data('user'));
           });
         }
@@ -2228,9 +2227,24 @@ var oncall = {
             $container = $card.find(this.data.schedulerTypeContainer),
             roster = $card.find(this.data.rosterSelect).val();
 
-        if ( scheduler == 'custom-order' ) {
+        if ( scheduler === 'round-robin' ) {
           // Pass in user list to template if custom order is selected
-          $container.html(template(this.data.teamData.rosters[roster].users));
+          var schedule_id = $card.attr('data-edit-id'),
+              order = $card.attr('data-schedule-data'),
+              users = this.data.teamData.rosters[roster].users.map(function(user) {return user.name});
+              schedule = this.data.teamData.rosters[roster].schedules.filter(function (schedule) {
+                return schedule.id === parseInt(schedule_id)
+              })[0];
+
+          if (order !== undefined) {
+            order = JSON.parse(order);
+          }
+          // If order includes all roster users, use order. Otherwise, just use roster
+          if (order !== undefined && order.every(function(u) { return users.indexOf(u) !== -1})) {
+            $container.html(template(order));
+          } else {
+            $container.html(template(users));
+          }
           this.drag.init($container.find('.draggable'));
         } else {
           $container.html(template());
