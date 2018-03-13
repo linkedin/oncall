@@ -22,19 +22,23 @@ class Scheduler(default.Scheduler):
             return None
 
     def find_least_active_available_user_id(self, schedule, future_events, cursor):
-        # Ordered by roster priority, break potential ties with user id
-        cursor.execute('''SELECT `roster_id`, `user_id`, `roster_priority`
-                          FROM roster_user WHERE roster_id = %s AND `in_rotation` = 1
-                          ORDER BY roster_priority, user_id''',
+        cursor.execute('''SELECT `user_id` FROM `roster_user`
+                           WHERE `roster_id` = %s AND in_rotation = TRUE''',
                        schedule['roster_id'])
-        roster = [row['user_id'] for row in cursor]
+        roster_users = {row['user_id'] for row in cursor}
+        # Ordered by roster priority, break potential ties with user id
+        cursor.execute('''SELECT `user_id`, `priority`
+                          FROM schedule_order WHERE schedule_id = %s
+                          ORDER BY priority, user_id''',
+                       schedule['id'])
+        roster = [row['user_id'] for row in cursor if row['user_id'] in roster_users]
         cursor.execute('SELECT last_scheduled_user_id FROM schedule WHERE id = %s', schedule['id'])
         if cursor.rowcount == 0 or roster == []:
             # Schedule doesn't exist, or roster is empty. Bail
             return None
         last_user = cursor.fetchone()['last_scheduled_user_id']
         if last_user not in roster:
-            # If this user is no longer in the roster or last_scheduled_user in NULL, try to find
+            # If this user is no longer in the roster or last_scheduled_user is NULL, try to find
             # the last scheduled user using the calendar
             start = min(e['start'] for e in future_events)
             last_user = self.guess_last_scheduled_user(schedule, start, roster, cursor)

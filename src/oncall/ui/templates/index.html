@@ -852,7 +852,7 @@
       </li>
       <li>
         <label class="light label-col" title="Scheduler">Scheduler:</label>
-        <span class="data-col schedule-algorithm">{{scheduler}}</span>
+        <span class="data-col schedule-algorithm">{{scheduler.name}}</span>
       </li>
     </ul>
     <div class="schedule-actions text-actions">
@@ -878,7 +878,7 @@
 
 <!-- // schedule create partial -->
 <script id="module-schedule-create-template" type="text/x-handlebars-template">
-  <form class="module module-card module-schedule-create" data-advanced="{{#ifExists selected_schedule}}{{selected_schedule.advanced_mode}}{{else}}0{{/ifExists}}" {{#if selected_schedule.id}} data-edit-id="{{selected_schedule.id}}" {{/if}} {{#if selected_schedule.role}} data-role="{{selected_schedule.role}}" {{/if}} data-scheduler="{{#if selected_schedule.scheduler}}{{selected_schedule.scheduler}}{{else}}default{{/if}}">
+  <form class="module module-card module-schedule-create" data-advanced="{{#ifExists selected_schedule}}{{selected_schedule.advanced_mode}}{{else}}0{{/ifExists}}" {{#if selected_schedule.id}} data-edit-id="{{selected_schedule.id}}" {{/if}} {{#if selected_schedule.role}} data-role="{{selected_schedule.role}}" {{/if}} data-scheduler="{{#if selected_schedule.scheduler}}{{selected_schedule.scheduler.name}}{{else}}default{{/if}}" {{#if selected_schedule.scheduler.data}}  data-schedule-data="{{stringify selected_schedule.scheduler.data}}"{{/if}}>
     <div class="module-heading module-card-heading border-bottom">
       <h4>
         {{#if selected_schedule.id}}
@@ -920,7 +920,7 @@
             </span>
           </div>
           <div class="col-md-4">
-            <label class="label-col">Auto Populate Threshold (Set in days):</label>
+            <label class="label-col">Auto Populate Threshold (days):</label>
             <br>
             <span class="data-col">
               <input type="number" class="form-control auto-populate-threshold" value="{{#ifExists selected_schedule.auto_populate_threshold}}{{selected_schedule.auto_populate_threshold}}{{else}}21{{/ifExists}}" placeholder="Days">
@@ -968,9 +968,8 @@
         <label class="label-col">Scheduling Algorithms:</label>
         <br>
         <select name="from" class="form-control schedule-algorithm" id="schedule-algorithm">
-          <option value="default" {{isSelected 'default' selected_schedule.scheduler}}> Default </option>
-          <option value="round-robin" {{isSelected 'round-robin' selected_schedule.scheduler}}> Round Robin </option>
-          <option value="custom-order" {{isSelected 'custom-order' selected_schedule.scheduler}}> Custom Order </option>
+          <option value="default" {{isSelected 'default' selected_schedule.scheduler.name}}> Default </option>
+          <option value="round-robin" {{isSelected 'round-robin' selected_schedule.scheduler.name}}> Round-robin </option>
         </select>
         <div class="scheduler-type-container light">
           <!-- scheduler specific data renders here -->
@@ -1060,19 +1059,14 @@
 
 <!-- // round-robin-scheduler-template -->
 <script id="round-robin-scheduler-template" type="text/x-handlebars-template">
-  Round robin description.
-</script>
-
-<!-- // custom-order-scheduler-template -->
-<script id="custom-order-scheduler-template" type="text/x-handlebars-template">
   Determines employee order
-  <div class="custom-order-scheduler">
+  <div class="round-robin-scheduler">
     Set Order <span class="light">(Drag to reorder)</span>
     <ul class="draggable">
       {{#each this}}
-        <li draggable="true" data-user="{{this.name}}">
+        <li draggable="true" data-user="{{this}}">
           <svg aria-hidden="true" data-fa-processed="" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="svg-inline--fa fa-bars fa-w-14"><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z" class=""></path></svg>
-          {{this.name}}
+          {{this}}
         </li>
       {{/each}}
     </ul>

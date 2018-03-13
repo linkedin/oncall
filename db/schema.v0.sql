@@ -431,6 +431,18 @@ CREATE TABLE IF NOT EXISTS `team_subscription` (
   INDEX `team_subscription_team_id_fk_idx` (`team_id` ASC)
 );
 
+CREATE TABLE IF NOT EXISTS `schedule_order` (
+  `schedule_id` BIGINT(20) UNSIGNED NOT NULL,
+  `user_id` BIGINT(20) UNSIGNED NOT NULL,
+  `priority` INT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`schedule_id`,`user_id`),
+  CONSTRAINT `schedule_order_schedule_id_fk` FOREIGN KEY (`schedule_id`) REFERENCES `schedule` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `schedule_order_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+    ON DELETE CASCADE,
+  INDEX `schedule_order_schedule_id_idx` (`schedule_id`)
+);
+
 INSERT INTO `scheduler` ( `name`, `description`)
 VALUES ('default',
         'Default scheduling algorithm'),

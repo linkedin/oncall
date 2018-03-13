@@ -16,7 +16,8 @@ columns = {
     'roster': '`roster_id`=(SELECT `roster`.`id` FROM `roster` JOIN `team` ON `roster`.`team_id` = `team`.`id` '
               'WHERE `roster`.`name`=%(roster)s AND `team`.`name`=%(team)s)',
     'auto_populate_threshold': '`auto_populate_threshold`=%(auto_populate_threshold)s',
-    'advanced_mode': '`advanced_mode` = %(advanced_mode)s'
+    'advanced_mode': '`advanced_mode` = %(advanced_mode)s',
+    'scheduler': '`scheduler_id`=(SELECT `id` FROM `scheduler` WHERE `name` = %(scheduler)s)'
 }
 
 
@@ -113,7 +114,9 @@ def on_put(req, resp, schedule_id):
 
     # Get rid of extraneous column data (so pymysql doesn't try to escape it)
     events = data.pop('events', None)
-
+    scheduler = data.pop('scheduler', None)
+    if scheduler:
+        data['scheduler'] = scheduler['name']
     data = dict((k, data[k]) for k in data if k in columns)
     if 'roster' in data and 'team' not in data:
         raise HTTPBadRequest('Invalid edit', 'team must be specified with roster')
@@ -146,6 +149,12 @@ def on_put(req, resp, schedule_id):
     if events:
         cursor.execute('DELETE FROM `schedule_event` WHERE `schedule_id` = %s', schedule_id)
         insert_schedule_events(schedule_id, events, cursor)
+    if scheduler and scheduler['name'] == 'round-robin':
+        params = [(schedule_id, name, idx) for idx, name in enumerate(scheduler.get('data'))]
+        cursor.execute('DELETE FROM `schedule_order` WHERE `schedule_id` = %s', schedule_id)
+        cursor.executemany('''INSERT INTO `schedule_order` (`schedule_id`, `user_id`, `priority`)
+                              VALUES (%s, (SELECT `id` FROM `user` WHERE `name` = %s), %s)''',
+                           params)
     connection.commit()
     cursor.close()
     connection.close()

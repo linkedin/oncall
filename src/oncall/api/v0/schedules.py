@@ -84,6 +84,7 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
     :return:
     """
     events = False
+    scheduler = False
     from_clause = ['`schedule`']
 
     if fields is None:
@@ -98,10 +99,13 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
         from_clause.append('JOIN `role` ON `role`.`id` = `schedule`.`role_id`')
     if 'scheduler' in fields:
         from_clause.append('JOIN `scheduler` ON `scheduler`.`id` = `schedule`.`scheduler_id`')
+        scheduler = True
     if 'events' in fields:
         from_clause.append('LEFT JOIN `schedule_event` ON `schedule_event`.`schedule_id` = `schedule`.`id`')
         events = True
 
+    if 'id' not in fields:
+        fields.append('id')
     fields = map(columns.__getitem__, fields)
     cols = ', '.join(fields)
     from_clause = ' '.join(from_clause)
@@ -123,6 +127,20 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
 
     cursor.execute(query)
     data = cursor.fetchall()
+    if scheduler and data:
+        schedule_ids = {d['id'] for d in data}
+        cursor.execute('''SELECT `schedule_id`, `user`.`name` FROM `schedule_order` 
+                          JOIN `user` ON `user_id` = `user`.`id`
+                          WHERE `schedule_id` IN %s
+                          ORDER BY `schedule_id`,`priority`, `user_id`''',
+                       schedule_ids)
+        orders = {}
+        # Accumulate roster orders for schedule
+        for row in cursor:
+            schedule_id = row['schedule_id']
+            if schedule_id not in orders:
+                orders[schedule_id] = []
+            orders[schedule_id].append(row['name'])
     if connection_opened:
         cursor.close()
         connection.close()
@@ -141,6 +159,13 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
             duration = row.pop('duration')
             ret[schedule_id]['events'].append({'start': start, 'duration': duration})
         data = ret.values()
+
+    if scheduler:
+        for schedule in data:
+            scheduler_data = {'name': schedule['scheduler']}
+            if schedule['id'] in orders:
+                scheduler_data['data'] = orders[schedule['id']]
+            schedule['scheduler'] = scheduler_data
     return data
 
 
@@ -349,7 +374,6 @@ def on_post(req, resp, team, roster):
     data['team'] = unquote(team)
     data['roster'] = unquote(roster)
     check_team_auth(data['team'], req)
-
     missing_params = required_params - set(data.keys())
     if missing_params:
         raise HTTPBadRequest('invalid schedule',
@@ -367,7 +391,10 @@ def on_post(req, resp, team, roster):
 
     if 'scheduler' not in data:
         # default to "default" scheduling algorithm
-        data['scheduler'] = 'default'
+        data['scheduler_name'] = 'default'
+    else:
+        data['scheduler_name'] = data['scheduler'].get('name', 'default')
+        scheduler_data = data['scheduler'].get('data')
 
     if not data['advanced_mode']:
         if not validate_simple_schedule(schedule_events):
@@ -382,13 +409,19 @@ def on_post(req, resp, team, roster):
                                  (SELECT `id` FROM `role` WHERE `name` = %(role)s),
                                  %(auto_populate_threshold)s,
                                  %(advanced_mode)s,
-                                 (SELECT `id` FROM `scheduler` WHERE `name` = %(scheduler)s))'''
+                                 (SELECT `id` FROM `scheduler` WHERE `name` = %(scheduler_name)s))'''
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
     try:
         cursor.execute(insert_schedule, data)
         schedule_id = cursor.lastrowid
         insert_schedule_events(schedule_id, schedule_events, cursor)
+
+        if data['scheduler_name'] == 'round-robin':
+            params = [(schedule_id, name, idx) for idx,name in enumerate(scheduler_data)]
+            cursor.executemany('''INSERT INTO `schedule_order` (`schedule_id`, `user_id`, `priority`)
+                                  VALUES (%s, (SELECT `id` FROM `user` WHERE `name` = %s), %s)''',
+                               params)
     except db.IntegrityError as e:
         err_msg = str(e.args[1])
         if err_msg == 'Column \'roster_id\' cannot be null':
@@ -400,10 +433,11 @@ def on_post(req, resp, team, roster):
         elif err_msg == 'Column \'team_id\' cannot be null':
             err_msg = 'team "%s" not found' % team
         raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
-
-    connection.commit()
-    cursor.close()
-    connection.close()
+    else:
+        connection.commit()
+    finally:
+        cursor.close()
+        connection.close()
 
     resp.status = HTTP_201
     resp.body = json_dumps({'id': schedule_id})
