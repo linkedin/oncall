@@ -157,6 +157,108 @@ def fetch_ldap():
 
     return users
 
+def user_exists(username, engine):
+    return engine.execute('SELECT `id` FROM user WHERE name = %s', username)
+
+def import_user(username, ldap_contacts, engine):
+    logger.debug('Inserting %s' % username)
+    full_name = ldap_contacts.pop('full_name')
+    user_add_sql = 'INSERT INTO `user` (`name`, `full_name`, `photo_url`) VALUES (%s, %s, %s)'
+
+    # get objects needed for insertion
+    modes = get_modes(engine)
+
+    try:
+        photo_url_tpl = LDAP_SETTINGS.get('image_url')
+        photo_url = photo_url_tpl % username if photo_url_tpl else None
+        engine.execute(user_add_sql, (username, full_name, photo_url))
+        engine.execute("SELECT `id` FROM user WHERE name = %s", username)
+        row = engine.fetchone()
+        user_id = row['id']
+    except SQLAlchemyError:
+        stats['users_failed_to_add'] += 1
+        stats['sql_errors'] += 1
+        logger.exception('Failed to add user %s' % username)
+        return
+    stats['users_added'] += 1
+    for key, value in ldap_contacts.iteritems():
+        if value and key in modes:
+            logger.debug('\t%s -> %s' % (key, value))
+            user_contact_add_sql = 'INSERT INTO `user_contact` (`user_id`, `mode_id`, `destination`) VALUES (%s, %s, %s)'
+            engine.execute(user_contact_add_sql, (user_id, modes[key], value))
+
+def get_modes(engine):
+    engine.execute('SELECT `name`, `id` FROM `contact_mode`')
+    modes = {}
+    for row in engine.fetchall():
+        modes[row['name']] = row['id']
+    return modes
+
+def update_user(username, ldap_contacts, engine):
+    oncall_user = get_oncall_user(username, engine)
+    db_contacts = oncall_user[username]
+    full_name = ldap_contacts.pop('full_name')
+
+    contact_update_sql = 'UPDATE user_contact SET destination = %s WHERE user_id = (SELECT id FROM user WHERE name = %s) AND mode_id = %s'
+    contact_insert_sql = 'INSERT INTO user_contact (user_id, mode_id, destination) VALUES ((SELECT id FROM user WHERE name = %s), %s, %s)'
+    contact_delete_sql = 'DELETE FROM user_contact WHERE user_id = (SELECT id FROM user WHERE name = %s) AND mode_id = %s'
+    name_update_sql = 'UPDATE user SET full_name = %s WHERE name = %s'
+    photo_update_sql = 'UPDATE user SET photo_url = %s WHERE name = %s'
+
+    modes = get_modes(engine)
+
+    try:
+        if full_name != db_contacts.get('full_name'):
+            engine.execute(name_update_sql, (full_name, username))
+            stats['user_names_updated'] += 1
+        if 'image_url' in LDAP_SETTINGS and not db_contacts.get('photo_url'):
+            photo_url_tpl = LDAP_SETTINGS.get('image_url')
+            photo_url = photo_url_tpl % username if photo_url_tpl else None
+            engine.execute(photo_update_sql, (photo_url, username))
+            stats['user_photos_updated'] += 1
+        for mode in modes:
+            if mode in ldap_contacts and ldap_contacts[mode]:
+                if mode in db_contacts:
+                    if ldap_contacts[mode] != db_contacts[mode]:
+                        logger.debug('\tupdating %s (%s -> %s)' % (mode, db_contacts[mode], ldap_contacts[mode]))
+                        engine.execute(contact_update_sql, (ldap_contacts[mode], username, modes[mode]))
+                        stats['user_contacts_updated'] += 1
+                else:
+                    logger.debug('\tadding %s', mode)
+                    engine.execute(contact_insert_sql, (username, modes[mode], ldap_contacts[mode]))
+                    stats['user_contacts_updated'] += 1
+            elif mode in db_contacts:
+                logger.debug('\tdeleting %s', mode)
+                engine.execute(contact_delete_sql, (username, modes[mode]))
+                stats['user_contacts_updated'] += 1
+            else:
+                logger.debug('\tmissing %s', mode)
+    except SQLAlchemyError:
+        stats['users_failed_to_update'] += 1
+        stats['sql_errors'] += 1
+        logger.exception('Failed to update user %s' % username)
+
+
+def get_oncall_user(username, engine):
+    oncall_user = {}
+    user_query = '''SELECT `user`.`name` as `name`, `contact_mode`.`name` as `mode`, `user_contact`.`destination`,
+                            `user`.`full_name`, `user`.`photo_url`
+                     FROM `user`
+                     LEFT OUTER JOIN `user_contact` ON `user`.`id` = `user_contact`.`user_id`
+                     LEFT OUTER JOIN `contact_mode` ON `user_contact`.`mode_id` = `contact_mode`.`id`
+                     WHERE `user`.`name` = %s
+                     ORDER BY `user`.`name`'''
+    engine.execute(user_query, username)
+    for row in engine.fetchall():
+        contacts = oncall_user.setdefault(row['name'], {})
+        if row['mode'] is None or row['destination'] is None:
+            continue
+        contacts[row['mode']] = row['destination']
+        contacts['full_name'] = row['full_name']
+        contacts['photo_url'] = row['photo_url']
+
+    return oncall_user
+
 
 def sync(config, engine):
     Session = sessionmaker(bind=engine)

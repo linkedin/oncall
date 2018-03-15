@@ -47,14 +47,23 @@ auth:
 
 # Example configuration for LDAP-based auth
 #   module: 'oncall.auth.modules.ldap_example'
+#   module: 'oncall.auth.modules.ldap_import' # for automatically import user at first connexion
 #   ldap_url: 'ldaps://example.com'
 #   ldap_user_suffix: '@example.biz'
 #   ldap_cert_path: '/etc/ldap_cert.pem'
-#   if you need to lookup the DN of the user first
 #   ldap_bind_user: 'cn=binduser,ou=services,dc=company,dc=org'
 #   ldap_bind_password: 'abc123'
 #   ldap_base_dn: 'ou=accounts,dc=company,dc=org'
 #   ldap_search_filter: '(uid=%s)'
+# options used by the ldap_import module.
+#   import_user: True
+#   attrs:
+#     username: 'uid'
+#     full_name: 'displayName'
+#     email: 'mail'
+#     mobile: 'mobile'
+#     sms: 'phone'
+#     slack: 'uid'
 
 ############################
 ### Oncall-notifier settings
