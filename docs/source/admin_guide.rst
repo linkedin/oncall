@@ -88,6 +88,41 @@ creating a new message to be sent.
     It is also possible to use Oncall-admin_ to do manual user administration
 
 
+Ldap Authentication
+```````````````````
+
+Alternatively, you can configure oncall ldap authentication to use the `oncall.auth.modules.ldap_import` module.
+When a user try to connect to oncall, the module will check if the user is already present or not.
+If not, the user will be automatically added to the oncall user database, and conacts information will be synced.
+If the user already exists, his contacts informations will be updated according to ldap informations.
+You can deactivate this feature by setting the `import_user` option to `False`.
+
+Here is an example of ldap auth configuration :
+
+.. code-block:: yaml
+    auth:
+      debug: False
+      module: 'oncall.auth.modules.ldap_import'
+      ldap_url: 'ldaps://ldapserver.org'
+      ldap_user_suffix: ''
+      ldap_cert_path: '/etc/ldap_cert.pem'
+      ldap_bind_user: 'cn=oncall,ou=serviceaccount,dc=company,dc=org'
+      ldap_bind_password: 'xxxx'
+      ldap_base_dn: 'ou=accounts,dc=company,dc=org'
+      ldap_search_filter: '(uid=%s)'
+      import_user: True
+      attrs:
+        username: 'uid'
+        full_name: 'cn'
+        email: 'mail'
+        call: '0123456789'
+        sms: '0123456789'
+        slack: 'uid'
+
+Note if one of the attrs for ldap mapping to oncall contacts information is missing in ldap, the configured attr value will be used as the default value. 
+For example if the ldap does not have a phone attribute for a user, the default valut will be the 0123456789 call number.
+
+
 Iris Integration
 ````````````````
 To allow Oncall users to escalate issues via Iris, you will need to configure
