@@ -1640,34 +1640,43 @@ var oncall = {
     schedules: {
       data: {
         $page: $('.content-wrapper'),
-        calendar: '#calendar-container',
         $calendar: null,
-        url: '/api/v0/teams/',
-        schedulesUrl: '/api/v0/schedules/',
-        pageSource: $('#team-schedules-template').html(),
+        addRotationItem: '.add-rotation-item',
+        addScheduleContainer: '.add-schedule-container',
+        addScheduleItem: '#add-schedule',
+        calendar: '#calendar-container',
+        deleteScheduleItem: '.delete-schedule-item',
+        editScheduleItem: '.edit-schedule-item',
+        events: [],
         moduleScheduleTemplate: $('#module-schedule-template').html(),
         moduleScheduleCreateTemplate: $('#module-schedule-create-template').html(),
         moduleScheduleWrapper: '.module-schedule-wrapper',
-        addScheduleContainer: '.add-schedule-container',
-        scheduleItem: '.module-card',
-        addScheduleItem: '#add-schedule',
-        deleteScheduleItem: '.delete-schedule-item',
-        editScheduleItem: '.edit-schedule-item',
-        saveSchedule: '#save-schedule',
-        scheduleCreateForm: '.module-schedule-create',
-        rotationItemTemplate: $('#rotation-item-template').html(),
-        rotationItem: '.rotation-item',
-        removeRotationItem: '.remove-rotation-item',
-        addRotationItem: '.add-rotation-item',
-        scheduleAdvanced: '.schedule-advanced',
-        previewSchedule: '.preview-schedule',
-        scheduleCount: '.schedule-count',
         moduleSchedule: '.module-schedule',
+        pageSource: $('#team-schedules-template').html(),
+        populateSchedulesModal: '#populate-schedule-modal',
+        previewSchedule: '.preview-schedule',
+        removeRotationItem: '.remove-rotation-item',
+        rosterSelect: '.schedule-roster',
+        rotationItem: '.rotation-item',
+        rotationItemTemplate: $('#rotation-item-template').html(),
+        saveSchedule: '#save-schedule',
+        scheduler: '#schedule-algorithm',
+        scheduleAdvanced: '.schedule-advanced',
+        scheduleCard: '.module-schedule-create',
+        scheduleCount: '.schedule-count',
+        scheduleCreateForm: '.module-schedule-create',
+        scheduleItem: '.module-card',
+        schedulerTemplates: {
+          'default': $('#default-scheduler-template').html(),
+          'custom-order': $('#custom-order-scheduler-template').html(),
+          'round-robin': $('#round-robin-scheduler-template').html()
+        },
+        schedulerTypeContainer: '.scheduler-type-container',
+        schedulesUrl: '/api/v0/schedules/',
+        teamName: null,
         toggleAdvanced: '.toggle-advanced',
         toggleScheduleView: '.toggle-schedule-view',
-        populateSchedulesModal: '#populate-schedule-modal',
-        teamName: null,
-        events: []
+        url: '/api/v0/teams/',
       },
       init: function(name){
         Handlebars.registerPartial('module-schedule', this.data.moduleScheduleTemplate);
@@ -1687,6 +1696,8 @@ var oncall = {
         this.data.$page.on('click', this.data.removeRotationItem, this.removeRotationItem.bind(this));
         this.data.$page.on('click', this.data.previewSchedule, this.previewSchedule.bind(this));
         this.data.$page.on('click', this.data.toggleScheduleView, this.toggleScheduleView);
+        this.data.$page.on('change', this.data.scheduler, this.schedulerAlgo.bind(this));
+        this.data.$page.on('change', this.data.rosterSelect, this.schedulerRoster.bind(this));
       },
       getData: function(name){
         var self = this,
@@ -1791,6 +1802,7 @@ var oncall = {
         }
 
         $container.prepend(template(teamData));
+        this.renderSchedulerData();
       },
       editScheduleItem: function(e){
         var $scheduleItem = $(e.target).parents(this.data.scheduleItem),
@@ -1834,7 +1846,7 @@ var oncall = {
             msPerHour = msPerMinute * 60,
             msPerDay = msPerHour * 24,
             msPerWeek = msPerDay * 7,
-            roster = $form.find('.schedule-roster').val(),
+            roster = $form.find(this.data.rosterSelect).val(),
             id = parseInt($form.attr('data-edit-id')),
             role = $form.find('.schedule-role').val(),
             weekNum = 0,
@@ -1973,6 +1985,7 @@ var oncall = {
             timezone = $form.find('.schedule-timezone').val(),
             id = parseInt($form.attr('data-edit-id')),
             advancedMode = parseInt($form.attr('data-advanced')),
+            scheduler = this.getSchedulerData.call(this, $form) || {},
             events = this.formatScheduleData($form),
             url = id ? this.data.schedulesUrl + id : this.data.url + this.data.teamName + '/rosters/' + roster + '/schedules',
             method = id ? 'PUT' : 'POST',
@@ -1982,6 +1995,7 @@ var oncall = {
               role: role,
               auto_populate_threshold: threshold,
               advanced_mode: advancedMode,
+              scheduler: scheduler,
               team: this.data.teamName,
               events: $.extend(true, [], events).map(function(i){
                 // remove keys needed for calendar drawing but not API
@@ -2171,6 +2185,112 @@ var oncall = {
         }).always(function(){
           $cta.removeClass('loading disabled').prop('disabled', false);
         });
+      },
+      getSchedulerData: function($form) {
+        // Function accepts form and returns an object with
+        // formatted scheduler algorithm data based on algo selected
+        var type = $form.find(this.data.scheduler).val(),
+            schedulerData = {
+              name: type,
+              data: []
+            };
+
+        if (type == 'custom-order') {
+          // if custom order is selected, send user list along with type
+          $form.find('.custom-order-scheduler li').each(function(i){
+            schedulerData.data.push($(this).data('user'));
+          });
+        }
+
+        return schedulerData;
+      },
+      schedulerAlgo: function(e) {
+        var $select = $(e.target),
+            val = $select.val(),
+            $card = $select.parents(this.data.scheduleCard);
+
+        $card.attr('data-scheduler', val);
+        this.renderSchedulerData($card);
+      },
+      schedulerRoster: function(e) {
+        var $select = $(e.target),
+            $card = $select.parents(this.data.scheduleCard);
+
+        this.renderSchedulerData($card);
+      },
+      renderSchedulerData: function($card) {
+        // Call this function to render scheduler-specific templates
+        // The name-template map is defined under 'schedules.data.schedulerTemplates'
+        var $card = $card || $(this.data.scheduleCard).first(),
+            scheduler = $card.attr('data-scheduler') || 'default',
+            source = this.data.schedulerTemplates[scheduler],
+            template = Handlebars.compile(source),
+            $container = $card.find(this.data.schedulerTypeContainer),
+            roster = $card.find(this.data.rosterSelect).val();
+
+        if ( scheduler == 'custom-order' ) {
+          // Pass in user list to template if custom order is selected
+          $container.html(template(this.data.teamData.rosters[roster].users));
+          this.drag.init($container.find('.draggable'));
+        } else {
+          $container.html(template());
+        }
+      },
+      drag: {
+        data: {
+          $draggedEl: null
+        },
+        init: function($el){
+          var self = this;
+
+          $el.on('dragstart','li', self.handleDragStart.bind(this));
+          $el.on('dragend','li', self.handleDragEnd.bind(this));
+          $el.on('drop', 'li', self.handleDrop.bind(this));
+          $el.on('dragover', 'li', self.handleDragOver);
+          $el.on('dragenter', 'li', self.handleDragEnter);
+          $el.on('dragleave', 'li', self.handleDragLeave);
+
+        },
+        handleDragStart: function(e){
+          e = e.originalEvent;
+          e.stopPropagation();
+          this.data.$draggedEl = $(e.target);
+          $(e.target).addClass('dragging').parents('ul').addClass('drag-source');
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData('text/html', e.target.outerHTML);
+        },
+        handleDragEnd: function(e){
+          $(e.target).removeClass('dragging');
+          $('.drag-source').removeClass('drag-source');
+        },
+        handleDragOver: function(e){
+          e.preventDefault();
+          $(this).addClass('drag-over');
+          return false;
+        },
+        handleDragEnter: function(e){
+          e.preventDefault();
+          $(this).addClass('drag-over');
+        },
+        handleDragLeave: function(e){
+          e.preventDefault();
+          $(this).removeClass('drag-over');
+        },
+        handleDrop: function(e){
+          var $this = $(e.currentTarget);
+
+          e.preventDefault();
+          e.stopPropagation();
+          e = e.originalEvent;
+
+          if(!$this.hasClass('drag-source')) {
+            $this.after(e.dataTransfer.getData('text/html'));
+            this.data.$draggedEl.remove();
+          }
+          $('.drag-over').removeClass('drag-over');
+          $('.dragging').removeClass('dragging');
+          $('.drag-source').removeClass('drag-source');
+        }
       }
     }
   },
