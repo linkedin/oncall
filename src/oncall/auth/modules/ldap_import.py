@@ -57,7 +57,7 @@ class Authenticator:
                 ldap_attrs = result[0][1]
                 for key, val in self.attrs.iteritems():
                     if ldap_attrs.get(val):
-                        if  type(ldap_attrs.get(val)) == list:
+                        if type(ldap_attrs.get(val)) == list:
                             ldap_contacts[key] = ldap_attrs.get(val)[0]
                         else:
                             ldap_contacts[key] = ldap_attrs.get(val)

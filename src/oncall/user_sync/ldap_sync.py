@@ -157,8 +157,10 @@ def fetch_ldap():
 
     return users
 
+
 def user_exists(username, engine):
     return engine.execute('SELECT `id` FROM user WHERE name = %s', username)
+
 
 def import_user(username, ldap_contacts, engine):
     logger.debug('Inserting %s' % username)
@@ -187,12 +189,14 @@ def import_user(username, ldap_contacts, engine):
             user_contact_add_sql = 'INSERT INTO `user_contact` (`user_id`, `mode_id`, `destination`) VALUES (%s, %s, %s)'
             engine.execute(user_contact_add_sql, (user_id, modes[key], value))
 
+
 def get_modes(engine):
     engine.execute('SELECT `name`, `id` FROM `contact_mode`')
     modes = {}
     for row in engine.fetchall():
         modes[row['name']] = row['id']
     return modes
+
 
 def update_user(username, ldap_contacts, engine):
     oncall_user = get_oncall_user(username, engine)
