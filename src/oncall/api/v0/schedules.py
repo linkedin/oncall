@@ -129,7 +129,7 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
     data = cursor.fetchall()
     if scheduler and data:
         schedule_ids = {d['id'] for d in data}
-        cursor.execute('''SELECT `schedule_id`, `user`.`name` FROM `schedule_order` 
+        cursor.execute('''SELECT `schedule_id`, `user`.`name` FROM `schedule_order`
                           JOIN `user` ON `user_id` = `user`.`id`
                           WHERE `schedule_id` IN %s
                           ORDER BY `schedule_id`,`priority`, `user_id`''',
@@ -418,7 +418,7 @@ def on_post(req, resp, team, roster):
         insert_schedule_events(schedule_id, schedule_events, cursor)
 
         if data['scheduler_name'] == 'round-robin':
-            params = [(schedule_id, name, idx) for idx,name in enumerate(scheduler_data)]
+            params = [(schedule_id, name, idx) for idx, name in enumerate(scheduler_data)]
             cursor.executemany('''INSERT INTO `schedule_order` (`schedule_id`, `user_id`, `priority`)
                                   VALUES (%s, (SELECT `id` FROM `user` WHERE `name` = %s), %s)''',
                                params)
