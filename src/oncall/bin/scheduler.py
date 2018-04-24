@@ -61,7 +61,7 @@ def main():
             logger.info('scheduling for team: %s', team['name'])
             schedule_map = defaultdict(list)
             for schedule in get_schedules({'team_id': team['id']}):
-                schedule_map[schedule['scheduler']].append(schedule)
+                schedule_map[schedule['scheduler']['name']].append(schedule)
 
             for scheduler_name, schedules in schedule_map.iteritems():
                 schedulers[scheduler_name].schedule(team, schedules, (connection, db_cursor))
