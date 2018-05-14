@@ -1428,7 +1428,7 @@
           if (evt.note) {
             return $('<li />')
               .append('<label class="label-col">Note: </label>')
-              .append('<span class="data-col">' + (evt.note || "") + '</span>')
+              .append('<span class="data-col">' + (Handlebars.Utils.escapeExpression(evt.note) || "") + '</span>')
           }
         })
       )
@@ -1490,7 +1490,7 @@
             .append('<label class="label-col">Note: </label>')
             .append(
               $('<div class="input-col" />')
-              .append('<input type="text" id="inc-event-note" name="inc-event-note" value="' + (evt.note || '') + '" style="width:100%" /> ')
+              .append('<input type="text" id="inc-event-note" name="inc-event-note" value="' + (Handlebars.Utils.escapeExpression(evt.note) || '') + '" style="width:100%" /> ')
             )
           )
           .append(function(){
