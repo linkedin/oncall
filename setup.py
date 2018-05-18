@@ -34,6 +34,7 @@ setuptools.setup(
     ],
     extras_require={
         'ldap': ['python-ldap'],
+        'prometheus': ['prometheus_client'],
         'dev': [
             'pytest',
             'pytest-mock',
