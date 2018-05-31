@@ -73,6 +73,9 @@ def init(application, config):
     from . import search
     application.add_route('/api/v0/search', search)
 
+    from . import audit
+    application.add_route('/api/v0/audit', audit)
+
     from . import upcoming_shifts
     application.add_route('/api/v0/users/{user_name}/upcoming', upcoming_shifts)
 
