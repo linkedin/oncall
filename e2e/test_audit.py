@@ -8,16 +8,13 @@ from oncall.constants import (EVENT_CREATED, EVENT_EDITED, EVENT_SWAPPED, EVENT_
                               TEAM_CREATED, TEAM_EDITED, TEAM_DELETED, ROSTER_EDITED, ROSTER_USER_ADDED,
                               ROSTER_CREATED, ROSTER_USER_EDITED, ROSTER_USER_DELETED, ROSTER_DELETED, ADMIN_DELETED,
                               ADMIN_CREATED)
-from oncall import db
 
 def get_audit_log(start, end):
-    connection = db.connect()
-    cursor = connection.cursor()
-    cursor.execute('SELECT action_name FROM audit WHERE timestamp BETWEEN %s AND %s', (int(start), int(end) + 1))
-    ret = {row[0] for row in cursor}
-    cursor.close()
-    connection.close()
-    return ret
+    re = requests.get(api_v0('audit?start=%s&end=%s&' % (start, end)))
+    assert re.status_code == 200
+    data = re.json()
+    actions = set(audit['action'] for audit in data)
+    return actions
 
 
 @prefix('test_audit')
@@ -28,7 +25,7 @@ def test_audit(team, user, role, roster, event):
     team_name = team.create()
 
     # test team actions
-    start = time.time()
+    start = int(time.time())
     team_name_2 = team.create()
     requests.put(api_v0('teams/'+team_name_2), json={'email': 'foo', 'slack_channel': 'bar'})
     requests.delete(api_v0('teams/%s' % team_name_2))
@@ -37,7 +34,7 @@ def test_audit(team, user, role, roster, event):
     assert {TEAM_CREATED, TEAM_DELETED, TEAM_EDITED} <= audit
 
     # test roster actions
-    start = time.time()
+    start = int(time.time())
     roster_name = roster.create(team_name)
     requests.put(api_v0('teams/%s/rosters/%s' % (team_name, roster_name)), json={'name': 'foo'})
     requests.put(api_v0('teams/%s/rosters/foo' % team_name), json={'name': roster_name})
@@ -55,7 +52,7 @@ def test_audit(team, user, role, roster, event):
             ROSTER_EDITED, ROSTER_USER_EDITED} <= audit
 
     # test event actions
-    start = time.time()
+    start = int(time.time())
     ev_start, ev_end = int(time.time()) + 100, int(time.time()) + 36000
     user.add_to_team(user_name, team_name)
     user.add_to_team(user_name_2, team_name)
@@ -94,7 +91,7 @@ def test_audit(team, user, role, roster, event):
            <= audit
 
     # add/delete admin
-    start = time.time()
+    start = int(time.time())
     requests.post(api_v0('teams/%s/admins' % team_name), json={'name': user_name})
     requests.delete(api_v0('teams/%s/admins/%s' % (team_name, user_name)))
     end = time.time()
