@@ -161,7 +161,7 @@ def authenticate_application(auth_token, req):
         if is_client_digest_valid(client_digest, api_key, window, method, path, body):
             req.context['app'] = app_name
             return
-        elif is_client_digest_valid(client_digest, api_key, window-1, method, path, body):
+        elif is_client_digest_valid(client_digest, api_key, window - 1, method, path, body):
             req.context['app'] = app_name
             return
         else:
