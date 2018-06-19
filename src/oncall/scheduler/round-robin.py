@@ -9,19 +9,20 @@ class Scheduler(default.Scheduler):
 
     def guess_last_scheduled_user(self, schedule, start, roster, cursor):
         cursor.execute('''
-                        SELECT MAX(`last_end`), `user_id` FROM
-                        (SELECT `user_id`, MAX(`end`) AS `last_end` FROM `event`
-                         WHERE `team_id` = %s AND `user_id` IN %s AND `end` <= %s
+                        SELECT `last_start`, `user_id` FROM
+                        (SELECT `user_id`, MAX(`start`) AS `last_start` FROM `event`
+                         WHERE `team_id` = %s AND `user_id` IN %s AND `start` <= %s
                          AND `role_id` = %s
-                         GROUP BY `user_id`) t
-                        GROUP BY `user_id`
+                         GROUP BY `user_id` 
+                         ORDER BY `last_start` DESC) t 
+                        LIMIT 1
                         ''', (schedule['team_id'], roster, start, schedule['role_id']))
         if cursor.rowcount != 0:
             return cursor.fetchone()['user_id']
         else:
             return None
 
-    def find_least_active_available_user_id(self, schedule, future_events, cursor):
+    def find_next_user_id(self, schedule, future_events, cursor):
         cursor.execute('''SELECT `user_id` FROM `roster_user`
                            WHERE `roster_id` = %s AND in_rotation = TRUE''',
                        schedule['roster_id'])
@@ -48,7 +49,7 @@ class Scheduler(default.Scheduler):
         last_idx = roster.index(last_user)
         return roster[(last_idx + 1) % len(roster)]
 
-    def create_events(self, team_id, schedule_id, user_id, events, role_id, cursor):
+    def create_events(self, team_id, schedule_id, user_id, events, role_id, cursor, skip_match=True):
         if len(events) == 1:
             [event] = events
             event_args = (team_id, schedule_id, event['start'], event['end'], user_id, role_id)
@@ -73,3 +74,9 @@ class Scheduler(default.Scheduler):
                     )'''
                 cursor.execute(query, event_args)
         cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = %s', user_id)
+
+    def populate(self, schedule, start_time, dbinfo):
+        _, cursor = dbinfo
+        # Null last_scheduled_user to force find_next_user to determine that from the calendar
+        cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = NULL')
+        super(Scheduler, self).populate(schedule, start_time, dbinfo)
