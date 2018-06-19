@@ -22,7 +22,7 @@ def test_find_new_user_as_least_active_user(mocker):
     mocker.patch('oncall.scheduler.default.Scheduler.get_busy_user_by_event_range')
     mocker.patch('oncall.scheduler.default.Scheduler.find_least_active_user_id_by_team')
 
-    user_id = scheduler.find_least_active_available_user_id(MOCK_SCHEDULE, [{'start': 0, 'end': 5}], None)
+    user_id = scheduler.find_next_user_id(MOCK_SCHEDULE, [{'start': 0, 'end': 5}], None)
     assert user_id == 123
 
 
@@ -251,7 +251,7 @@ def test_find_least_active_available_user(mocker):
                      {'start': 570, 'end': 588},
                      {'start': 600, 'end': 700}]
     scheduler = oncall.scheduler.default.Scheduler()
-    scheduler.find_least_active_available_user_id(MOCK_SCHEDULE, future_events, None)
+    scheduler.find_next_user_id(MOCK_SCHEDULE, future_events, None)
 
     mock_active_user_by_team.assert_called_with({456, 789}, 1, 440, 2, None)
 
@@ -270,6 +270,6 @@ def test_find_least_active_available_user_conflicts(mocker):
     mock_busy_user_by_range.side_effect = mock_busy_user_by_range_side_effect
     future_events = [{'start': 440, 'end': 570}]
     scheduler = oncall.scheduler.default.Scheduler()
-    assert scheduler.find_least_active_available_user_id(MOCK_SCHEDULE, future_events, None) is None
+    assert scheduler.find_next_user_id(MOCK_SCHEDULE, future_events, None) is None
 
     mock_active_user_by_team.assert_not_called()

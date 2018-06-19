@@ -255,7 +255,7 @@ class Scheduler(object):
         # Return future events and the last epoch events were scheduled for.
         return future_events, self.utc_from_naive_date(next_epoch - timedelta(days=7 * period), schedule)
 
-    def find_least_active_available_user_id(self, schedule, future_events, cursor):
+    def find_next_user_id(self, schedule, future_events, cursor):
         team_id = schedule['team_id']
         role_id = schedule['role_id']
         roster_id = schedule['roster_id']
@@ -300,7 +300,7 @@ class Scheduler(object):
         # Create events in the db, associating a user to them
         # Iterate through events in order of start time to properly assign users
         for schedule, epoch in sorted(events, key=lambda x: min(ev['start'] for ev in x[1])):
-            user_id = self.find_least_active_available_user_id(schedule, epoch, cursor)
+            user_id = self.find_next_user_id(schedule, epoch, cursor)
             if not user_id:
                 logger.info('Failed to find available user')
                 continue
@@ -340,7 +340,7 @@ class Scheduler(object):
 
         # Create events in the db, associating a user to them
         for epoch in future_events:
-            user_id = self.find_least_active_available_user_id(schedule, epoch, cursor)
+            user_id = self.find_next_user_id(schedule, epoch, cursor)
             if not user_id:
                 continue
             self.create_events(team_id, schedule['id'], user_id, epoch, role_id, cursor)
