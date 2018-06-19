@@ -13,8 +13,8 @@ class Scheduler(default.Scheduler):
                         (SELECT `user_id`, MAX(`start`) AS `last_start` FROM `event`
                          WHERE `team_id` = %s AND `user_id` IN %s AND `start` <= %s
                          AND `role_id` = %s
-                         GROUP BY `user_id` 
-                         ORDER BY `last_start` DESC) t 
+                         GROUP BY `user_id`
+                         ORDER BY `last_start` DESC) t
                         LIMIT 1
                         ''', (schedule['team_id'], roster, start, schedule['role_id']))
         if cursor.rowcount != 0:
