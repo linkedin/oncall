@@ -323,6 +323,7 @@
       <li {{#isEqual page "info"}}class="active"{{/isEqual}} href="/team/{{name}}/info" data-navigo> Team Info </li>
       <li data-admin-action="true" {{#isEqual page "schedules"}}class="active"{{/isEqual}} href="/team/{{name}}/schedules" data-navigo> Schedule Templates </li>
       <li data-admin-action="true" {{#isEqual page "subscriptions"}}class="active"{{/isEqual}} href="/team/{{name}}/subscriptions" data-navigo> Subscriptions </li>
+      <li data-admin-action="true" {{#isEqual page "audit"}}class="active"{{/isEqual}} href="/team/{{name}}/audit" data-navigo> Audit </li>
       {{#isEqual page "calendar"}}
         <span class="timezone-display-container pull-right">
           Display Timezone:
@@ -602,6 +603,113 @@
       </form>
     </div>
   </div>
+</script>
+
+<!--// **********************
+  Team.Audit Page
+*********************** //-->
+<script id="team-audit-template" type="text/x-handlebars-template">
+  {{#if error}}
+    {{>error-page this}}
+  {{else}}
+    <div class="subheader-wrapper">
+      {{>team-subheader name=name page="audit"}}
+    </div>
+    <div class="main container-fluid">
+      <h3 class="module-heading"> Audit </h3>
+      <div class="module">
+        <div>
+         <label class="light"> Audit from: </label><input type="text" id="audit-date" class="form-control" placeholder="YYYY/MM/DD">
+                  <button type="button" class="btn btn-primary" id="refresh-audit-btn"> <span class="btn-text">Refresh Data</span> <i class="loader loader-small"></i> </button>
+                </div>
+
+        <table class="audit-table display">
+          <thead>
+            <tr>
+              <th> Timestamp
+                <i class="svg-icon grey-icon sort-icon sort">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14">
+                  <path d="M8 8.5q0 0.203-0.148 0.352l-3.5 3.5q-0.148 0.148-0.352 0.148t-0.352-0.148l-3.5-3.5q-0.148-0.148-0.148-0.352t0.148-0.352 0.352-0.148h7q0.203 0 0.352 0.148t0.148 0.352zM8 5.5q0 0.203-0.148 0.352t-0.352 0.148h-7q-0.203 0-0.352-0.148t-0.148-0.352 0.148-0.352l3.5-3.5q0.148-0.148 0.352-0.148t0.352 0.148l3.5 3.5q0.148 0.148 0.148 0.352z"></path>
+                  </svg>
+                </i>
+                <i class="svg-icon grey-icon sort-icon sort-asc">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="14" viewBox="0 0 8 14">
+                    <path d="M8 5.5q0 0.203-0.148 0.352t-0.352 0.148h-7q-0.203 0-0.352-0.148t-0.148-0.352 0.148-0.352l3.5-3.5q0.148-0.148 0.352-0.148t0.352 0.148l3.5 3.5q0.148 0.148 0.148 0.352z"></path>
+                  </svg>
+                </i>
+                <i class="svg-icon grey-icon sort-icon sort-desc">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="14" viewBox="0 0 8 14">
+                    <path d="M8 8.5q0 0.203-0.148 0.352l-3.5 3.5q-0.148 0.148-0.352 0.148t-0.352-0.148l-3.5-3.5q-0.148-0.148-0.148-0.352t0.148-0.352 0.352-0.148h7q0.203 0 0.352 0.148t0.148 0.352z"></path>
+                  </svg>
+                </i>
+              </th>
+              <th> Owner
+                <i class="svg-icon grey-icon sort-icon sort">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14">
+                  <path d="M8 8.5q0 0.203-0.148 0.352l-3.5 3.5q-0.148 0.148-0.352 0.148t-0.352-0.148l-3.5-3.5q-0.148-0.148-0.148-0.352t0.148-0.352 0.352-0.148h7q0.203 0 0.352 0.148t0.148 0.352zM8 5.5q0 0.203-0.148 0.352t-0.352 0.148h-7q-0.203 0-0.352-0.148t-0.148-0.352 0.148-0.352l3.5-3.5q0.148-0.148 0.352-0.148t0.352 0.148l3.5 3.5q0.148 0.148 0.148 0.352z"></path>
+                  </svg>
+                </i>
+                <i class="svg-icon grey-icon sort-icon sort-asc">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="14" viewBox="0 0 8 14">
+                    <path d="M8 5.5q0 0.203-0.148 0.352t-0.352 0.148h-7q-0.203 0-0.352-0.148t-0.148-0.352 0.148-0.352l3.5-3.5q0.148-0.148 0.352-0.148t0.352 0.148l3.5 3.5q0.148 0.148 0.148 0.352z"></path>
+                  </svg>
+                </i>
+                <i class="svg-icon grey-icon sort-icon sort-desc">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="14" viewBox="0 0 8 14">
+                    <path d="M8 8.5q0 0.203-0.148 0.352l-3.5 3.5q-0.148 0.148-0.352 0.148t-0.352-0.148l-3.5-3.5q-0.148-0.148-0.148-0.352t0.148-0.352 0.352-0.148h7q0.203 0 0.352 0.148t0.148 0.352z"></path>
+                  </svg>
+                </i>
+              </th>
+              <th> Action
+                <i class="svg-icon grey-icon sort-icon sort">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14">
+                  <path d="M8 8.5q0 0.203-0.148 0.352l-3.5 3.5q-0.148 0.148-0.352 0.148t-0.352-0.148l-3.5-3.5q-0.148-0.148-0.148-0.352t0.148-0.352 0.352-0.148h7q0.203 0 0.352 0.148t0.148 0.352zM8 5.5q0 0.203-0.148 0.352t-0.352 0.148h-7q-0.203 0-0.352-0.148t-0.148-0.352 0.148-0.352l3.5-3.5q0.148-0.148 0.352-0.148t0.352 0.148l3.5 3.5q0.148 0.148 0.148 0.352z"></path>
+                  </svg>
+                </i>
+                <i class="svg-icon grey-icon sort-icon sort-asc">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="14" viewBox="0 0 8 14">
+                    <path d="M8 5.5q0 0.203-0.148 0.352t-0.352 0.148h-7q-0.203 0-0.352-0.148t-0.148-0.352 0.148-0.352l3.5-3.5q0.148-0.148 0.352-0.148t0.352 0.148l3.5 3.5q0.148 0.148 0.148 0.352z"></path>
+                  </svg>
+                </i>
+                <i class="svg-icon grey-icon sort-icon sort-desc">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="14" viewBox="0 0 8 14">
+                    <path d="M8 8.5q0 0.203-0.148 0.352l-3.5 3.5q-0.148 0.148-0.352 0.148t-0.352-0.148l-3.5-3.5q-0.148-0.148-0.148-0.352t0.148-0.352 0.352-0.148h7q0.203 0 0.352 0.148t0.148 0.352z"></path>
+                  </svg>
+                </i>
+              </th>
+              <th> Context
+                <i class="svg-icon grey-icon sort-icon sort">
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14">
+                  <path d="M8 8.5q0 0.203-0.148 0.352l-3.5 3.5q-0.148 0.148-0.352 0.148t-0.352-0.148l-3.5-3.5q-0.148-0.148-0.148-0.352t0.148-0.352 0.352-0.148h7q0.203 0 0.352 0.148t0.148 0.352zM8 5.5q0 0.203-0.148 0.352t-0.352 0.148h-7q-0.203 0-0.352-0.148t-0.148-0.352 0.148-0.352l3.5-3.5q0.148-0.148 0.352-0.148t0.352 0.148l3.5 3.5q0.148 0.148 0.148 0.352z"></path>
+                  </svg>
+                </i>
+                <i class="svg-icon grey-icon sort-icon sort-asc">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="14" viewBox="0 0 8 14">
+                    <path d="M8 5.5q0 0.203-0.148 0.352t-0.352 0.148h-7q-0.203 0-0.352-0.148t-0.148-0.352 0.148-0.352l3.5-3.5q0.148-0.148 0.352-0.148t0.352 0.148l3.5 3.5q0.148 0.148 0.148 0.352z"></path>
+                  </svg>
+                </i>
+                <i class="svg-icon grey-icon sort-icon sort-desc">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="8" height="14" viewBox="0 0 8 14">
+                    <path d="M8 8.5q0 0.203-0.148 0.352l-3.5 3.5q-0.148 0.148-0.352 0.148t-0.352-0.148l-3.5-3.5q-0.148-0.148-0.148-0.352t0.148-0.352 0.352-0.148h7q0.203 0 0.352 0.148t0.148 0.352z"></path>
+                  </svg>
+                </i>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+          {{#each this.audits}}
+            <tr>
+              <td> {{this.timestamp}} </td>
+              <td> {{this.owner}} </td>
+              <td> {{this.action}} </td>
+              <td class="audit-context">{{this.context}}</td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+{{/if}}
 </script>
 
 <!--// **********************

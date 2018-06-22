@@ -63,9 +63,9 @@ def on_get(req, resp):
             }
         ]
 
-    :query team_name: team name
-    :query owner_name: action owner name
-    :query action_name: name of action taken. If provided multiple action names,
+    :query team: team name
+    :query owner: action owner name
+    :query action: name of action taken. If provided multiple action names,
     :query id: id of the event
     :query start: lower bound for audit entry's timestamp (unix timestamp)
     :query end: upper bound for audit entry's timestamp (unix timestamp)
