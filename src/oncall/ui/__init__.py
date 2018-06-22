@@ -26,11 +26,15 @@ assets_env.register('libs', Bundle(
     'js/moment.js', 'js/moment-timezone.js', 'js/moment-tz-data.js',
     'js/typeahead.js',
     output='bundles/libs.js'))
+assets_env.register('datatables_js', Bundle(
+    'js/jquery.dataTables.min.js',
+    output='bundles/dataTables.js'))
 assets_env.register('oncall_js', Bundle(
     'js/navigo.js', 'js/incalendar.js', 'js/oncall.js',
     output='bundles/oncall.bundle.js'))
 assets_env.register('css_libs', Bundle(
     'css/bootstrap.min.css', 'fonts/Source-Sans-Pro.css',
+    'css/jquery.dataTables.min.css',
     output='bundles/libs.css'))
 assets_env.register('oncall_css', Bundle(
     'css/oncall.css', 'css/incalendar.css', output='bundles/oncall.css'))

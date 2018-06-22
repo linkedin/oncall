@@ -231,6 +231,12 @@ var oncall = {
         self.team.init(params.name, 'subscriptions');
         self.team.subscriptions.init(params.name);
       },
+      'team/:name/audit': function(params){
+        oncall.callbacks.onLogin = $.noop;
+        oncall.callbacks.onLogout = $.noop;
+        self.team.init(params.name, 'audit');
+        self.team.audit.init(params.name);
+      },
       'team/:name': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
@@ -2306,6 +2312,81 @@ var oncall = {
           $('.drag-source').removeClass('drag-source');
         }
       }
+    },
+    audit: {
+      data: {
+        $page: $('.content-wrapper'),
+        url: '/api/v0/teams/',
+        auditUrl: '/api/v0/audit',
+        teamName: null,
+        pageSource: $('#team-audit-template').html(),
+      },
+      init: function(name){
+        var start_time = moment().subtract(30, 'days');
+        this.data.teamName = decodeURIComponent(name);
+        $.getScript('/static/bundles/dataTables.js');
+        this.getData(start_time);
+      },
+      events: function(){
+        var self = this;
+        router.updatePageLinks();
+        this.data.$page.on('click', '#refresh-audit-btn', function(){
+          var date = new Date($('#audit-date').val());
+
+          if ( isNaN(Date.parse(date)) ) {
+            oncall.alerts.createAlert('Invalid date.', 'danger');
+          } else {
+            self.getData(moment(date.valueOf()));
+          }
+        });
+      },
+      formatAudit: function(audit) {
+        audit['timestamp'] = moment(audit['timestamp'] * 1000).format('YYYY/MM/DD');
+        audit['context'] = JSON.parse(audit['context']);
+        oncall.team.audit.formatContext(audit['context']);
+        audit['context'] = JSON.stringify(audit['context'], null, 2);
+      },
+      formatContext: function(context) {
+        // Descend recursively into audit context, replacing timestamps with date strings
+        if (typeof context !== 'object') {
+          return;
+        }
+        for (var key in context) {
+          if (context[key] == null){
+            continue;
+          } else if (key === 'start' || key === 'end') {
+            context[key] = moment(context[key] * 1000).format('YYYY/MM/DD hh:mm')
+          } else if (context[key].constructor === Array) {
+            for (a in context[key]) {
+              oncall.team.audit.formatContext(a);
+            }
+          } else if (typeof context[key] === 'object') {
+            oncall.team.audit.formatContext(context[key])
+          }
+        }
+      },
+      getData: function(start){
+        var template = Handlebars.compile(this.data.pageSource),
+            self = this;
+
+        $.when($.getJSON(this.data.auditUrl, {team: this.data.teamName, start: start.unix()}),
+          $.getJSON(this.data.url + this.data.teamName)).done(function(auditData, teamData) {
+            data = teamData[0];
+            auditData[0].map(self.formatAudit);
+            data.audits = auditData[0];
+            self.data.$page.html(template(data));
+            $('#audit-date').val(start.format('YYYY/MM/DD'));
+            self.events();
+            $('.audit-table').DataTable({pageLength: 25});
+          }).fail(function(error){
+          var data = {
+            error: true,
+            error_code: error.status,
+            error_status: error.statusText,
+            error_text: name + ' team not found'
+          };
+        });
+      },
     }
   },
   settings: {

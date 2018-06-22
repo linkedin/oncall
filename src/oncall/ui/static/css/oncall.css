@@ -2215,4 +2215,40 @@ span.twitter-typeahead {
   fill: #91C475;
 }
 
+.audit-table th {
+  white-space: nowrap;
+}
 
+.audit-table .sort-icon {
+  display: none;
+  margin-left: 3px;
+}
+
+.audit-table .sorting .sort {
+  display: unset;
+}
+
+.audit-table .sorting_asc .sort-asc {
+  display: unset;
+}
+
+.audit-table .sorting_desc .sort-desc {
+  display: unset;
+}
+
+table.dataTable thead th {
+    position: relative;
+      background-image: none !important; /* Remove the DataTables bootstrap integration styling */
+}
+
+#audit-date {
+  width: 100px;
+  display: inline-block;
+  margin: 3px;
+  margin-bottom: 30px;
+}
+
+.audit-table .audit-context {
+  white-space: pre;
+  font-family: monospace;
+}
