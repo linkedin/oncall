@@ -207,7 +207,7 @@ var oncall = {
   },
   updateTitleTag: function(newTitle){
     if(newTitle == ""){
-      document.title = unescape(newTitle) + "Oncall";
+      document.title = "Oncall";
     }
     else{
       document.title = unescape(newTitle) + " - Oncall";
