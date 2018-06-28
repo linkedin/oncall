@@ -101,7 +101,7 @@ def on_get(req, resp):
         query = '''SELECT  `full_name`, `name` FROM `user`
                    WHERE `active` = TRUE AND (`name` LIKE CONCAT(%s, "%%") OR `full_name` LIKE CONCAT(%s, "%%"))'''
         cursor.execute(query, (keyword, keyword))
-        data['users'] = [r[1] for r in cursor]
+        data['users'] = [{'full_name': r[0], 'name': r[1]} for r in cursor]
 
     if 'team_users' in fields:
         filter = '%s%%' % keyword

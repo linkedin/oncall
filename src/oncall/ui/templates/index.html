@@ -243,24 +243,26 @@
     {{#ifExists users}}
       <h3>Users</h3>
       {{#if users}}
-        <ul class="search-module">
+      <div class="search-module">
+        <table>
+          <thead>
+            <th> Username </th>
+            <th> Full name </th>
+          </thead>
           {{#each users}}
-            <li class="result user-result">
-              <h4>
-                <a href="/dashboard/{{this}}" data-navigo>{{this}}</a>
-              </h4>
-            </li>
+            <tr>
+              <td class="result"><h4> <a href="/dashboard/{{this.name}}" data-navigo>{{this.name}} </a> </h4></td>
+              <td><h4> <p data-navigo>{{this.full_name}} </p> </h4></td>
+            </tr>
           {{/each}}
-        </ul>
+        </table>
+      </div> 
       {{else}}
         <ul class="search-module">
           <h4>No users found</h4>
         </ul>
       {{/if}}
     {{/ifExists}}
-   
-
-
 
   {{/if}}
 </script>

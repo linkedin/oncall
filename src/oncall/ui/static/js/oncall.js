@@ -262,7 +262,7 @@ var oncall = {
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.dashboard.init(params.name);
-        self.updateTitleTag(params.name + " dasboard");
+        self.updateTitleTag(params.name + " dashboard");
       },
       'user/:user/': function(){
         oncall.callbacks.onLogin = $.noop;
@@ -601,13 +601,14 @@ var oncall = {
             async: true,
             highlight: true,
             limit: typeaheadLimit,
+            displayKey: 'name',
             source: users,
             templates: {
               header: function(){
                 return '<h4> Users </h4>';
               },
               suggestion: function(resp){
-                return '<div><a href="/dashboard/' + resp + '" data-navigo>' + resp + '</a></div>';
+                return '<div><a href="/dashboard/' + resp.name + '" data-navigo>' + resp.name + '</a></div>';
               },
               footer: function(resp){
                 if (usersCt > typeaheadLimit) {
