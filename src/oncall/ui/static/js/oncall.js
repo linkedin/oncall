@@ -633,7 +633,7 @@ var oncall = {
           .on('typeahead:render', function(){
             router.updatePageLinks();
           })
-          .on('typeahead:selected', function(e,b){
+          .on('typeahead:selected', function(){
             router.navigate($input.parents(self.data.searchForm).find('.tt-cursor a').attr('href'));
           });
 
