@@ -634,7 +634,11 @@ var oncall = {
             router.updatePageLinks();
           })
           .on('typeahead:selected', function(){
-            router.navigate($input.parents(self.data.searchForm).find('.tt-cursor a').attr('href'));
+            var ttPath = $input.parents(self.data.searchForm).find('.tt-cursor a').attr('href');
+            if (typeof ttPath == 'undefined'){
+              ttPath = $input.context.URL.replace($input.context.origin, '');
+            }
+            router.navigate(ttPath);
           });
 
         if (!query) {
