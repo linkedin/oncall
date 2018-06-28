@@ -19,6 +19,8 @@ class Authenticator:
             if not os.access(self.cert_path, os.R_OK):
                 logger.error("Failed to read ldap_cert_path certificate")
                 raise IOError
+        else:
+            self.cert_path = None
 
         self.bind_user = config.get('ldap_bind_user')
         self.bind_password = config.get('ldap_bind_password')
@@ -30,7 +32,8 @@ class Authenticator:
         self.user_suffix = config.get('ldap_user_suffix')
 
     def ldap_auth(self, username, password):
-        ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, self.cert_path)
+        if self.cert_path:
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, self.cert_path)
 
         connection = ldap.initialize(self.ldap_url)
         connection.set_option(ldap.OPT_REFERRALS, 0)

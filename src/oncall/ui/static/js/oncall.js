@@ -262,7 +262,11 @@ var oncall = {
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.dashboard.init(params.name);
+<<<<<<< HEAD
         self.updateTitleTag(params.name + " dashboard");
+=======
+        self.updateTitleTag(params.name + " dasboard");
+>>>>>>> 82bb2b7b4cf0df0683a939005bda70e0927aa6e1
       },
       'user/:user/': function(){
         oncall.callbacks.onLogin = $.noop;
