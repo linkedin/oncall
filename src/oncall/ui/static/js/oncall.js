@@ -614,9 +614,6 @@ var oncall = {
                 if (usersCt > typeaheadLimit) {
                   return '<div class="tt-see-all"><a href="/query/' + resp.query + '/users" data-navigo> See all ' + usersCt + ' results for users »</a></div>';
                 }
-              },
-              empty: function(resp){
-                return '<h4> No results found for "' + resp.query + '" </h4>';
               }
             }
           });
@@ -636,10 +633,9 @@ var oncall = {
           })
           .on('typeahead:selected', function(){
             var ttPath = $input.parents(self.data.searchForm).find('.tt-cursor a').attr('href');
-            if (typeof ttPath == 'undefined'){
-              ttPath = $input.context.URL.replace($input.context.origin, '');
-            }
-            router.navigate(ttPath);
+            if (ttPath){
+              router.navigate(ttPath);
+            }     
           });
 
         if (!query) {
