@@ -185,7 +185,7 @@
 <script id="search-results-template" type="text/x-handlebars-template">
   {{#if noResults}}
     <ul class="search-module">
-      <h4>No teams or services found</h4>
+      <h4>No teams, services, or users found</h4>
     </ul>
   {{else}}
     {{#ifExists teams}}
@@ -233,11 +233,35 @@
           </table>
         </div>
       {{else}}
-        <ul>
+        <ul class="search-module">
           <h4>No services found</h4>
         </ul>
       {{/ifNotEmpty}}
     {{/ifExists}}
+
+
+    {{#ifExists users}}
+      <h3>Users</h3>
+      {{#if users}}
+        <ul class="search-module">
+          {{#each users}}
+            <li class="result user-result">
+              <h4>
+                <a href="/dashboard/{{this}}" data-navigo>{{this}}</a>
+              </h4>
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <ul class="search-module">
+          <h4>No users found</h4>
+        </ul>
+      {{/if}}
+    {{/ifExists}}
+   
+
+
+
   {{/if}}
 </script>
 

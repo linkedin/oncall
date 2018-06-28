@@ -455,7 +455,7 @@ var oncall = {
       pageSource: $('#search-template').html(),
       searchResultsSource: $('#search-results-template').html(),
       cardInnerTemplate: $('#landing-teams-inner-template').html(),
-      endpointTypes: ['services', 'teams'],
+      endpointTypes: ['services', 'teams', 'users'],
       searchForm: '.main-search',
       recentlyViewed: null,
       pinnedTeams: null
@@ -466,6 +466,7 @@ var oncall = {
           typeaheadLimit = 10,
           services,
           teams,
+          users,
           servicesCt,
           teamsCt,
           self = this,
@@ -534,6 +535,20 @@ var oncall = {
           }
         });
 
+        users = new Bloodhound({
+          datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+          queryTokenizer: Bloodhound.tokenizers.whitespace,
+          remote: {
+            url: self.data.url + '?keyword=%QUERY',
+            rateLimitWait: 200,
+            wildcard: '%QUERY',
+            transform: function(resp){
+              usersCt = resp.users.length;
+              return resp.users;
+            }
+          }
+        });
+
         $input.typeahead(null, {
             name: 'teams',
             hint: true,
@@ -579,6 +594,30 @@ var oncall = {
                 }
               }
             }
+          },
+          {
+            name: 'users',
+            hint: true,
+            async: true,
+            highlight: true,
+            limit: typeaheadLimit,
+            source: users,
+            templates: {
+              header: function(){
+                return '<h4> Users </h4>';
+              },
+              suggestion: function(resp){
+                return '<div><a href="/dashboard/' + resp + '" data-navigo>' + resp + '</a></div>';
+              },
+              footer: function(resp){
+                if (usersCt > typeaheadLimit) {
+                  return '<div class="tt-see-all"><a href="/query/' + resp.query + '/users" data-navigo> See all ' + usersCt + ' results for users »</a></div>';
+                }
+              },
+              empty: function(resp){
+                return '<h4> No results found for "' + resp.query + '" </h4>';
+              }
+            }
           });
 
         $input
@@ -594,8 +633,8 @@ var oncall = {
           .on('typeahead:render', function(){
             router.updatePageLinks();
           })
-          .on('typeahead:selected', function(){
-            router.navigate('/team/' + $(this).val());
+          .on('typeahead:selected', function(e,b){
+            router.navigate($input.parents(self.data.searchForm).find('.tt-cursor a').attr('href'));
           });
 
         if (!query) {
@@ -668,7 +707,7 @@ var oncall = {
     renderResults: function(data){
       var template = Handlebars.compile(this.data.searchResultsSource),
           serviceDisplayLimit = 5;
-      if (data.services && data.teams && Object.keys(data.services).length === 0 && data.teams.length === 0) {
+      if (data.services && data.teams && data.users && Object.keys(data.services).length === 0 && data.teams.length === 0 && data.users.length === 0) {
         // Mark object empty if not search results are returned
         data.noResults = true;
       }
