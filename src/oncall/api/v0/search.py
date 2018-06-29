@@ -73,7 +73,7 @@ def on_get(req, resp):
     keyword = req.get_param('keyword', required=True)
     fields = req.get_param_as_list('fields')
     if not fields:
-        fields = ['teams', 'services']
+        fields = ['teams', 'services', 'users']
 
     connection = db.connect()
     cursor = connection.cursor()

@@ -472,7 +472,6 @@ nav.subnav li.active {
 }
 
 .subheader.search .twitter-typeahead .tt-dataset {
-  border-top: 2px solid #ccc;
   padding-bottom: 10px;
   margin-bottom: 10px;
 }
