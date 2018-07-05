@@ -38,11 +38,11 @@ class influx(object):
         payload = []
         for metric, value in metrics.iteritems():
             data = {
-                'measurement': self.appname + '_' + metric,
+                'measurement': self.appname,
                 'tags': {},
                 'time': now,
                 'fields': {
-                    'value': value
+                    metric : value
                 }
             }
             if self.extra_tags:
