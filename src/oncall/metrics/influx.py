@@ -42,7 +42,7 @@ class influx(object):
                 'tags': {},
                 'time': now,
                 'fields': {
-                    metric : value
+                    metric: value
                 }
             }
             if self.extra_tags:
