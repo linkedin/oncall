@@ -1,4 +1,4 @@
-var oncall = {
+var oncallSplash = {
   data: {
     $loginForm: $('#login-form'),
     loginUrl: '/login',
@@ -15,7 +15,6 @@ var oncall = {
     this.events.call(this);
   },
   login: function(e){
-    console.log("in the form");
     e.preventDefault();
     var url = this.data.loginUrl,
         $form = this.data.$loginForm,
@@ -39,11 +38,9 @@ var oncall = {
     });
   },
   events: function(){
-    var self = this;
-    
     this.data.$loginForm.on('submit', this.login.bind(this));
   }
 
 };
 
-oncall.init();
+oncallSplash.init();
