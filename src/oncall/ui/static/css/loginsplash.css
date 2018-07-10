@@ -40,6 +40,7 @@ button:hover {
 
 .container {
     padding: 16px;
+    max-width: 100%;
 }
 
 span.psw {
