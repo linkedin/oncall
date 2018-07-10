@@ -17,8 +17,6 @@ from webassets import Environment as AssetsEnvironment, Bundle
 from webassets.ext.jinja2 import AssetsExtension
 from webassets.script import CommandLineEnvironment
 
-from ..auth import authenticate_application, authenticate_user
-
 STATIC_ROOT = environ.get('STATIC_ROOT', path.abspath(path.dirname(__file__)))
 assets_env = AssetsEnvironment(path.join(STATIC_ROOT, 'static'),
                                url='/static')
