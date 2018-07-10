@@ -178,6 +178,9 @@ iris_plan_integration:
 # Configures whether Slack settings will appear in the frontend
 slack_instance: foobar
 
+# setting to toggle login splash screen. Set to True to enable.
+login_splash: False
+
 ##########################
 ### Oncall user management
 ##########################

@@ -116,6 +116,7 @@ var oncall = {
       self.data.$body.attr('data-user', null).attr('data-authenticated', false);
       localStorage.removeItem(self.data.csrfKey);
       self.callbacks.onLogout();
+      location.reload();
     }).fail(function(){
       oncall.alerts.createAlert('Logout failed.', 'danger');
     });
