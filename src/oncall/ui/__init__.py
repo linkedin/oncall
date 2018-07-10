@@ -38,6 +38,11 @@ assets_env.register('css_libs', Bundle(
     output='bundles/libs.css'))
 assets_env.register('oncall_css', Bundle(
     'css/oncall.css', 'css/incalendar.css', output='bundles/oncall.css'))
+assets_env.register('loginsplash_css', Bundle(
+    'css/loginsplash.css', output='bundles/loginsplash.css'))
+assets_env.register('loginsplash_js', Bundle(
+    'js/loginsplash.js',
+    output='bundles/loginsplash.bundle.js'))
 
 logger = logging.getLogger('webassets')
 logger.addHandler(logging.StreamHandler())
@@ -68,22 +73,27 @@ SLACK_INSTANCE = None
 HEADER_COLOR = None
 IRIS_PLAN_SETTINGS = None
 USERCONTACT_UI_READONLY = None
+LOGIN_SPLASH = None
 
 
 def index(req, resp):
     user = req.env.get('beaker.session', {}).get('user')
-    resp.content_type = 'text/html'
-    resp.body = jinja2_env.get_template('index.html').render(
-        user=user,
-        slack_instance=SLACK_INSTANCE,
-        user_setting_note=INDEX_CONTENT_SETTING['user_setting_note'],
-        missing_number_note=INDEX_CONTENT_SETTING['missing_number_note'],
-        header_color=HEADER_COLOR,
-        iris_plan_settings=IRIS_PLAN_SETTINGS,
-        usercontact_ui_readonly=USERCONTACT_UI_READONLY,
-        footer=INDEX_CONTENT_SETTING['footer'],
-        timezones=SUPPORTED_TIMEZONES
-    )
+    if str(user) == 'None' and LOGIN_SPLASH:
+        resp.content_type = 'text/html'
+        resp.body = jinja2_env.get_template('loginsplash.html').render()
+    else:
+        resp.content_type = 'text/html'
+        resp.body = jinja2_env.get_template('index.html').render(
+            user=user,
+            slack_instance=SLACK_INSTANCE,
+            user_setting_note=INDEX_CONTENT_SETTING['user_setting_note'],
+            missing_number_note=INDEX_CONTENT_SETTING['missing_number_note'],
+            header_color=HEADER_COLOR,
+            iris_plan_settings=IRIS_PLAN_SETTINGS,
+            usercontact_ui_readonly=USERCONTACT_UI_READONLY,
+            footer=INDEX_CONTENT_SETTING['footer'],
+            timezones=SUPPORTED_TIMEZONES
+        )
 
 
 def build_assets():
@@ -125,10 +135,12 @@ def init(application, config):
     global HEADER_COLOR
     global IRIS_PLAN_SETTINGS
     global USERCONTACT_UI_READONLY
+    global LOGIN_SPLASH
     SLACK_INSTANCE = config.get('slack_instance')
     HEADER_COLOR = config.get('header_color', '#3a3a3a')
     IRIS_PLAN_SETTINGS = config.get('iris_plan_integration')
     USERCONTACT_UI_READONLY = config.get('usercontact_ui_readonly', True)
+    LOGIN_SPLASH = config.get('login_splash')
 
     application.add_sink(index, '/')
     application.add_route('/static/bundles/{filename}',
@@ -137,3 +149,4 @@ def init(application, config):
                           StaticResource('/static/images'))
     application.add_route('/static/fonts/{filename}',
                           StaticResource('/static/fonts'))
+                  
