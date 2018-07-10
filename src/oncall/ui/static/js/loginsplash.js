@@ -13,22 +13,6 @@ var oncall = {
   init: function(){
     var self = this;
     this.events.call(this);
-
-    $.ajaxSetup({
-      cache: 'true'
-    });
-    $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-      if (! options.crossDomain) {
-        jqXHR.setRequestHeader('X-CSRF-TOKEN', localStorage.getItem(oncall.data.csrfKey));
-      }
-    });
-
-    $(document).ajaxError(function(event, jqxhr){
-      if (jqxhr.status === 401 && jqxhr.responseText && JSON.parse(jqxhr.responseText).title === 'Invalid Session') {
-        self.logout.call(self);
-        oncall.alerts.createAlert('Session Expired. Please login again.', 'danger');
-      }
-    });
   },
   login: function(e){
     console.log("in the form");
