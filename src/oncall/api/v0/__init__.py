@@ -1,7 +1,6 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-
 def init(application, config):
     from . import teams, team, team_summary, team_oncall, team_changes
     application.add_route('/api/v0/teams', teams)

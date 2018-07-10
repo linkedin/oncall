@@ -17,6 +17,8 @@ from webassets import Environment as AssetsEnvironment, Bundle
 from webassets.ext.jinja2 import AssetsExtension
 from webassets.script import CommandLineEnvironment
 
+from ..auth import authenticate_application, authenticate_user
+
 STATIC_ROOT = environ.get('STATIC_ROOT', path.abspath(path.dirname(__file__)))
 assets_env = AssetsEnvironment(path.join(STATIC_ROOT, 'static'),
                                url='/static')
@@ -38,6 +40,11 @@ assets_env.register('css_libs', Bundle(
     output='bundles/libs.css'))
 assets_env.register('oncall_css', Bundle(
     'css/oncall.css', 'css/incalendar.css', output='bundles/oncall.css'))
+assets_env.register('loginsplash_css', Bundle(
+    'css/loginsplash.css', output='bundles/loginsplash.css'))
+assets_env.register('loginsplash_js', Bundle(
+    'js/loginsplash.js',
+    output='bundles/loginsplash.bundle.js'))
 
 logger = logging.getLogger('webassets')
 logger.addHandler(logging.StreamHandler())
@@ -72,18 +79,23 @@ USERCONTACT_UI_READONLY = None
 
 def index(req, resp):
     user = req.env.get('beaker.session', {}).get('user')
-    resp.content_type = 'text/html'
-    resp.body = jinja2_env.get_template('index.html').render(
-        user=user,
-        slack_instance=SLACK_INSTANCE,
-        user_setting_note=INDEX_CONTENT_SETTING['user_setting_note'],
-        missing_number_note=INDEX_CONTENT_SETTING['missing_number_note'],
-        header_color=HEADER_COLOR,
-        iris_plan_settings=IRIS_PLAN_SETTINGS,
-        usercontact_ui_readonly=USERCONTACT_UI_READONLY,
-        footer=INDEX_CONTENT_SETTING['footer'],
-        timezones=SUPPORTED_TIMEZONES
-    )
+ 
+    if str(user) == 'None':
+        resp.content_type = 'text/html'
+        resp.body = jinja2_env.get_template('loginsplash.html').render()
+    else:
+        resp.content_type = 'text/html'
+        resp.body = jinja2_env.get_template('index.html').render(
+            user=user,
+            slack_instance=SLACK_INSTANCE,
+            user_setting_note=INDEX_CONTENT_SETTING['user_setting_note'],
+            missing_number_note=INDEX_CONTENT_SETTING['missing_number_note'],
+            header_color=HEADER_COLOR,
+            iris_plan_settings=IRIS_PLAN_SETTINGS,
+            usercontact_ui_readonly=USERCONTACT_UI_READONLY,
+            footer=INDEX_CONTENT_SETTING['footer'],
+            timezones=SUPPORTED_TIMEZONES
+        )
 
 
 def build_assets():
@@ -137,3 +149,4 @@ def init(application, config):
                           StaticResource('/static/images'))
     application.add_route('/static/fonts/{filename}',
                           StaticResource('/static/fonts'))
+                  
