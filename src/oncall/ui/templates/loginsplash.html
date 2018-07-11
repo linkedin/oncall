@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% assets "css_libs" %} <link href="{{ ASSET_URL }}" rel="stylesheet"> {% endassets %}
+{% assets "loginsplash_css" %} <link href="{{ ASSET_URL }}" rel="stylesheet"> {% endassets %}
+<title>Oncall</title>
+</head>
+<body>
+
+<div class="modal">
+  
+  <form id="login-form" class="modal-content animate" method="POST" action="">
+    
+    <div class="imgcontainer">
+        <img src="/static/images/favicon.png?v3">
+        <h3>Oncall</h3>
+    </div>
+
+    <div class="container">
+      <label for="username"><b>Username</b></label>
+      <input type="text" placeholder="Enter Username" name="username" required>
+
+      <label for="password"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="password" required>
+        
+      <button type="submit">Sign in</button>
+    </div>
+
+  </form>
+</div>
+
+{% block js %}
+{% assets "libs" %} <script src="{{ ASSET_URL }}"></script> {% endassets %}
+{% assets "loginsplash_js" %} <script src="{{ ASSET_URL }}"></script> {% endassets %}
+{% endblock js %}
+
+</body>
+</html>
