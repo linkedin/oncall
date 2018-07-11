@@ -15,7 +15,7 @@ input[type=text], input[type=password] {
 
 /* Set a style for all buttons */
 button {
-    background-color: #5c5b5c;
+    background-color: #337ab7;
     color: white;
     padding: 14px 20px;
     margin: 8px 0;
@@ -26,6 +26,7 @@ button {
 
 button:hover {
     opacity: 0.8;
+    background-color: #286090;
 }
 
 
