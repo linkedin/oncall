@@ -11,8 +11,7 @@ var oncallSplash = {
     }
   },
   init: function(){
-    var self = this;
-    this.events.call(this);
+    this.events();
   },
   login: function(e){
     e.preventDefault();

@@ -140,7 +140,7 @@ def init(application, config):
     HEADER_COLOR = config.get('header_color', '#3a3a3a')
     IRIS_PLAN_SETTINGS = config.get('iris_plan_integration')
     USERCONTACT_UI_READONLY = config.get('usercontact_ui_readonly', True)
-    LOGIN_SPLASH = config.get('login_splash')
+    LOGIN_SPLASH = config.get('force_login_splash')
 
     application.add_sink(index, '/')
     application.add_route('/static/bundles/{filename}',
