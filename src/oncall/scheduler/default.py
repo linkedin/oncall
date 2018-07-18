@@ -2,15 +2,32 @@ from datetime import datetime, timedelta
 from pytz import timezone, utc
 from oncall.utils import gen_link_id
 from falcon import HTTPBadRequest
+from ujson import dumps as json_dumps
 import time
 import logging
 import operator
+
 
 logger = logging.getLogger()
 
 UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=utc)
 SECONDS_IN_A_DAY = 24 * 60 * 60
 SECONDS_IN_A_WEEK = SECONDS_IN_A_DAY * 7
+
+columns = {
+    'id': '`event`.`id` as `id`',
+    'start': '`event`.`start` as `start`',
+    'end': '`event`.`end` as `end`',
+    'role': '`role`.`name` as `role`',
+    'team': '`team`.`name` as `team`',
+    'user': '`user`.`name` as `user`',
+    'full_name': '`user`.`full_name` as `full_name`',
+    'schedule_id': '`event`.`schedule_id`',
+    'link_id': '`event`.`link_id`',
+    'note': '`event`.`note`',
+}
+
+all_columns = ', '.join(columns.values())
 
 
 class Scheduler(object):
@@ -308,6 +325,85 @@ class Scheduler(object):
             self.create_events(team['id'], schedule['id'], user_id, epoch, schedule['role_id'], cursor)
         connection.commit()
 
+
+    def preview(self, schedule, start_time, dbinfo, req, resp):
+
+
+        connection, cursor = dbinfo
+        start_dt = datetime.fromtimestamp(start_time, utc)
+        start_epoch = self.epoch_from_datetime(start_dt)
+        response_dict = {'delete':[],'create': []}
+
+        # Get schedule info
+        role_id = schedule['role_id']
+        team_id = schedule['team_id']
+        first_event_start = min(ev['start'] for ev in schedule['events'])
+        period = self.get_period_len(schedule)
+        handoff = start_epoch + timedelta(seconds=first_event_start)
+        handoff = timezone(schedule['timezone']).localize(handoff)
+
+        print "\n\n times\n"
+        print start_dt
+        print handoff
+        print "\n\n"
+
+        # Start scheduling from the next occurrence of the hand-off time.
+        if start_dt > handoff:
+            start_epoch += timedelta(weeks=period)
+            handoff += timedelta(weeks=period)
+        if handoff < utc.localize(datetime.utcnow()):
+            raise HTTPBadRequest('Invalid populate request', 'cannot populate starting in the past')
+
+        future_events, last_epoch = self.calculate_future_events(schedule, cursor, start_epoch)
+        self.set_last_epoch(schedule['id'], last_epoch, cursor)
+
+        # Delete existing events from the start of the first event
+        future_events = [filter(lambda x: x['start'] >= start_time, evs) for evs in future_events]
+        future_events = filter(lambda x: x != [], future_events)
+        if future_events:
+            first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
+            query = '''SELECT %s FROM `event`
+               JOIN `user` ON `user`.`id` = `event`.`user_id`
+               JOIN `team` ON `team`.`id` = `event`.`team_id`
+               JOIN `role` ON `role`.`id` = `event`.`role_id` 
+               WHERE schedule_id = %s AND start >= %s''' % (all_columns, schedule['id'], first_event_start)
+            cursor.execute(query)
+
+        data = cursor.fetchall()
+        response_dict['delete'] = data
+        
+
+        # Create events in the db, associating a user to them
+        for epoch in future_events:
+            user_id = self.find_next_user_id(schedule, epoch, cursor)
+            if not user_id:
+                continue
+            
+            # TODO: validate that these values exist 
+            # get team name from 
+            query = ("SELECT name FROM team WHERE id = %s" % team_id)
+            cursor.execute(query)
+            team = cursor.fetchone()
+
+            # get name, full_name from user
+            query = ("SELECT name, full_name FROM user WHERE id = %s" % role_id)
+            cursor.execute(query)
+            u_name = cursor.fetchone()
+
+            # get role from role
+            query = ("SELECT name FROM role WHERE id = %s" % role_id)
+            cursor.execute(query)
+            role = cursor.fetchone()
+
+            # format {end, full_name, id(event)(will be null because it hasn't been created yet), link_id, note, role, schedule_id, start, team, user}
+
+            #new_create_event = {'team': team, 'schedule': schedule['id'], 'name': u_name, 'epoch': epoch, 'role': role['name']}
+
+            new_create_event = {'end':epoch[0]['end'], 'full_name': u_name['full_name'], 'id':None, 'link_id':None, 'note':None, 'role':role['name'], 'schedule_id':schedule['id'], 'start':epoch[0]['end'], 'team':team['name'], 'user':u_name['name']}
+            response_dict['create'].append(new_create_event)
+
+        resp.body = json_dumps(response_dict)
+            
     def populate(self, schedule, start_time, dbinfo):
         connection, cursor = dbinfo
         start_dt = datetime.fromtimestamp(start_time, utc)

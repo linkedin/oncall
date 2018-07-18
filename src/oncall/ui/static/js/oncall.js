@@ -1809,6 +1809,7 @@ var oncall = {
           self.data.teamData = data;
           self.renderPage(data);
           self.renderPopulateScheduleModal.call(self);
+          self.renderPreviewScheduleModal.call(self);
           oncall.recentlyViewed.setItem(self.data.teamName);
         }).fail(function(error){
           var data = {
@@ -2221,6 +2222,51 @@ var oncall = {
           }
         });
       },
+      renderPreviewScheduleModal: function(){
+        var self = this,
+            $modal = $(self.data.populateSchedulesModal),
+            $modalDate = $modal.find('#populate-schedule-date'),
+            $modalThreshold = $modal.find('#populate-schedule-threshold'),
+            $modalBtn = $modal.find('#preview-schedule-btn'),
+            $calContainer = $modal.find('#modal-calendar-container'),
+            scheduleData,
+            scheduleId,
+            threshold,
+            now = moment();
+
+        $modal.on('shown.bs.modal', function(e){
+          scheduleData = JSON.parse($(e.relatedTarget).parents(self.data.scheduleItem).attr('data-model'));
+          scheduleId = scheduleData.id;
+          threshold = scheduleData.auto_populate_threshold;
+
+          $calContainer.incalendar({
+            eventsUrl: '/api/v0/events',
+            getEventsUrl: '/api/v0/events?team__eq=' + self.data.teamName,
+            readOnly: true,
+            persistSettings: false,
+            onEventGet: function(events, $cal){
+              $cal.find('[data-schedule-id="' + scheduleId + '"]').attr('data-highlighted', true);
+            }
+          });
+
+          $calContainer.find('[data-schedule-id="' + scheduleId + '"]').attr('data-highlighted', true);
+          $modal.attr('data-schedule-id', scheduleId);
+          $modalThreshold.text(threshold + ' Days');
+          $modalDate.val(now.format('YYYY/MM/DD'));
+        }).on('hidden.bs.modal', function(){
+          $(this).find('.alert').remove();
+        });
+
+        $modalBtn.on('click', function(){
+          var date = new Date($modalDate.val());
+
+          if ( isNaN(Date.parse(date)) ) {
+            oncall.alerts.createAlert('Invalid date.', 'danger', $modal.find('.modal-body'));
+          } else {
+            self.previewSchedules(date.valueOf(), $(this), $modal);
+          }
+        });
+      },
       populateSchedules: function(date, $cta, $modal){
         var date = (date || Date.now()) / 1000,
             self = this,
@@ -2235,6 +2281,38 @@ var oncall = {
           contentType: 'application/json',
           dataType: 'html',
           data: JSON.stringify({start:date})
+        }).done(function(data){
+          oncall.alerts.removeAlerts();
+          oncall.alerts.createAlert('Schedule successfully populated.', 'success', $modal.find('.modal-body'));
+          $calContainer.data('incalendar', null).incalendar({
+            eventsUrl: '/api/v0/events',
+            getEventsUrl: '/api/v0/events?team__eq=' + self.data.teamName,
+            readOnly: true,
+            onEventGet: function(events, $cal){
+              $cal.find('[data-schedule-id="' + scheduleId + '"]').attr('data-highlighted', true);
+            }
+          });
+        }).fail(function(data){
+          var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Populate failed.';
+          oncall.alerts.createAlert(error, 'danger', $modal.find('.modal-body'));
+        }).always(function(){
+          $cta.removeClass('loading disabled').prop('disabled', false);
+        });
+      },
+      previewSchedules: function(date, $cta, $modal){
+        var date = (date || Date.now()) / 1000,
+            self = this,
+            $calContainer = $modal.find('#modal-calendar-container'),
+            scheduleId = $modal.attr('data-schedule-id'),
+            url = this.data.schedulesUrl + scheduleId + '/preview';
+
+        $cta.addClass('loading disabled').prop('disabled', true);
+        $.ajax({
+          type: 'POST',
+          url: url,
+          contentType: 'application/json',
+          dataType: 'html',
+          data: JSON.stringify({start:date,teamName:self.data.teamName})
         }).done(function(data){
           oncall.alerts.removeAlerts();
           oncall.alerts.createAlert('Schedule successfully populated.', 'success', $modal.find('.modal-body'));
