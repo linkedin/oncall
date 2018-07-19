@@ -73,10 +73,10 @@ class Scheduler(default.Scheduler):
                         %s, %s, %s, %s, %s, %s, %s
                     )'''
                 cursor.execute(query, event_args)
-        cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = %s', user_id)
+        cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = %s WHERE `id` = %s', (user_id, schedule_id))
 
     def populate(self, schedule, start_time, dbinfo):
         _, cursor = dbinfo
         # Null last_scheduled_user to force find_next_user to determine that from the calendar
-        cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = NULL')
+        cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = NULL WHERE `id` = %s', schedule['id'])
         super(Scheduler, self).populate(schedule, start_time, dbinfo)
