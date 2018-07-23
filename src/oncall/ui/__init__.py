@@ -149,3 +149,4 @@ def init(application, config):
                           StaticResource('/static/images'))
     application.add_route('/static/fonts/{filename}',
                           StaticResource('/static/fonts'))
+                  
