@@ -148,4 +148,5 @@ def init(application, config):
     application.add_route('/static/images/{filename}',
                           StaticResource('/static/images'))
     application.add_route('/static/fonts/{filename}',
-                          StaticResource('/static/fonts'))                  
+                          StaticResource('/static/fonts'))
+                                            
