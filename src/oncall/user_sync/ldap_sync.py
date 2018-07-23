@@ -92,7 +92,8 @@ def prune_user(engine, username):
 def fetch_ldap():
     ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_ALLOW)
     l = ldap.initialize(LDAP_SETTINGS['url'])
-    l.set_option(ldap.OPT_X_TLS_CACERTFILE, LDAP_SETTINGS['cert_path'])
+    if 'cert_path' in LDAP_SETTINGS:
+        l.set_option(ldap.OPT_X_TLS_CACERTFILE, LDAP_SETTINGS['cert_path'])
     l.simple_bind_s(LDAP_SETTINGS['user'], LDAP_SETTINGS['password'])
 
     req_ctrl = SimplePagedResultsControl(True, size=1000, cookie='')
