@@ -145,7 +145,6 @@ def on_get(req, resp):
     :statuscode 400: bad request
     """
     fields = req.get_param_as_list('fields')
-
     if fields:
         fields = [columns[f] for f in fields if f in columns]
     req.params.pop('fields', None)
@@ -160,6 +159,7 @@ def on_get(req, resp):
                JOIN `user` ON `user`.`id` = `event`.`user_id`
                JOIN `team` ON `team`.`id` = `event`.`team_id`
                JOIN `role` ON `role`.`id` = `event`.`role_id`''' % cols
+               
     where_params = []
     where_vals = []
     connection = db.connect()
