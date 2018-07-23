@@ -2210,8 +2210,16 @@ var oncall = {
           $modalDate.val(now.format('YYYY/MM/DD'));
         }).on('hidden.bs.modal', function(){
           $(this).find('.alert').remove();
+          $modal.find('#modal-calendar-container').data('incalendar', null).incalendar({
+            eventsUrl: '/api/v0/schedules/'+ scheduleId+'/preview',
+            getEventsUrl: '/api/v0/schedules/'+ scheduleId+'/preview?team__eq=' + self.data.teamName + '&start=' + date + '&teamName=' + self.data.teamName,
+            readOnly: true,
+            onEventGet: function(events, $cal){
+              $cal.find('[data-schedule-id="' + scheduleId + '"]').attr('data-highlighted', true);
+              $cta.removeClass('loading disabled').prop('disabled', false);
+            }
+          });
         });
-
         $modalBtn.on('click', function(){
           var date = new Date($modalDate.val());
 
