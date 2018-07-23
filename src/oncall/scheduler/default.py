@@ -7,7 +7,6 @@ import time
 import logging
 import operator
 
-
 logger = logging.getLogger()
 
 UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=utc)
@@ -179,7 +178,7 @@ class Scheduler(object):
                 query_params += [ev['start'], ev['end'], role_id, team_id]
             cursor.execute('SELECT COUNT(*) AS num_events FROM event WHERE %s' % matching, query_params)
             if cursor.fetchone()['num_events'] == len(events):
-                return 
+                return
 
         if len(events) == 1:
             [event] = events
@@ -203,8 +202,7 @@ class Scheduler(object):
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s
                     )'''
-                cursor.execute(query, event_args)
-            
+                cursor.execute(query, event_args)          
     def set_last_epoch(self, schedule_id, last_epoch, cursor):
         cursor.execute('UPDATE `schedule` SET `last_epoch_scheduled` = %s WHERE `id` = %s',
                        (last_epoch, schedule_id)) 
@@ -398,7 +396,6 @@ class Scheduler(object):
         # Delete existing events from the start of the first event
         future_events = [filter(lambda x: x['start'] >= start_time, evs) for evs in future_events]
         future_events = filter(lambda x: x != [], future_events)
-        print ('\n populate future events: %s\n' % future_events)
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
             # store the events that will be deleted so they can get aded back in later
@@ -507,7 +504,6 @@ class Scheduler(object):
         # Delete existing events from the start of the first event
         future_events = [filter(lambda x: x['start'] >= start_time, evs) for evs in future_events]
         future_events = filter(lambda x: x != [], future_events)
-        print ('\n populate future events: %s\n' % future_events)
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
             cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))
@@ -519,3 +515,4 @@ class Scheduler(object):
                 continue
             self.create_events(team_id, schedule['id'], user_id, epoch, role_id, cursor)
         connection.commit()
+        
