@@ -27,6 +27,46 @@ columns = {
     'note': '`event`.`note`',
 }
 
+constraints = {
+    'id': '`event`.`id` = %s',
+    'id__eq': '`event`.`id` = %s',
+    'id__ne': '`event`.`id` != %s',
+    'id__gt': '`event`.`id` > %s',
+    'id__ge': '`event`.`id` >= %s',
+    'id__lt': '`event`.`id` < %s',
+    'id__le': '`event`.`id` <= %s',
+    'start': '`event`.`start` = %s',
+    'start__eq': '`event`.`start` = %s',
+    'start__ne': '`event`.`start` != %s',
+    'start__gt': '`event`.`start` > %s',
+    'start__ge': '`event`.`start` >= %s',
+    'start__lt': '`event`.`start` < %s',
+    'start__le': '`event`.`start` <= %s',
+    'end': '`event`.`end` = %s',
+    'end__eq': '`event`.`end` = %s',
+    'end__ne': '`event`.`end` != %s',
+    'end__gt': '`event`.`end` > %s',
+    'end__ge': '`event`.`end` >= %s',
+    'end__lt': '`event`.`end` < %s',
+    'end__le': '`event`.`end` <= %s',
+    'role': '`role`.`name` = %s',
+    'role__eq': '`role`.`name` = %s',
+    'role__contains': '`role`.`name` LIKE CONCAT("%%", %s, "%%")',
+    'role__startswith': '`role`.`name` LIKE CONCAT(%s, "%%")',
+    'role__endswith': '`role`.`name` LIKE CONCAT("%%", %s)',
+    'team': '`team`.`name` = %s',
+    'team__eq': '`team`.`name` = %s',
+    'team__contains': '`team`.`name` LIKE CONCAT("%%", %s, "%%")',
+    'team__startswith': '`team`.`name` LIKE CONCAT(%s, "%%")',
+    'team__endswith': '`team`.`name` LIKE CONCAT("%%", %s)',
+    'team_id': '`team`.`id` = %s',
+    'user': '`user`.`name` = %s',
+    'user__eq': '`user`.`name` = %s',
+    'user__contains': '`user`.`name` LIKE CONCAT("%%", %s, "%%")',
+    'user__startswith': '`user`.`name` LIKE CONCAT(%s, "%%")',
+    'user__endswith': '`user`.`name` LIKE CONCAT("%%", %s)'
+}
+
 all_columns = ', '.join(columns.values())
 
 
@@ -139,7 +179,7 @@ class Scheduler(object):
                 query_params += [ev['start'], ev['end'], role_id, team_id]
             cursor.execute('SELECT COUNT(*) AS num_events FROM event WHERE %s' % matching, query_params)
             if cursor.fetchone()['num_events'] == len(events):
-                return
+                return 
 
         if len(events) == 1:
             [event] = events
@@ -164,10 +204,10 @@ class Scheduler(object):
                         %s, %s, %s, %s, %s, %s, %s
                     )'''
                 cursor.execute(query, event_args)
-
+            
     def set_last_epoch(self, schedule_id, last_epoch, cursor):
         cursor.execute('UPDATE `schedule` SET `last_epoch_scheduled` = %s WHERE `id` = %s',
-                       (last_epoch, schedule_id))
+                       (last_epoch, schedule_id)) 
 
     # End of DB interactions
     # Epoch/weekday/time helpers
@@ -330,9 +370,11 @@ class Scheduler(object):
 
 
         connection, cursor = dbinfo
+        delete_list = []
+        response_list = []
         start_dt = datetime.fromtimestamp(start_time, utc)
         start_epoch = self.epoch_from_datetime(start_dt)
-        response_dict = {'delete':[],'create': []}
+        
 
         # Get schedule info
         role_id = schedule['role_id']
@@ -341,12 +383,8 @@ class Scheduler(object):
         period = self.get_period_len(schedule)
         handoff = start_epoch + timedelta(seconds=first_event_start)
         handoff = timezone(schedule['timezone']).localize(handoff)
-
-        print "\n\n times\n"
-        print start_dt
-        print handoff
-        print "\n\n"
-
+      
+    
         # Start scheduling from the next occurrence of the hand-off time.
         if start_dt > handoff:
             start_epoch += timedelta(weeks=period)
@@ -360,49 +398,88 @@ class Scheduler(object):
         # Delete existing events from the start of the first event
         future_events = [filter(lambda x: x['start'] >= start_time, evs) for evs in future_events]
         future_events = filter(lambda x: x != [], future_events)
+        print ('\n populate future events: %s\n' % future_events)
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
-            query = '''SELECT %s FROM `event`
-               JOIN `user` ON `user`.`id` = `event`.`user_id`
-               JOIN `team` ON `team`.`id` = `event`.`team_id`
-               JOIN `role` ON `role`.`id` = `event`.`role_id` 
-               WHERE schedule_id = %s AND start >= %s''' % (all_columns, schedule['id'], first_event_start)
-            cursor.execute(query)
-
-        data = cursor.fetchall()
-        response_dict['delete'] = data
-        
+            # store the events that will be deleted so they can get aded back in later
+            cursor.execute('SELECT * FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start)) 
+            delete_list = cursor.fetchall()
+            cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start)) 
 
         # Create events in the db, associating a user to them
         for epoch in future_events:
             user_id = self.find_next_user_id(schedule, epoch, cursor)
             if not user_id:
                 continue
-            
-            # TODO: validate that these values exist 
-            # get team name from 
-            query = ("SELECT name FROM team WHERE id = %s" % team_id)
-            cursor.execute(query)
-            team = cursor.fetchone()
 
-            # get name, full_name from user
-            query = ("SELECT name, full_name FROM user WHERE id = %s" % role_id)
-            cursor.execute(query)
-            u_name = cursor.fetchone()
+            self.create_events(team_id, schedule['id'], user_id, epoch, role_id, cursor)
 
-            # get role from role
-            query = ("SELECT name FROM role WHERE id = %s" % role_id)
-            cursor.execute(query)
-            role = cursor.fetchone()
+        # get existing events
+   
+        include_sub = True
+        cols = all_columns
+        query = '''SELECT %s FROM `event`
+                JOIN `user` ON `user`.`id` = `event`.`user_id`
+                JOIN `team` ON `team`.`id` = `event`.`team_id`
+                JOIN `role` ON `role`.`id` = `event`.`role_id`''' % cols
+        where_params = []
+        where_vals = []
 
-            # format {end, full_name, id(event)(will be null because it hasn't been created yet), link_id, note, role, schedule_id, start, team, user}
+        # Build where clause. If including subscriptions, deal with team parameters later
+        params = {'start__lt':req.get_param('start__lt'), 'end__ge':req.get_param('end__ge')}
+        
+        for key in params:
+            val = req.get_param(key)
+            where_params.append(constraints[key])
+            where_vals.append(val)
 
-            #new_create_event = {'team': team, 'schedule': schedule['id'], 'name': u_name, 'epoch': epoch, 'role': role['name']}
+        # Deal with team subscriptions and team parameters
+        team_where = []
+        subs_vals = []
+        team_params = {'team__eq':req.get_param('team__eq')}
+        
+        for key in team_params:
+            val = req.get_param(key)
+            team_where.append(constraints[key])
+            subs_vals.append(val)
+        subs_and = ' AND '.join(team_where)
+        cursor.execute('''SELECT `subscription_id`, `role_id` FROM `team_subscription`
+                        JOIN `team` ON `team_id` = `team`.`id`
+                        WHERE %s''' % subs_and,
+                    subs_vals)
+        if cursor.rowcount != 0:
+            # Build where clause based on team params and subscriptions
+            subs_and = '(%s OR (%s))' % (subs_and, ' OR '.join(['`team`.`id` = %s AND `role`.`id` = %s' %
+                                                                (row['subscription_id'], row['role_id']) for row in cursor]))
+        where_params.append(subs_and)
+        where_vals += subs_vals
 
-            new_create_event = {'end':epoch[0]['end'], 'full_name': u_name['full_name'], 'id':None, 'link_id':None, 'note':None, 'role':role['name'], 'schedule_id':schedule['id'], 'start':epoch[0]['end'], 'team':team['name'], 'user':u_name['name']}
-            response_dict['create'].append(new_create_event)
+        where_query = ' AND '.join(where_params)
+        if where_query:
+            query = '%s WHERE %s' % (query, where_query)
+        cursor.execute(query, where_vals)
+        data = cursor.fetchall()
+        
+        response_list = data
 
-        resp.body = json_dumps(response_dict)
+        # delete new inserted events 
+        if future_events:
+            first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
+            cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))
+        
+        # re insert deleted events 
+        for event in delete_list:
+                event_args = (event['user_id'], event['schedule_id'], event['link_id'], event['note'], event['start'], event['team_id'], event['end'], event['role_id'], event['id'])
+                logger.debug('inserting event: %s', event_args)
+                query = '''
+                    INSERT INTO `event` (
+                        `user_id`, `schedule_id`, `link_id`, `note`, `start`, `team_id`, `end`,`role_id`, `id`
+                    ) VALUES (
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    )'''
+                cursor.execute(query, event_args)
+
+        resp.body = json_dumps(response_list)
             
     def populate(self, schedule, start_time, dbinfo):
         connection, cursor = dbinfo
@@ -430,6 +507,7 @@ class Scheduler(object):
         # Delete existing events from the start of the first event
         future_events = [filter(lambda x: x['start'] >= start_time, evs) for evs in future_events]
         future_events = filter(lambda x: x != [], future_events)
+        print ('\n populate future events: %s\n' % future_events)
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
             cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))

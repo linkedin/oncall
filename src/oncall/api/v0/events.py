@@ -146,10 +146,6 @@ def on_get(req, resp):
     """
     fields = req.get_param_as_list('fields')
 
-    print "\n\n\nFields: "
-    print fields 
-    print "\n\n\n"
-    
     if fields:
         fields = [columns[f] for f in fields if f in columns]
     req.params.pop('fields', None)
@@ -164,8 +160,6 @@ def on_get(req, resp):
                JOIN `user` ON `user`.`id` = `event`.`user_id`
                JOIN `team` ON `team`.`id` = `event`.`team_id`
                JOIN `role` ON `role`.`id` = `event`.`role_id`''' % cols
-
-    print ('\n\n params: %s\n\n' % req.params)
     where_params = []
     where_vals = []
     connection = db.connect()
@@ -190,8 +184,6 @@ def on_get(req, resp):
             team_where.append(constraints[key])
             subs_vals.append(val)
         subs_and = ' AND '.join(team_where)
-        print ('\n\n subs_and: %s\n\n' % subs_and)
-        print ('\n\n subs_vals: %s\n\n' % subs_vals)
         cursor.execute('''SELECT `subscription_id`, `role_id` FROM `team_subscription`
                           JOIN `team` ON `team_id` = `team`.`id`
                           WHERE %s''' % subs_and,
@@ -208,7 +200,6 @@ def on_get(req, resp):
         query = '%s WHERE %s' % (query, where_query)
     cursor.execute(query, where_vals)
     data = cursor.fetchall()
-    print ('\n\n data: %s\n\n' % data)
     cursor.close()
     connection.close()
     resp.body = json_dumps(data)

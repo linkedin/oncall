@@ -69,8 +69,8 @@ def on_get(req, resp, schedule_id):
     :statuscode 400: Validation checks failed
     """
     # TODO: add images to docstring because it doesn't make sense
-    data = load_json_body(req)
-    start_time = req.get_param('start')
+    data = req.params
+    start_time = float(req.get_param('start'))
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
