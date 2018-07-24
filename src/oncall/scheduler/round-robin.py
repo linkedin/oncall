@@ -80,3 +80,9 @@ class Scheduler(default.Scheduler):
         # Null last_scheduled_user to force find_next_user to determine that from the calendar
         cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = NULL WHERE `id` = %s', schedule['id'])
         super(Scheduler, self).populate(schedule, start_time, dbinfo)
+
+    def preview(self, schedule, start_time, dbinfo, req, resp):
+        _, cursor = dbinfo
+        # Null last_scheduled_user to force find_next_user to determine that from the calendar
+        cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = NULL WHERE `id` = %s', schedule['id'])
+        super(Scheduler, self).preview(schedule, start_time, dbinfo, req, resp)
