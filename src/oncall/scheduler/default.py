@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from pytz import timezone, utc
 from oncall.utils import gen_link_id
 from falcon import HTTPBadRequest
+from ujson import dumps as json_dumps
 import time
 import logging
 import operator
@@ -11,6 +12,61 @@ logger = logging.getLogger()
 UNIX_EPOCH = datetime(1970, 1, 1, tzinfo=utc)
 SECONDS_IN_A_DAY = 24 * 60 * 60
 SECONDS_IN_A_WEEK = SECONDS_IN_A_DAY * 7
+
+columns = {
+    'id': '`event`.`id` as `id`',
+    'start': '`event`.`start` as `start`',
+    'end': '`event`.`end` as `end`',
+    'role': '`role`.`name` as `role`',
+    'team': '`team`.`name` as `team`',
+    'user': '`user`.`name` as `user`',
+    'full_name': '`user`.`full_name` as `full_name`',
+    'schedule_id': '`event`.`schedule_id`',
+    'link_id': '`event`.`link_id`',
+    'note': '`event`.`note`',
+}
+
+constraints = {
+    'id': '`event`.`id` = %s',
+    'id__eq': '`event`.`id` = %s',
+    'id__ne': '`event`.`id` != %s',
+    'id__gt': '`event`.`id` > %s',
+    'id__ge': '`event`.`id` >= %s',
+    'id__lt': '`event`.`id` < %s',
+    'id__le': '`event`.`id` <= %s',
+    'start': '`event`.`start` = %s',
+    'start__eq': '`event`.`start` = %s',
+    'start__ne': '`event`.`start` != %s',
+    'start__gt': '`event`.`start` > %s',
+    'start__ge': '`event`.`start` >= %s',
+    'start__lt': '`event`.`start` < %s',
+    'start__le': '`event`.`start` <= %s',
+    'end': '`event`.`end` = %s',
+    'end__eq': '`event`.`end` = %s',
+    'end__ne': '`event`.`end` != %s',
+    'end__gt': '`event`.`end` > %s',
+    'end__ge': '`event`.`end` >= %s',
+    'end__lt': '`event`.`end` < %s',
+    'end__le': '`event`.`end` <= %s',
+    'role': '`role`.`name` = %s',
+    'role__eq': '`role`.`name` = %s',
+    'role__contains': '`role`.`name` LIKE CONCAT("%%", %s, "%%")',
+    'role__startswith': '`role`.`name` LIKE CONCAT(%s, "%%")',
+    'role__endswith': '`role`.`name` LIKE CONCAT("%%", %s)',
+    'team': '`team`.`name` = %s',
+    'team__eq': '`team`.`name` = %s',
+    'team__contains': '`team`.`name` LIKE CONCAT("%%", %s, "%%")',
+    'team__startswith': '`team`.`name` LIKE CONCAT(%s, "%%")',
+    'team__endswith': '`team`.`name` LIKE CONCAT("%%", %s)',
+    'team_id': '`team`.`id` = %s',
+    'user': '`user`.`name` = %s',
+    'user__eq': '`user`.`name` = %s',
+    'user__contains': '`user`.`name` LIKE CONCAT("%%", %s, "%%")',
+    'user__startswith': '`user`.`name` LIKE CONCAT(%s, "%%")',
+    'user__endswith': '`user`.`name` LIKE CONCAT("%%", %s)'
+}
+
+all_columns = ', '.join(columns.values())
 
 
 class Scheduler(object):
@@ -307,6 +363,114 @@ class Scheduler(object):
             logger.info('Found user: %s', user_id)
             self.create_events(team['id'], schedule['id'], user_id, epoch, schedule['role_id'], cursor)
         connection.commit()
+
+    def preview(self, schedule, start_time, dbinfo, req, resp):
+
+        connection, cursor = dbinfo
+        delete_list = []
+        response_list = []
+        start_dt = datetime.fromtimestamp(start_time, utc)
+        start_epoch = self.epoch_from_datetime(start_dt)
+
+        # Get schedule info
+        role_id = schedule['role_id']
+        team_id = schedule['team_id']
+        first_event_start = min(ev['start'] for ev in schedule['events'])
+        period = self.get_period_len(schedule)
+        handoff = start_epoch + timedelta(seconds=first_event_start)
+        handoff = timezone(schedule['timezone']).localize(handoff)
+
+        # Start scheduling from the next occurrence of the hand-off time.
+        if start_dt > handoff:
+            start_epoch += timedelta(weeks=period)
+            handoff += timedelta(weeks=period)
+        if handoff < utc.localize(datetime.utcnow()):
+            raise HTTPBadRequest('Invalid populate request', 'cannot populate starting in the past')
+
+        future_events, last_epoch = self.calculate_future_events(schedule, cursor, start_epoch)
+        self.set_last_epoch(schedule['id'], last_epoch, cursor)
+
+        # Delete existing events from the start of the first event
+        future_events = [filter(lambda x: x['start'] >= start_time, evs) for evs in future_events]
+        future_events = filter(lambda x: x != [], future_events)
+        if future_events:
+            first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
+            # store the events that will be deleted so they can get aded back in later
+            cursor.execute('SELECT * FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))
+            delete_list = cursor.fetchall()
+            cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))
+
+        # Create events in the db, associating a user to them
+        for epoch in future_events:
+            user_id = self.find_next_user_id(schedule, epoch, cursor)
+            if not user_id:
+                continue
+
+            self.create_events(team_id, schedule['id'], user_id, epoch, role_id, cursor)
+
+        # get existing events
+
+        cols = all_columns
+        query = '''SELECT %s FROM `event`
+                JOIN `user` ON `user`.`id` = `event`.`user_id`
+                JOIN `team` ON `team`.`id` = `event`.`team_id`
+                JOIN `role` ON `role`.`id` = `event`.`role_id`''' % cols
+        where_params = []
+        where_vals = []
+
+        # Build where clause. If including subscriptions, deal with team parameters later
+        params = {'start__lt': req.get_param('start__lt'), 'end__ge': req.get_param('end__ge')}
+
+        for key in params:
+            val = req.get_param(key)
+            where_params.append(constraints[key])
+            where_vals.append(val)
+
+        # Deal with team subscriptions and team parameters
+        team_where = []
+        subs_vals = []
+        team_params = {'team__eq': req.get_param('team__eq')}
+
+        for key in team_params:
+            val = req.get_param(key)
+            team_where.append(constraints[key])
+            subs_vals.append(val)
+        subs_and = ' AND '.join(team_where)
+        cursor.execute('''SELECT `subscription_id`, `role_id` FROM `team_subscription`
+                        JOIN `team` ON `team_id` = `team`.`id`
+                        WHERE %s''' % subs_and, subs_vals)
+        if cursor.rowcount != 0:
+            # Build where clause based on team params and subscriptions
+            subs_and = '(%s OR (%s))' % (subs_and, ' OR '.join(['`team`.`id` = %s AND `role`.`id` = %s' %
+                                                                (row['subscription_id'], row['role_id']) for row in cursor]))
+        where_params.append(subs_and)
+        where_vals += subs_vals
+
+        where_query = ' AND '.join(where_params)
+        if where_query:
+            query = '%s WHERE %s' % (query, where_query)
+        cursor.execute(query, where_vals)
+        data = cursor.fetchall()
+        response_list = data
+
+        # delete new inserted events
+        if future_events:
+            first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
+            cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))
+
+        # re insert deleted events
+        for event in delete_list:
+                event_args = (event['user_id'], event['schedule_id'], event['link_id'], event['note'], event['start'], event['team_id'], event['end'], event['role_id'], event['id'])
+                logger.debug('inserting event: %s', event_args)
+                query = '''
+                    INSERT INTO `event` (
+                        `user_id`, `schedule_id`, `link_id`, `note`, `start`, `team_id`, `end`,`role_id`, `id`
+                    ) VALUES (
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s
+                    )'''
+                cursor.execute(query, event_args)
+
+        resp.body = json_dumps(response_list)
 
     def populate(self, schedule, start_time, dbinfo):
         connection, cursor = dbinfo
