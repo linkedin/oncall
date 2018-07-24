@@ -12,7 +12,7 @@ def on_get(req, resp, schedule_id):
     """
     Run the scheduler on demand from a given point in time. Unlike populate it doen't permanently delete or insert anything.
     """
-    start_time = float(req.get_param('start'))
+    start_time = float(req.get_param('start', required=True))
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)

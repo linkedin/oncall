@@ -419,7 +419,7 @@ class Scheduler(object):
         where_vals = []
 
         # Build where clause. If including subscriptions, deal with team parameters later
-        params = {'start__lt': req.get_param('start__lt'), 'end__ge': req.get_param('end__ge')}
+        params = {'start__lt': req.get_param('start__lt', required=True), 'end__ge': req.get_param('end__ge', required=True)}
 
         for key in params:
             val = req.get_param(key)
@@ -429,7 +429,7 @@ class Scheduler(object):
         # Deal with team subscriptions and team parameters
         team_where = []
         subs_vals = []
-        team_params = {'team__eq': req.get_param('team__eq')}
+        team_params = {'team__eq': req.get_param('team__eq', required=True)}
 
         for key in team_params:
             val = req.get_param(key)
