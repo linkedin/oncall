@@ -2,8 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from ... import db
-from ...utils import load_json_body
-from ...auth import check_team_auth, login_required
+from ...auth import check_team_auth
 from schedules import get_schedules
 from falcon import HTTPNotFound
 from oncall.bin.scheduler import load_scheduler
@@ -13,7 +12,6 @@ def on_get(req, resp, schedule_id):
     """
     Run the scheduler on demand from a given point in time. Unlike populate it doen't permanently delete or insert anything.
     """
-    data = req.params
     start_time = float(req.get_param('start'))
 
     connection = db.connect()
