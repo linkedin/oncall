@@ -2182,6 +2182,7 @@ var oncall = {
             $modalDate = $modal.find('#populate-schedule-date'),
             $modalThreshold = $modal.find('#populate-schedule-threshold'),
             $modalBtn = $modal.find('#populate-schedule-btn'),
+            $previewBtn = $modal.find('#preview-schedule-btn'),
             $calContainer = $modal.find('#modal-calendar-container'),
             scheduleData,
             scheduleId,
@@ -2209,8 +2210,16 @@ var oncall = {
           $modalDate.val(now.format('YYYY/MM/DD'));
         }).on('hidden.bs.modal', function(){
           $(this).find('.alert').remove();
+          $modal.find('#modal-calendar-container').data('incalendar', null).incalendar({
+            eventsUrl: '/api/v0/schedules/'+ scheduleId+'/preview',
+            getEventsUrl: '/api/v0/schedules/'+ scheduleId+'/preview?team__eq=' + self.data.teamName + '&start=' + date + '&teamName=' + self.data.teamName,
+            readOnly: true,
+            onEventGet: function(events, $cal){
+              $cal.find('[data-schedule-id="' + scheduleId + '"]').attr('data-highlighted', true);
+              $cta.removeClass('loading disabled').prop('disabled', false);
+            }
+          });
         });
-
         $modalBtn.on('click', function(){
           var date = new Date($modalDate.val());
 
@@ -2220,6 +2229,17 @@ var oncall = {
             self.populateSchedules(date.valueOf(), $(this), $modal);
           }
         });
+
+        $previewBtn.on('click', function(){
+          var date = new Date($modalDate.val());
+
+          if ( isNaN(Date.parse(date)) ) {
+            oncall.alerts.createAlert('Invalid date.', 'danger', $modal.find('.modal-body'));
+          } else {
+            self.populatePreview(date.valueOf(), $(this), $modal);
+          }
+        });
+
       },
       populateSchedules: function(date, $cta, $modal){
         var date = (date || Date.now()) / 1000,
@@ -2251,6 +2271,25 @@ var oncall = {
           oncall.alerts.createAlert(error, 'danger', $modal.find('.modal-body'));
         }).always(function(){
           $cta.removeClass('loading disabled').prop('disabled', false);
+        });
+      },
+      populatePreview: function(date, $cta, $modal){
+        var date = (date || Date.now()) / 1000,
+            self = this,
+            $calContainer = $modal.find('#modal-calendar-container'),
+            scheduleId = $modal.attr('data-schedule-id');
+
+        $cta.addClass('loading disabled').prop('disabled', true);
+
+        oncall.alerts.removeAlerts();
+        $calContainer.data('incalendar', null).incalendar({
+          eventsUrl: '/api/v0/schedules/'+ scheduleId+'/preview',
+          getEventsUrl: '/api/v0/schedules/'+ scheduleId+'/preview?team__eq=' + self.data.teamName + '&start=' + date + '&teamName=' + self.data.teamName,
+          readOnly: true,
+          onEventGet: function(events, $cal){
+            $cal.find('[data-schedule-id="' + scheduleId + '"]').attr('data-highlighted', true);
+            $cta.removeClass('loading disabled').prop('disabled', false);
+          }
         });
       },
       getSchedulerData: function($form) {

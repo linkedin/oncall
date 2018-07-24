@@ -35,6 +35,9 @@ def init(application, config):
     from . import populate
     application.add_route('/api/v0/schedules/{schedule_id}/populate', populate)
 
+    from . import preview
+    application.add_route('/api/v0/schedules/{schedule_id}/preview', preview)
+
     from . import services, service, service_oncall
     application.add_route('/api/v0/services', services)
     application.add_route('/api/v0/services/{service}', service)
