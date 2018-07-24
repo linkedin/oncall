@@ -202,10 +202,11 @@ class Scheduler(object):
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s
                     )'''
-                cursor.execute(query, event_args)          
+                cursor.execute(query, event_args)   
+
     def set_last_epoch(self, schedule_id, last_epoch, cursor):
         cursor.execute('UPDATE `schedule` SET `last_epoch_scheduled` = %s WHERE `id` = %s',
-                       (last_epoch, schedule_id)) 
+                       (last_epoch, schedule_id))
 
     # End of DB interactions
     # Epoch/weekday/time helpers
@@ -363,16 +364,13 @@ class Scheduler(object):
             self.create_events(team['id'], schedule['id'], user_id, epoch, schedule['role_id'], cursor)
         connection.commit()
 
-
     def preview(self, schedule, start_time, dbinfo, req, resp):
-
 
         connection, cursor = dbinfo
         delete_list = []
         response_list = []
         start_dt = datetime.fromtimestamp(start_time, utc)
         start_epoch = self.epoch_from_datetime(start_dt)
-        
 
         # Get schedule info
         role_id = schedule['role_id']
@@ -381,8 +379,7 @@ class Scheduler(object):
         period = self.get_period_len(schedule)
         handoff = start_epoch + timedelta(seconds=first_event_start)
         handoff = timezone(schedule['timezone']).localize(handoff)
-      
-    
+
         # Start scheduling from the next occurrence of the hand-off time.
         if start_dt > handoff:
             start_epoch += timedelta(weeks=period)
@@ -399,9 +396,9 @@ class Scheduler(object):
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
             # store the events that will be deleted so they can get aded back in later
-            cursor.execute('SELECT * FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start)) 
+            cursor.execute('SELECT * FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))
             delete_list = cursor.fetchall()
-            cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start)) 
+            cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))
 
         # Create events in the db, associating a user to them
         for epoch in future_events:
@@ -412,7 +409,7 @@ class Scheduler(object):
             self.create_events(team_id, schedule['id'], user_id, epoch, role_id, cursor)
 
         # get existing events
-   
+
         cols = all_columns
         query = '''SELECT %s FROM `event`
                 JOIN `user` ON `user`.`id` = `event`.`user_id`
@@ -422,8 +419,8 @@ class Scheduler(object):
         where_vals = []
 
         # Build where clause. If including subscriptions, deal with team parameters later
-        params = {'start__lt':req.get_param('start__lt'), 'end__ge':req.get_param('end__ge')}
-        
+        params = {'start__lt': req.get_param('start__lt'), 'end__ge': req.get_param('end__ge')}
+
         for key in params:
             val = req.get_param(key)
             where_params.append(constraints[key])
@@ -432,8 +429,8 @@ class Scheduler(object):
         # Deal with team subscriptions and team parameters
         team_where = []
         subs_vals = []
-        team_params = {'team__eq':req.get_param('team__eq')}
-        
+        team_params = {'team__eq': req.get_param('team__eq')}
+    
         for key in team_params:
             val = req.get_param(key)
             team_where.append(constraints[key])
@@ -441,8 +438,7 @@ class Scheduler(object):
         subs_and = ' AND '.join(team_where)
         cursor.execute('''SELECT `subscription_id`, `role_id` FROM `team_subscription`
                         JOIN `team` ON `team_id` = `team`.`id`
-                        WHERE %s''' % subs_and,
-                    subs_vals)
+                        WHERE %s''' % subs_and,subs_vals)
         if cursor.rowcount != 0:
             # Build where clause based on team params and subscriptions
             subs_and = '(%s OR (%s))' % (subs_and, ' OR '.join(['`team`.`id` = %s AND `role`.`id` = %s' %
@@ -455,15 +451,14 @@ class Scheduler(object):
             query = '%s WHERE %s' % (query, where_query)
         cursor.execute(query, where_vals)
         data = cursor.fetchall()
-        
         response_list = data
 
-        # delete new inserted events 
+        # delete new inserted events
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
             cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))
         
-        # re insert deleted events 
+        # re insert deleted events
         for event in delete_list:
                 event_args = (event['user_id'], event['schedule_id'], event['link_id'], event['note'], event['start'], event['team_id'], event['end'], event['role_id'], event['id'])
                 logger.debug('inserting event: %s', event_args)
@@ -476,7 +471,7 @@ class Scheduler(object):
                 cursor.execute(query, event_args)
 
         resp.body = json_dumps(response_list)
-            
+     
     def populate(self, schedule, start_time, dbinfo):
         connection, cursor = dbinfo
         start_dt = datetime.fromtimestamp(start_time, utc)
@@ -513,5 +508,4 @@ class Scheduler(object):
             if not user_id:
                 continue
             self.create_events(team_id, schedule['id'], user_id, epoch, role_id, cursor)
-        connection.commit()
-        
+        connection.commit() 
