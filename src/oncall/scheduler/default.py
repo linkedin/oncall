@@ -202,7 +202,7 @@ class Scheduler(object):
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s
                     )'''
-                cursor.execute(query, event_args)   
+                cursor.execute(query, event_args)
 
     def set_last_epoch(self, schedule_id, last_epoch, cursor):
         cursor.execute('UPDATE `schedule` SET `last_epoch_scheduled` = %s WHERE `id` = %s',
@@ -430,7 +430,7 @@ class Scheduler(object):
         team_where = []
         subs_vals = []
         team_params = {'team__eq': req.get_param('team__eq')}
-    
+
         for key in team_params:
             val = req.get_param(key)
             team_where.append(constraints[key])
@@ -438,7 +438,7 @@ class Scheduler(object):
         subs_and = ' AND '.join(team_where)
         cursor.execute('''SELECT `subscription_id`, `role_id` FROM `team_subscription`
                         JOIN `team` ON `team_id` = `team`.`id`
-                        WHERE %s''' % subs_and,subs_vals)
+                        WHERE %s''' % subs_and, subs_vals)
         if cursor.rowcount != 0:
             # Build where clause based on team params and subscriptions
             subs_and = '(%s OR (%s))' % (subs_and, ' OR '.join(['`team`.`id` = %s AND `role`.`id` = %s' %
@@ -457,7 +457,7 @@ class Scheduler(object):
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
             cursor.execute('DELETE FROM event WHERE schedule_id = %s AND start >= %s', (schedule['id'], first_event_start))
-        
+
         # re insert deleted events
         for event in delete_list:
                 event_args = (event['user_id'], event['schedule_id'], event['link_id'], event['note'], event['start'], event['team_id'], event['end'], event['role_id'], event['id'])
@@ -471,7 +471,7 @@ class Scheduler(object):
                 cursor.execute(query, event_args)
 
         resp.body = json_dumps(response_list)
-     
+
     def populate(self, schedule, start_time, dbinfo):
         connection, cursor = dbinfo
         start_dt = datetime.fromtimestamp(start_time, utc)
@@ -508,4 +508,4 @@ class Scheduler(object):
             if not user_id:
                 continue
             self.create_events(team_id, schedule['id'], user_id, epoch, role_id, cursor)
-        connection.commit() 
+        connection.commit()
