@@ -73,7 +73,7 @@ class Scheduler(default.Scheduler):
                         %s, %s, %s, %s, %s, %s, %s
                     )'''
                 cursor.execute(query, event_args)
-        cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = %s', user_id)
+        cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = %s WHERE `id` = %s', (user_id, schedule_id))
 
     def populate(self, schedule, start_time, dbinfo):
         _, cursor = dbinfo

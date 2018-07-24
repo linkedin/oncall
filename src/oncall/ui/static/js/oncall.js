@@ -218,66 +218,66 @@ var oncall = {
   defineRoutes: function(){
     var self = this;
     router.on({
-      'teams/all': function(){
+      '/teams/all': function(){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.browse.init();
         self.updateTitleTag("All teams");
       },
-      'team/:name/info': function(params){
+      '/team/:name/info': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.team.init(params.name, 'info');
         self.team.info.init(params.name);
         self.updateTitleTag(params.name + "  team info");
       },
-      'team/:name/schedules': function(params){
+      '/team/:name/schedules': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.team.init(params.name, 'schedules');
         self.team.schedules.init(params.name);
         self.updateTitleTag(params.name + " schedules");
       },
-      'team/:name/subscriptions': function(params){
+      '/team/:name/subscriptions': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.team.init(params.name, 'subscriptions');
         self.team.subscriptions.init(params.name);
         self.updateTitleTag(params.name + " subscriptions");
       },
-      'team/:name/audit': function(params){
+      '/team/:name/audit': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.team.init(params.name, 'audit');
         self.team.audit.init(params.name);
         self.updateTitleTag(params.name + " audit");
       },
-      'team/:name': function(params){
+      '/team/:name': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.team.init(params.name, 'calendar');
         self.team.calendar.init(params.name);
         self.updateTitleTag(params.name + " calendar");
       },
-      'dashboard/:name': function(params){
+      '/dashboard/:name': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.dashboard.init(params.name);
         self.updateTitleTag(params.name + " dashboard");
       },
-      'user/:user/': function(){
+      '/user/:user/': function(){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.settings.init();
         self.updateTitleTag("");
       },
-      'user/:user/notifications': function(){
+      '/user/:user/notifications': function(){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.settings.notifications.init();
         self.updateTitleTag("Notifications");
       },
-      'query/:query/:fields': function(params){
+      '/query/:query/:fields': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
         self.data.$page.off(); //reset events on page init
@@ -636,7 +636,7 @@ var oncall = {
             var ttPath = $input.parents(self.data.searchForm).find('.tt-cursor a').attr('href');
             if (ttPath){
               router.navigate(ttPath);
-            }     
+            }
           });
 
         if (!query) {
