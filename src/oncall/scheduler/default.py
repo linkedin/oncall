@@ -413,7 +413,6 @@ class Scheduler(object):
 
         # get existing events
    
-        include_sub = True
         cols = all_columns
         query = '''SELECT %s FROM `event`
                 JOIN `user` ON `user`.`id` = `event`.`user_id`
