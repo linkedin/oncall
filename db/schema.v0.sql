@@ -18,14 +18,19 @@ CREATE TABLE IF NOT EXISTS `team` (
   UNIQUE INDEX `name_unique` (`name` ASC));
 
 -- -----------------------------------------------------
--- Table `deleted_teams`
+-- Table `deleted_team`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `deleted_teams` (
-  `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `deleted_team` (
+  `team_id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `new_name` VARCHAR(255) NOT NULL,
   `old_name` VARCHAR(255) NOT NULL,
-  `deletion_date` DATE NOT NULL,
-  PRIMARY KEY (`id`),
+  `deletion_date` BIGINT(20) NOT NULL,
+  PRIMARY KEY (`team_id`),
+  CONSTRAINT `deleted_team_team_fk`
+    FOREIGN KEY (`team_id`)
+    REFERENCES `team` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   UNIQUE INDEX `new_name_unique` (`new_name` ASC));
 
 -- -----------------------------------------------------
