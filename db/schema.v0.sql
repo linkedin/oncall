@@ -18,6 +18,17 @@ CREATE TABLE IF NOT EXISTS `team` (
   UNIQUE INDEX `name_unique` (`name` ASC));
 
 -- -----------------------------------------------------
+-- Table `deleted_teams`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `deleted_teams` (
+  `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `new_name` VARCHAR(255) NOT NULL,
+  `old_name` VARCHAR(255) NOT NULL,
+  `deletion_date` DATE NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `new_name_unique` (`new_name` ASC));
+
+-- -----------------------------------------------------
 -- Table `user`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `user` (
