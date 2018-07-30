@@ -1,6 +1,7 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
-
+import uuid
+import time
 from urllib import unquote
 from falcon import HTTPNotFound, HTTPBadRequest, HTTPError
 from ujson import dumps as json_dumps
@@ -244,6 +245,8 @@ def on_delete(req, resp, team):
     :statuscode 404: Team not found
     '''
     team = unquote(team)
+    new_team = str(uuid.uuid4())
+    deletion_date = time.time()
     check_team_auth(team, req)
     connection = db.connect()
     cursor = connection.cursor()
@@ -253,9 +256,19 @@ def on_delete(req, resp, team):
                    'AND `start` > UNIX_TIMESTAMP()', team)
     create_audit({}, team, TEAM_DELETED, req, cursor)
     deleted = cursor.rowcount
+
+    if deleted == 0:
+        connection.commit()
+        cursor.close()
+        connection.close()
+        raise HTTPNotFound()
+
+    cursor.execute('SELECT `id` FROM `team` WHERE `name`=%s', team)
+    team_id = cursor.fetchone()
+
+    # create entry in deleted_teams and then change name in team to preserve a clean namespace
+    cursor.execute('UPDATE `team` SET `name` = %s WHERE `name`= %s', (new_team, team))
+    cursor.execute('INSERT INTO `deleted_team` (team_id, new_name, old_name, deletion_date) VALUES (%s, %s, %s, %s)', (team_id, new_team, team, deletion_date))
     connection.commit()
     cursor.close()
     connection.close()
-
-    if deleted == 0:
-        raise HTTPNotFound()
