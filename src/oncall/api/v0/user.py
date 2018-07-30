@@ -6,7 +6,19 @@ from ujson import dumps as json_dumps
 from ... import db
 from ...auth import login_required, check_user_auth
 from ...utils import load_json_body
-from .users import columns, get_user_data
+from .users import get_user_data
+
+
+writable_columns = {
+    'name': '`user`.`name` as `name`',
+    'full_name': '`user`.`full_name` as `full_name`',
+    'time_zone': '`user`.`time_zone` as `time_zone`',
+    'photo_url': '`user`.`photo_url` as `photo_url`',
+    'contacts': ('`contact_mode`.`name` AS `mode`, '
+                 '`user_contact`.`destination` AS `destination`, '
+                 '`user`.`id` AS `contact_id`'),
+    'active': '`user`.`active` as `active`'
+}
 
 
 def on_get(req, resp, user_name):
@@ -135,7 +147,7 @@ def on_put(req, resp, user_name):
     for field in data:
         if field == 'contacts':
             set_contacts = True
-        elif field in columns:
+        elif field in writable_columns:
             set_columns.append('`{0}` = %s'.format(field))
     set_clause = ', '.join(set_columns)
 
