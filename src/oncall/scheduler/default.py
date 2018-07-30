@@ -469,7 +469,7 @@ class Scheduler(object):
                         %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )'''
                 cursor.execute(query, event_args)
-
+        connection.commit()
         resp.body = json_dumps(response_list)
 
     def populate(self, schedule, start_time, dbinfo):
