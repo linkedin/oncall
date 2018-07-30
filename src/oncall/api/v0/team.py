@@ -258,6 +258,9 @@ def on_delete(req, resp, team):
     deleted = cursor.rowcount
 
     if deleted == 0:
+        connection.commit()
+        cursor.close()
+        connection.close()
         raise HTTPNotFound()
 
     cursor.execute('SELECT `id` FROM `team` WHERE `name`=%s', team)
