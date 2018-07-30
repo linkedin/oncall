@@ -259,7 +259,7 @@ def on_delete(req, resp, team):
 
     # keep new team name under 255 characters
     if len(team) > 216:
-        new_team = team[:-38] + '-' + str(uuid.uuid1())
+        new_team = team[:216] + '-' + str(uuid.uuid1())
 
     # create entry in deleted_teams and then change name in team to preserve a clean namespace
     cursor.execute('UPDATE `team` SET `name` = %s WHERE `name`= %s', (new_team, team))
