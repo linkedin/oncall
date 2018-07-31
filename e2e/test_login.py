@@ -34,7 +34,8 @@ class TestLogin(TestCase):
         'session.key': 'oncall-auth',
         # 'session.httponly': True,
         'session.encrypt_key': config['session']['encrypt_key'],
-        'session.validate_key': config['session']['sign_key']
+        'session.validate_key': config['session']['sign_key'],
+        'session.crypto_type': 'cryptography'
     }
 
     class UserDummy(object):
