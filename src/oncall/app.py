@@ -131,7 +131,8 @@ def init(config):
         'session.encrypt_key': config['session']['encrypt_key'],
         'session.validate_key': config['session']['sign_key'],
         'session.secure': not (config.get('debug', False) or config.get('allow_http', False)),
-        'session.httponly': True
+        'session.httponly': True,
+        'session.crypto_type': 'cryptography'
     }
     application = SessionMiddleware(application, session_opts)
     application = RawPathPatcher(application)
