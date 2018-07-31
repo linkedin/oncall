@@ -460,7 +460,8 @@ class Scheduler(object):
 
         # re insert deleted events
         for event in delete_list:
-                event_args = (event['user_id'], event['schedule_id'], event['link_id'], event['note'], event['start'], event['team_id'], event['end'], event['role_id'], event['id'])
+                event_args = (event['user_id'], event['schedule_id'], event['link_id'], event['note'], event['start'],
+                              event['team_id'], event['end'], event['role_id'], event['id'])
                 logger.debug('inserting event: %s', event_args)
                 query = '''
                     INSERT INTO `event` (
