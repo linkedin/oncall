@@ -185,26 +185,26 @@ class Scheduler(object):
 
         if len(events) == 1:
             [event] = events
-            event_args = (table_name, team_id, schedule_id, event['start'], event['end'], user_id, role_id)
+            event_args = (team_id, schedule_id, event['start'], event['end'], user_id, role_id)
             logger.debug('inserting event: %s', event_args)
             query = '''
                 INSERT INTO `%s` (
                     `team_id`, `schedule_id`, `start`, `end`, `user_id`, `role_id`
                 ) VALUES (
                     %s, %s, %s, %s, %s, %s
-                )''' % event_args
+                )''' % (table_name, team_id, schedule_id, event['start'], event['end'], user_id, role_id)
             cursor.execute(query)
         else:
             link_id = gen_link_id()
             for event in events:
-                event_args = (table_name, team_id, schedule_id, event['start'], event['end'], user_id, role_id, link_id)
+                event_args = (team_id, schedule_id, event['start'], event['end'], user_id, role_id, link_id)
                 logger.debug('inserting event: %s', event_args)
                 query = '''
                     INSERT INTO `%s` (
                         `team_id`, `schedule_id`, `start`, `end`, `user_id`, `role_id`, `link_id`
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s
-                    )''' % event_args
+                        %s, %s, %s, %s, %s, %s, '%s'
+                    )''' % (table_name, team_id, schedule_id, event['start'], event['end'], user_id, role_id, link_id)
                 cursor.execute(query)
 
     def set_last_epoch(self, schedule_id, last_epoch, cursor):
