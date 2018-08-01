@@ -430,8 +430,7 @@ class Scheduler(object):
         if req.method == 'GET':
             start__lt = req.get_param('start__lt', required=True)
             end__ge = req.get_param('end__ge', required=True)
-            query = 'CREATE TEMPORARY TABLE IF NOT EXISTS `%s` AS (SELECT * FROM `event` WHERE `start` < %s AND `end` > %s)' % (table_name, start__lt, end__ge)
-            cursor.execute(query)
+            cursor.execute('CREATE TEMPORARY TABLE IF NOT EXISTS `temp_event` AS (SELECT * FROM `event` WHERE `start` < %s AND `end` > %s)', (start__lt, end__ge))
 
         # Start scheduling from the next occurrence of the hand-off time.
         if start_dt > handoff:
@@ -461,7 +460,7 @@ class Scheduler(object):
         # if this function is being called by preview return events
         if req.method == 'GET':
             resp.body = self.build_preview_response(req, resp, cursor, table_name)
-            query = "DROP TABLE %s;" % table_name
+            query = "DROP TABLE `temp_event`"
             cursor.execute(query)
 
         connection.commit()
