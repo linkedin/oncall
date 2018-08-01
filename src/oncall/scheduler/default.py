@@ -412,7 +412,7 @@ class Scheduler(object):
         cursor.execute(query, where_vals)
         data = cursor.fetchall()
         return json_dumps(data)
-        
+
     def populate(self, schedule, start_time, dbinfo, req, resp, table_name):
         connection, cursor = dbinfo
         start_dt = datetime.fromtimestamp(start_time, utc)
