@@ -242,7 +242,7 @@ def test_find_least_active_available_user(mocker):
     mock_busy_user_by_range = mocker.patch('oncall.scheduler.default.Scheduler.get_busy_user_by_event_range')
     mock_active_user_by_team = mocker.patch('oncall.scheduler.default.Scheduler.find_least_active_user_id_by_team')
 
-    def mock_busy_user_by_range_side_effect(user_ids, team_id, events, cursor):
+    def mock_busy_user_by_range_side_effect(user_ids, team_id, events, cursor, table_name):
         assert user_ids == set(mock_user_ids)
         return [123]
 
@@ -263,7 +263,7 @@ def test_find_least_active_available_user_conflicts(mocker):
     mock_busy_user_by_range = mocker.patch('oncall.scheduler.default.Scheduler.get_busy_user_by_event_range')
     mock_active_user_by_team = mocker.patch('oncall.scheduler.default.Scheduler.find_least_active_user_id_by_team')
 
-    def mock_busy_user_by_range_side_effect(user_ids, team_id, events, cursor):
+    def mock_busy_user_by_range_side_effect(user_ids, team_id, events, cursor, table_name):
         assert user_ids == set(mock_user_ids)
         return [123, 456, 789]
 
