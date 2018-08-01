@@ -253,7 +253,7 @@ def test_find_least_active_available_user(mocker):
     scheduler = oncall.scheduler.default.Scheduler()
     scheduler.find_next_user_id(MOCK_SCHEDULE, future_events, None, 'event')
 
-    mock_active_user_by_team.assert_called_with({456, 789}, 1, 440, 2, None)
+    mock_active_user_by_team.assert_called_with({456, 789}, 1, 440, 2, None, 'event')
 
 
 def test_find_least_active_available_user_conflicts(mocker):
