@@ -716,22 +716,24 @@ var oncall = {
 
       if (data.services && Object.keys(data.services).length) {
         // Transform result to collapse services by team
-
         var hash = {};
         for (var i = 0, key, item, keys = Object.keys(data.services); i < keys.length; i++) {
           item = data.services[keys[i]];
           key = keys[i];
-          if (!hash[item]) {
-            hash[item] = {
-              total: 1,
-              list: []
-            };
-            hash[item].list.push(key);
-          } else {
-            if (hash[item].list.length < serviceDisplayLimit) {
-              hash[item].list.push(key);
+          for (var j = 0; j < item.length; j++) {
+            team = item[j];
+            if (!hash[team]) {
+              hash[team] = {
+                total: 1,
+                list: []
+              };
+              hash[team].list.push(key);
+            } else {
+              if (hash[team].list.length < serviceDisplayLimit) {
+                hash[team].list.push(key);
+              }
+              hash[team].total++;
             }
-            hash[item].total++;
           }
         }
 

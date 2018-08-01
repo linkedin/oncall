@@ -94,7 +94,10 @@ def on_get(req, resp):
         services = {}
         for row in cursor:
             serv, team = row
-            services[serv] = team
+            if serv in services:
+                services[serv].append(team)
+            else:
+                services[serv] = [team]
         data['services'] = services
 
     if 'users' in fields:
