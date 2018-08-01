@@ -411,7 +411,6 @@ class Scheduler(object):
             query = '%s WHERE %s' % (query, where_query)
         cursor.execute(query, where_vals)
         data = cursor.fetchall()
-        preview-refactor
         return json_dumps(data)
 
     def populate(self, schedule, start_time, dbinfo, req, resp, table_name):
