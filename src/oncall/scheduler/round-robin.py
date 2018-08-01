@@ -8,7 +8,7 @@ logger = logging.getLogger()
 class Scheduler(default.Scheduler):
 
     def guess_last_scheduled_user(self, schedule, start, roster, cursor, table_name):
-        roster_list = user_id_list = ', '.join(map(str, roster))
+        roster_list = ', '.join(map(str, roster))
         query = '''
                         SELECT `last_start`, `user_id` FROM
                         (SELECT `user_id`, MAX(`start`) AS `last_start` FROM `%s`
