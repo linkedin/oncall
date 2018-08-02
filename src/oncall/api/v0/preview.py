@@ -12,6 +12,7 @@ def on_get(req, resp, schedule_id):
     """
     Run the scheduler on demand from a given point in time. Unlike populate it doen't permanently delete or insert anything.
     """
+    table_name = 'temp_event'
     start_time = float(req.get_param('start', required=True))
 
     connection = db.connect()
@@ -26,6 +27,6 @@ def on_get(req, resp, schedule_id):
     scheduler = load_scheduler(scheduler_name)
     schedule = get_schedules({'id': schedule_id})[0]
     check_team_auth(schedule['team'], req)
-    scheduler.preview(schedule, start_time, (connection, cursor), req, resp)
+    scheduler.populate(schedule, start_time, (connection, cursor), req, resp, table_name)
     cursor.close()
     connection.close()

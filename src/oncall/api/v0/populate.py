@@ -30,6 +30,7 @@ def on_post(req, resp, schedule_id):
     :statuscode 400: Validation checks failed
     """
     # TODO: add images to docstring because it doesn't make sense
+    table_name = 'event'
     data = load_json_body(req)
     start_time = data['start']
 
@@ -45,6 +46,6 @@ def on_post(req, resp, schedule_id):
     scheduler = load_scheduler(scheduler_name)
     schedule = get_schedules({'id': schedule_id})[0]
     check_team_auth(schedule['team'], req)
-    scheduler.populate(schedule, start_time, (connection, cursor))
+    scheduler.populate(schedule, start_time, (connection, cursor), req, resp, table_name)
     cursor.close()
     connection.close()
