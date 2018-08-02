@@ -140,11 +140,11 @@ class Scheduler(object):
         user_id_list = ', '.join(map(str, user_ids))
         query = '''
             SELECT `user_id`, MAX(`end`) AS `last_end` FROM `%s`
-            WHERE `team_id` = %s AND `user_id` IN (%s) AND `end` <= %s
-            AND `role_id` = %s
+            WHERE `team_id` = %%s AND `user_id` IN (%%s) AND `end` <= %%s
+            AND `role_id` = %%s
             GROUP BY `user_id`
-            ''' % (table_name, team_id, user_id_list, start_time, role_id)
-        cursor.execute(query)
+            ''' % table_name
+        cursor.execute(query, (team_id, user_id_list, start_time, role_id))
         if cursor.rowcount != 0:
             # Grab user id with lowest last scheduled time
             return min(cursor.fetchall(), key=operator.itemgetter('last_end'))['user_id']
@@ -158,12 +158,12 @@ class Scheduler(object):
         '''
         query = '''
             SELECT DISTINCT `user`.`id` FROM `roster_user`
-            JOIN `user` ON `user`.`id` = `roster_user`.`user_id` AND `roster_user`.`roster_id` = %s
-            LEFT JOIN `%s` ON `%s`.`user_id` = `user`.`id` AND `%s`.`team_id` = %s AND `%s`.`end` <= %s
-                AND `%s`.`role_id` = %s
+            JOIN `user` ON `user`.`id` = `roster_user`.`user_id` AND `roster_user`.`roster_id` = %%s
+            LEFT JOIN `%s` ON `%s`.`user_id` = `user`.`id` AND `%s`.`team_id` = %%s AND `%s`.`end` <= %%s
+                AND `%s`.`role_id` = %%s
             WHERE `roster_user`.`in_rotation` = 1 AND `%s`.`id` IS NULL
-        ''' % (roster_id, table_name, table_name, table_name, team_id, table_name, start_time, table_name, role_id, table_name)
-        cursor.execute(query)
+        ''' % (table_name, table_name, table_name, table_name, table_name, table_name)
+        cursor.execute(query, (roster_id, team_id, start_time, role_id))
         if cursor.rowcount != 0:
             logger.debug('Found new guy')
         return {row['id'] for row in cursor}
@@ -191,9 +191,9 @@ class Scheduler(object):
                 INSERT INTO `%s` (
                     `team_id`, `schedule_id`, `start`, `end`, `user_id`, `role_id`
                 ) VALUES (
-                    %s, %s, %s, %s, %s, %s
-                )''' % (table_name, team_id, schedule_id, event['start'], event['end'], user_id, role_id)
-            cursor.execute(query)
+                    %%s, %%s, %%s, %%s, %%s, %%s
+                )''' % table_name
+            cursor.execute(query, (team_id, schedule_id, event['start'], event['end'], user_id, role_id))
         else:
             link_id = gen_link_id()
             for event in events:
@@ -203,9 +203,9 @@ class Scheduler(object):
                     INSERT INTO `%s` (
                         `team_id`, `schedule_id`, `start`, `end`, `user_id`, `role_id`, `link_id`
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, '%s'
-                    )''' % (table_name, team_id, schedule_id, event['start'], event['end'], user_id, role_id, link_id)
-                cursor.execute(query)
+                        %%s, %%s, %%s, %%s, %%s, %%s, '%%s'
+                    )''' % table_name
+                cursor.execute(query, (team_id, schedule_id, event['start'], event['end'], user_id, role_id, link_id))
 
     def set_last_epoch(self, schedule_id, last_epoch, cursor):
         cursor.execute('UPDATE `schedule` SET `last_epoch_scheduled` = %s WHERE `id` = %s',
@@ -447,8 +447,8 @@ class Scheduler(object):
         future_events = filter(lambda x: x != [], future_events)
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
-            query = 'DELETE FROM %s WHERE schedule_id = %s AND start >= %s' % (table_name, schedule['id'], first_event_start)
-            cursor.execute(query)
+            query = 'DELETE FROM %s WHERE schedule_id = %%s AND start >= %%s' % table_name
+            cursor.execute(query, (schedule['id'], first_event_start))
 
         # Create events in the db, associating a user to them
         for epoch in future_events:
@@ -460,7 +460,6 @@ class Scheduler(object):
         # if this function is being called by preview return events
         if req.method == 'GET':
             resp.body = self.build_preview_response(req, resp, cursor, table_name)
-            query = "DROP TABLE `temp_event`"
-            cursor.execute(query)
+            cursor.execute("DROP TABLE `temp_event`")
 
         connection.commit()
