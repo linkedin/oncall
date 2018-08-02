@@ -47,7 +47,7 @@ class Scheduler(object):
 
     def get_schedule_last_event_end(self, schedule, cursor, table_name='event'):
         query = 'SELECT `end` FROM `%s` WHERE `schedule_id` = %%r ORDER BY `end` DESC LIMIT 1' % table_name
-        cursor.execute(query,schedule['id'])
+        cursor.execute(query, schedule['id'])
         if cursor.rowcount != 0:
             return cursor.fetchone()['end']
         else:
