@@ -2,7 +2,6 @@
 # See LICENSE in the project root for license information.
 
 from ... import db
-from ...auth import check_team_auth
 from schedules import get_schedules
 from falcon import HTTPNotFound
 from oncall.bin.scheduler import load_scheduler
@@ -26,7 +25,6 @@ def on_get(req, resp, schedule_id):
     scheduler_name = cursor.fetchone()['name']
     scheduler = load_scheduler(scheduler_name)
     schedule = get_schedules({'id': schedule_id})[0]
-    check_team_auth(schedule['team'], req)
 
     start__lt = req.get_param('start__lt', required=True)
     end__ge = req.get_param('end__ge', required=True)
