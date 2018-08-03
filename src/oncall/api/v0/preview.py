@@ -26,7 +26,6 @@ def on_get(req, resp, schedule_id):
     scheduler_name = cursor.fetchone()['name']
     scheduler = load_scheduler(scheduler_name)
     schedule = get_schedules({'id': schedule_id})[0]
-    check_team_auth(schedule['team'], req)
 
     start__lt = req.get_param('start__lt', required=True)
     end__ge = req.get_param('end__ge', required=True)
