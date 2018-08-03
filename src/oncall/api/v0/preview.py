@@ -2,7 +2,6 @@
 # See LICENSE in the project root for license information.
 
 from ... import db
-from ...auth import check_team_auth
 from schedules import get_schedules
 from falcon import HTTPNotFound
 from oncall.bin.scheduler import load_scheduler
