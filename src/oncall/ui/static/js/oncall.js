@@ -2292,6 +2292,8 @@ var oncall = {
           readOnly: true,
           onEventGet: function(events, $cal){
             $cal.find('[data-schedule-id="' + scheduleId + '"]').attr('data-highlighted', true);
+          },
+          onEventAlways: function(){
             $cta.removeClass('loading disabled').prop('disabled', false);
           }
         });
