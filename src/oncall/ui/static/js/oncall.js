@@ -2237,6 +2237,8 @@ var oncall = {
 
           if ( isNaN(Date.parse(date)) ) {
             oncall.alerts.createAlert('Invalid date.', 'danger', $modal.find('.modal-body'));
+          } else if (date <= new Date()) {
+            oncall.alerts.createAlert('Invalid date. Can only preview events in the future.', 'danger', $modal.find('.modal-body'));
           } else {
             self.populatePreview(date.valueOf(), $(this), $modal);
           }
@@ -2290,6 +2292,8 @@ var oncall = {
           readOnly: true,
           onEventGet: function(events, $cal){
             $cal.find('[data-schedule-id="' + scheduleId + '"]').attr('data-highlighted', true);
+          },
+          onEventAlways: function(){
             $cta.removeClass('loading disabled').prop('disabled', false);
           }
         });

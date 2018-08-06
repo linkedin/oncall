@@ -46,6 +46,9 @@
           onEventGet: function (data, $calendar) {
             // callback for when fetch events ajax call is completed. list of events from server is passed in as arg
           },
+          onEventAlways: function(){
+            // callback for when fetch events ajax call is completed run regardless of success or failure
+          },
           onAddEvents: function (events) {
             // callback for when events are added to calendar
           },
@@ -678,6 +681,7 @@
         self.options.onEventGet(data, self.$calendar);
       }).always(function(){
         self.$el.removeClass('loading-events');
+        self.options.onEventAlways();
       });
     },
     addCalendarEvents: function (eventsArray) {
