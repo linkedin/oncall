@@ -29,8 +29,19 @@ def on_get(req, resp, schedule_id):
     start__lt = req.get_param('start__lt', required=True)
     end__ge = req.get_param('end__ge', required=True)
     team__eq = req.get_param('team__eq', required=True)
+    roster_id = schedule['roster_id']
 
-    cursor.execute('CREATE TEMPORARY TABLE IF NOT EXISTS `temp_event` AS (SELECT * FROM `event` WHERE `start` < %s AND `end` > %s)', (start__lt, end__ge))
+    # create a temporary table with the events that include members of the team's roster
+    query = '''
+            CREATE TEMPORARY TABLE IF NOT EXISTS `temp_event` AS
+            (SELECT `event`.`id`, `event`.`team_id`, `event`.`role_id`, `event`.`schedule_id`, `event`.`link_id`, `event`.`user_id`, `event`.`start`, `event`.`end`, `event`.`note`
+            FROM `event`
+            INNER JOIN `roster_user`
+            ON `event`.`user_id`=`roster_user`.`user_id`
+            WHERE `roster_user`.`roster_id`=%s)
+        '''
+
+    cursor.execute(query, roster_id)
 
     scheduler.populate(schedule, start_time, (connection, cursor), table_name)
     resp.body = scheduler.build_preview_response(cursor, start__lt, end__ge, team__eq, table_name)
