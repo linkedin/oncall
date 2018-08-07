@@ -83,6 +83,10 @@ class Scheduler(object):
                        team_id)
         subscriptions = cursor.fetchall()
         team_check = ['team_id = %s']
+
+        cursor.execute("SELECT `id` FROM `role` WHERE `name` = 'vacation'")
+        vacation_role_id = cursor.fetchone()['id']
+
         query_params.append(team_id)
         for sub in subscriptions:
             team_check.append('(team_id = %s AND role_id = %s)')
@@ -90,8 +94,8 @@ class Scheduler(object):
 
         query = '''
                 SELECT DISTINCT `user_id` FROM `%s`
-                WHERE `user_id` in %%s AND (%s) AND (%s or `role_id`=5)
-                ''' % (table_name, ' OR '.join(range_check), ' OR '.join(team_check))
+                WHERE `user_id` in %%s AND (%s) AND (%s or `role_id`= %s)
+                ''' % (table_name, ' OR '.join(range_check), ' OR '.join(team_check), vacation_role_id)
 
         cursor.execute(query, query_params)
         return [r['user_id'] for r in cursor.fetchall()]

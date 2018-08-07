@@ -34,7 +34,7 @@ def on_get(req, resp, schedule_id):
     # create a temporary table with the events that include members of the team's roster
     query = '''
             CREATE TEMPORARY TABLE IF NOT EXISTS `temp_event` AS
-            (SELECT `event`.*
+            (SELECT `event`.`id`, `event`.`team_id`, `event`.`role_id`, `event`.`schedule_id`, `event`.`link_id`, `event`.`user_id`, `event`.`start`, `event`.`end`, `event`.`note`
             FROM `event`
             INNER JOIN `roster_user`
             ON `event`.`user_id`=`roster_user`.`user_id`
