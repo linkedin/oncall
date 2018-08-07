@@ -90,7 +90,7 @@ class Scheduler(object):
 
         query = '''
                 SELECT DISTINCT `user_id` FROM `%s`
-                WHERE `user_id` in %%s AND (%s) AND (%s)
+                WHERE `user_id` in %%s AND (%s) AND (%s or `role_id`=5)
                 ''' % (table_name, ' OR '.join(range_check), ' OR '.join(team_check))
 
         cursor.execute(query, query_params)
