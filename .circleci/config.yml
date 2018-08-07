@@ -1,8 +1,6 @@
 version: 2
 jobs:
   build:
-    services:
-      - docker
     docker:
       - image: circleci/python:2.7-stretch-browsers
       - image: mysql/mysql-server:5.7
