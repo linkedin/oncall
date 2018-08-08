@@ -2196,7 +2196,7 @@ var oncall = {
           scheduleId = scheduleData.id;
           threshold = scheduleData.auto_populate_threshold;
 
-          $calContainer.incalendar({
+          $modal.find('#modal-calendar-container').data('incalendar', null).incalendar({
             eventsUrl: '/api/v0/events',
             getEventsUrl: '/api/v0/events?team__eq=' + self.data.teamName,
             readOnly: true,
@@ -2210,17 +2210,8 @@ var oncall = {
           $modal.attr('data-schedule-id', scheduleId);
           $modalThreshold.text(threshold + ' Days');
           $modalDate.val(now.format('YYYY/MM/DD'));
-        }).on('hidden.bs.modal', function(){
+        }).on('hidden.bs.modal', function(e){
           $(this).find('.alert').remove();
-          $modal.find('#modal-calendar-container').data('incalendar', null).incalendar({
-            eventsUrl: '/api/v0/schedules/'+ scheduleId+'/preview',
-            getEventsUrl: '/api/v0/schedules/'+ scheduleId+'/preview?team__eq=' + self.data.teamName + '&start=' + date + '&teamName=' + self.data.teamName,
-            readOnly: true,
-            onEventGet: function(events, $cal){
-              $cal.find('[data-schedule-id="' + scheduleId + '"]').attr('data-highlighted', true);
-              $cta.removeClass('loading disabled').prop('disabled', false);
-            }
-          });
         });
         $modalBtn.on('click', function(){
           var date = new Date($modalDate.val());
