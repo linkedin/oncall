@@ -61,6 +61,6 @@ def on_get(req, resp, schedule_id):
 
     scheduler.populate(schedule, start_time, (connection, cursor), table_name)
     resp.body = scheduler.build_preview_response(cursor, start__lt, end__ge, team__eq, table_name)
-    cursor.execute("DROP TABLE `temp_event`")
+    cursor.execute("DROP TEMPORARY TABLE `temp_event`")
     cursor.close()
     connection.close()
