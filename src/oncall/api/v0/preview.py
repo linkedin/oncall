@@ -45,7 +45,7 @@ def on_get(req, resp, schedule_id):
 
     # create a temporary table with the events that include members of the team's rosters and subscriptions
     query = '''
-        CREATE TEMPORARY TABLE IF NOT EXISTS `temp_event` AS
+        CREATE TEMPORARY TABLE `temp_event` AS
         (SELECT DISTINCT `event`.`id`, `event`.`team_id`, `event`.`role_id`,
         `event`.`schedule_id`, `event`.`link_id`, `event`.`user_id`,
         `event`.`start`, `event`.`end`, `event`.`note`
@@ -61,5 +61,6 @@ def on_get(req, resp, schedule_id):
 
     scheduler.populate(schedule, start_time, (connection, cursor), table_name)
     resp.body = scheduler.build_preview_response(cursor, start__lt, end__ge, team__eq, table_name)
+    cursor.execute("DROP TABLE `temp_event`")
     cursor.close()
     connection.close()
