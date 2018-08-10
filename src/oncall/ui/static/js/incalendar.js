@@ -1642,23 +1642,28 @@
           url = override ? this.options.eventsUrl + '/override' : this.options.eventsUrl;
 
       if (twelveHour) {
-        var start = evt.start,
-          evts = [];
+        var start = self._createMoment(evt.start, 'x'),
+            cmp = moment(start),
+            evts = [];
 
         url = this.options.eventsUrl + '/link';
         // Make 12 hour events as long as the whole event fits in the given time frame
-        while (start + 43200000 <= evt.end) {
+        // HACK: To add "12 hours," add 1 day, then subtract 12 hours. Needed for DST.
+        // Can't just add 12 hours because moment assumes you want exact precision unless
+        // you add increments of days or larger. See https://momentjs.com/docs/#/manipulating/add/
+        while (cmp.add(1, 'd').subtract(12, 'h').isBefore(evt.end)) {
           // Create a 12 hour long event, then move start forward one day
           evts.push({
-            start: start / 1000,
-            end: start / 1000 + 43200,
+            start: start.unix(),
+            end: start.add(1, 'd').subtract(12, 'h').unix(),
             team: evt.team,
             role: evt.role,
             user: evt.user,
             note: evt.note
           });
           // Go one day forward and make a new event
-          start += 86400000;
+          start.add(12, 'h');
+          cmp = moment(start);
         }
       }
       // #TODO: convert times to second for API. find a better solution for interacting with api.
