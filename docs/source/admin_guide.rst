@@ -17,7 +17,7 @@ A local test instance of Oncall can be setup with Docker_ in a few commands:
     mkdir output
     python gen_packer_cfg.py ./oncall.yaml | tail -n +2 > ./output/oncall.json
     packer build -only=docker oncall.json
-    docker run -d --name oncall-mysql -e MYSQL_ROOT_PASSWORD='1234' mysql
+    docker run -d --name oncall-mysql -e MYSQL_ROOT_PASSWORD='1234' mysql:5.7
     docker run -d --link oncall-mysql:mysql -p 8080:8080 -e DOCKER_DB_BOOTSTRAP=1 quay.io/iris/oncall
 
 .. NOTE::
