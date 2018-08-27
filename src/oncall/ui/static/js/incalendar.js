@@ -49,6 +49,9 @@
           onEventAlways: function(){
             // callback for when fetch events ajax call is completed run regardless of success or failure
           },
+          onFetchFail: function(data){
+            // callback for when fetch calendar events fails
+          },
           onAddEvents: function (events) {
             // callback for when events are added to calendar
           },
@@ -679,6 +682,8 @@
         self.options.events = data;
         self.addCalendarEvents();
         self.options.onEventGet(data, self.$calendar);
+      }).fail(function(data){
+        self.options.onFetchFail(data);
       }).always(function(){
         self.$el.removeClass('loading-events');
         self.options.onEventAlways();
