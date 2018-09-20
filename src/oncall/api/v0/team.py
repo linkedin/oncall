@@ -204,6 +204,8 @@ def on_put(req, resp, team):
         if invalid_char:
             raise HTTPBadRequest('invalid team name',
                                  'team name contains invalid character "%s"' % invalid_char.group())
+        elif data['name'] == '':
+            raise HTTPBadRequest('invalid team name', 'empty team name')
 
     if 'iris_plan' in data and data['iris_plan']:
         iris_plan = data['iris_plan']
