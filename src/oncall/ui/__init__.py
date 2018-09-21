@@ -22,7 +22,7 @@ assets_env = AssetsEnvironment(path.join(STATIC_ROOT, 'static'),
                                url='/static')
 
 assets_env.register('libs', Bundle(
-    'js/jquery-2.1.4.min.js', 'js/handlebars.min.js', 'js/bootstrap.min.js',
+    'js/jquery-3.3.1.min.js', 'js/handlebars-4.0.12.min.js', 'js/bootstrap.min.js',
     'js/moment.js', 'js/moment-timezone.js', 'js/moment-tz-data.js',
     'js/typeahead.js',
     output='bundles/libs.js'))
