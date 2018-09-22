@@ -35,7 +35,7 @@ def load_sqldump(config, sqlfile, one_db=True):
 
 def wait_for_mysql(config):
     print 'Checking MySQL liveness on %s...' % config['host']
-    db_address = (config['host'], 3306)
+    db_address = (config['host'], config['port'])
     tries = 0
     while True:
         try:

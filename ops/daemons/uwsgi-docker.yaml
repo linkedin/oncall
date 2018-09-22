@@ -1,6 +1,6 @@
 prod:
     plugins: python,logfile
-    chdir: /home/oncall/source/src
+    chdir: /home/oncall/source
     socket: /home/oncall/var/run/uwsgi.sock
     chmod-socket: 666
     master: True
