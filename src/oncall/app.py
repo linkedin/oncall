@@ -11,7 +11,7 @@ import re
 from beaker.middleware import SessionMiddleware
 from falcon_cors import CORS
 
-from . import db, constants, iris
+from . import db, constants, iris, auth
 
 import logging
 logger = logging.getLogger('oncall.app')
@@ -47,17 +47,35 @@ class ReqBodyMiddleware(object):
         req.context['body'] = req.stream.read()
 
 
+class AuthMiddleware(object):
+    def process_resource(self, req, resp, resource, params):
+        try:
+            if resource.allow_no_auth:
+                return
+        except AttributeError:
+            pass
+
+        auth_token = req.get_header('AUTHORIZATION')
+        if auth_token:
+            auth.authenticate_application(auth_token, req)
+        else:
+            auth.authenticate_user(req)
+
+
 application = None
 
 
 def init_falcon_api(config):
     global application
     cors = CORS(allow_origins_list=config.get('allow_origins_list', []))
-    application = falcon.API(middleware=[
+    middlewares = [
         SecurityHeaderMiddleware(),
         ReqBodyMiddleware(),
         cors.middleware
-    ])
+    ]
+    if config.get('require_auth'):
+        middlewares.append(AuthMiddleware())
+    application = falcon.API(middleware=middlewares)
     application.req_options.auto_parse_form_urlencoded = False
     application.set_error_serializer(json_error_serializer)
     from .auth import init as init_auth
