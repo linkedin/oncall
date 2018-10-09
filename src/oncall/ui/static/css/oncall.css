@@ -2209,6 +2209,10 @@ span.twitter-typeahead {
   cursor: pointer;
 }
 
+.svg-icon-question.svg-icon-no-modal {
+  cursor: unset;
+}
+
 .svg-icon-question:hover {
   border-color: #91C475;
   fill: #91C475;
