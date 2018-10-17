@@ -22,7 +22,7 @@ assets_env = AssetsEnvironment(path.join(STATIC_ROOT, 'static'),
                                url='/static')
 
 assets_env.register('libs', Bundle(
-    'js/jquery-2.1.4.min.js', 'js/handlebars.min.js', 'js/bootstrap.min.js',
+    'js/jquery-3.3.1.min.js', 'js/handlebars-4.0.12.min.js', 'js/bootstrap.min.js',
     'js/moment.js', 'js/moment-timezone.js', 'js/moment-tz-data.js',
     'js/typeahead.js',
     output='bundles/libs.js'))
@@ -73,12 +73,12 @@ SLACK_INSTANCE = None
 HEADER_COLOR = None
 IRIS_PLAN_SETTINGS = None
 USERCONTACT_UI_READONLY = None
-LOGIN_SPLASH = None
+LOGIN_REQUIRED = None
 
 
 def index(req, resp):
     user = req.env.get('beaker.session', {}).get('user')
-    if str(user) == 'None' and LOGIN_SPLASH:
+    if user is None and LOGIN_REQUIRED:
         resp.content_type = 'text/html'
         resp.body = jinja2_env.get_template('loginsplash.html').render()
     else:
@@ -110,6 +110,8 @@ def secure_filename(filename):
 
 
 class StaticResource(object):
+    allow_no_auth = True
+
     def __init__(self, path):
         self.path = path.lstrip('/')
 
@@ -135,12 +137,12 @@ def init(application, config):
     global HEADER_COLOR
     global IRIS_PLAN_SETTINGS
     global USERCONTACT_UI_READONLY
-    global LOGIN_SPLASH
+    global LOGIN_REQUIRED
     SLACK_INSTANCE = config.get('slack_instance')
     HEADER_COLOR = config.get('header_color', '#3a3a3a')
     IRIS_PLAN_SETTINGS = config.get('iris_plan_integration')
     USERCONTACT_UI_READONLY = config.get('usercontact_ui_readonly', True)
-    LOGIN_SPLASH = config.get('force_login_splash')
+    LOGIN_REQUIRED = config.get('require_auth')
 
     application.add_sink(index, '/')
     application.add_route('/static/bundles/{filename}',

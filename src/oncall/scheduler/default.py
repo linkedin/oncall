@@ -326,8 +326,8 @@ class Scheduler(object):
             self.set_last_epoch(schedule['id'], last_epoch, cursor)
 
         # Create events in the db, associating a user to them
-        # Iterate through events in order of start time to properly assign users
-        for schedule, epoch in sorted(events, key=lambda x: min(ev['start'] for ev in x[1])):
+        # Iterate through events in order of (start time, role) to properly assign users
+        for schedule, epoch in sorted(events, key=lambda x: (min(ev['start'] for ev in x[1]), x[0]['role_id'])):
             user_id = self.find_next_user_id(schedule, epoch, cursor)
             if not user_id:
                 logger.info('Failed to find available user')

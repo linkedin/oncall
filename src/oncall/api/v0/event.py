@@ -3,9 +3,9 @@
 
 import time
 from ujson import dumps as json_dumps
-from falcon import HTTPNotFound, HTTPBadRequest
+from falcon import HTTPNotFound, HTTPBadRequest, HTTPUnauthorized
 
-from ...auth import login_required, check_calendar_auth
+from ...auth import login_required, check_calendar_auth, check_team_auth
 from ... import db, constants
 from ...utils import (
     load_json_body, user_in_team_by_name, create_notification, create_audit
@@ -139,8 +139,12 @@ def on_put(req, resp, event_id):
             # Make an exception for editing event end times
             if not (all(event_data[key] == new_event[key] for key in ('role', 'start', 'user')) and
                     data['end'] > now):
-                raise HTTPBadRequest('Invalid event update',
-                                     'Editing events in the past not allowed')
+                # Allow admins to edit in the past. If unauthorized for this action, return 400
+                try:
+                    check_team_auth(event_data['team'], req)
+                except HTTPUnauthorized:
+                    raise HTTPBadRequest('Invalid event update',
+                                         'Editing events in the past not allowed')
 
         check_calendar_auth(event_data['team'], req)
         if not user_in_team_by_name(cursor, new_event['user'], event_data['team']):

@@ -179,8 +179,10 @@ iris_plan_integration:
 # Configures whether Slack settings will appear in the frontend
 slack_instance: foobar
 
-# setting to toggle login splash screen. This will require users to log in to  be able to use the app. Set to True to enable and False to disable.
-force_login_splash: False
+# Setting to determine whether the Oncall API/frontend is available unauthenticated.
+# Set to True to force login splash page and authentication on API calls and False to allow read
+# APIs without authentication
+require_auth: False
 
 ##########################
 ### Oncall user management

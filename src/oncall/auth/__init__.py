@@ -241,8 +241,9 @@ def init(application, config):
         check_calendar_auth_by_id = lambda x, y: True
         debug_only = lambda function: function
 
-    if config.get('docs'):
+    if config.get('docs') or config.get('require_auth'):
         # Replace login_required decorator with identity function for autodoc generation
+        # Also replace if require_auth is True, since AuthMiddleware already handles login for us
         global login_required
         login_required = lambda x: x
     else:
