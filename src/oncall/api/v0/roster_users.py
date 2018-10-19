@@ -122,8 +122,8 @@ def on_post(req, resp, team, roster):
         cursor.execute('''INSERT IGNORE INTO `team_user` (`team_id`, `user_id`) VALUES (%r, %r)''',
                        (team_id, user_id))
         cursor.execute('''SELECT `roster`.`id`, COALESCE(MAX(`roster_user`.`roster_priority`), -1) + 1
-                          FROM `roster_user`
-                          JOIN `roster` ON `roster_id` = `roster`.`id`
+                          FROM `roster`
+                          LEFT JOIN `roster_user` ON `roster`.`id` = `roster_id`
                           JOIN `team` ON `team`.`id`=`roster`.`team_id`
                           WHERE `team`.`name`=%s AND `roster`.`name`=%s''',
                        (team, roster))
