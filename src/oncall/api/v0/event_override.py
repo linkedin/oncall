@@ -84,8 +84,12 @@ def on_post(req, resp):
         now = time.time()
 
         cursor.execute('SELECT `id` FROM `user` WHERE `name` = %s', user)
-        user_id = cursor.fetchone()['id']
-        team_id = events[0]['team_id']
+        user_id = cursor.fetchone()
+        if not (events and user_id):
+            raise HTTPBadRequest('Invalid name or list of events')
+        else:
+            user_id = user_id['id']
+            team_id = events[0]['team_id']
 
         check_calendar_auth_by_id(team_id, req)
         # Check that events are not in the past
