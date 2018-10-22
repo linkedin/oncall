@@ -2430,7 +2430,6 @@ var oncall = {
       init: function(name){
         var start_time = moment().subtract(30, 'days');
         this.data.teamName = decodeURIComponent(name);
-        $.getScript('/static/bundles/dataTables.js');
         this.getData(start_time);
       },
       events: function(){

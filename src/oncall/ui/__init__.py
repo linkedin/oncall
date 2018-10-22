@@ -24,11 +24,8 @@ assets_env = AssetsEnvironment(path.join(STATIC_ROOT, 'static'),
 assets_env.register('libs', Bundle(
     'js/jquery-3.3.1.min.js', 'js/handlebars-4.0.12.min.js', 'js/bootstrap.min.js',
     'js/moment.js', 'js/moment-timezone.js', 'js/moment-tz-data.js',
-    'js/typeahead.js',
+    'js/typeahead.js', 'js/jquery.dataTables.min.js',
     output='bundles/libs.js'))
-assets_env.register('datatables_js', Bundle(
-    'js/jquery.dataTables.min.js',
-    output='bundles/dataTables.js'))
 assets_env.register('oncall_js', Bundle(
     'js/navigo.js', 'js/incalendar.js', 'js/oncall.js',
     output='bundles/oncall.bundle.js'))
