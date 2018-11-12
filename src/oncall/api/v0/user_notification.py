@@ -79,7 +79,7 @@ def on_put(req, resp, notification_id):
     :statuscode 400: Validation checks failed.
     '''
     data = load_json_body(req)
-    params = data.keys()
+    params = list(data.keys())
     roles = data.pop('roles')
 
     cols = [columns[c] for c in data if c in columns]

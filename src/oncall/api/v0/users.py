@@ -24,7 +24,7 @@ columns = {
     'god': '`user`.`god` as `god`',
 }
 
-all_columns = ', '.join(columns.values())
+all_columns = ', '.join(list(columns.values()))
 
 constraints = {
     'id': '`user`.`id` = %s',
@@ -63,7 +63,7 @@ def get_user_data(fields, filter_params, dbinfo=None):
         if any(f not in columns for f in fields):
             raise HTTPBadRequest('Bad fields', 'One or more invalid fields')
 
-        fields = map(columns.__getitem__, fields)
+        fields = list(map(columns.__getitem__, fields))
         cols = ', '.join(fields)
     else:
         from_clause += JOIN_CONTACT_TABLES
@@ -79,7 +79,7 @@ def get_user_data(fields, filter_params, dbinfo=None):
         connection, cursor = dbinfo
 
     where = ' AND '.join(constraints[key] % connection.escape(value)
-                         for key, value in filter_params.iteritems()
+                         for key, value in filter_params.items()
                          if key in constraints)
     query = 'SELECT %s FROM %s' % (cols, from_clause)
     if where:
@@ -106,7 +106,7 @@ def get_user_data(fields, filter_params, dbinfo=None):
                 continue
             dest = row.pop('destination')
             ret[user_id]['contacts'][mode] = dest
-        data = ret.values()
+        data = list(ret.values())
     return data
 
 

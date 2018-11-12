@@ -30,6 +30,7 @@ setuptools.setup(
         'python-ldap',
         'pytz',
         'irisclient',
+        'six',
         'slackclient',
         'icalendar',
         'pymsteams'

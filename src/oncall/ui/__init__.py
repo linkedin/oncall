@@ -4,7 +4,7 @@
 # All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import logging
 import re
@@ -63,7 +63,7 @@ mimes = {
 
 INDEX_CONTENT_SETTING = {
     'user_setting_note': '',
-    'footer': '<ul><li>Oncall © LinkedIn 2017</li></ul>'.decode('utf-8'),
+    'footer': '<ul><li>Oncall © LinkedIn 2017</li></ul>',
 }
 
 SLACK_INSTANCE = None

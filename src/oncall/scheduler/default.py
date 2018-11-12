@@ -32,7 +32,7 @@ constraints = {
     'team__eq': '`team`.`name` = %s',
 }
 
-all_columns = ', '.join(columns.values())
+all_columns = ', '.join(list(columns.values()))
 
 
 class Scheduler(object):
@@ -394,8 +394,8 @@ class Scheduler(object):
         self.set_last_epoch(schedule['id'], last_epoch, cursor)
 
         # Delete existing events from the start of the first event
-        future_events = [filter(lambda x: x['start'] >= start_time, evs) for evs in future_events]
-        future_events = filter(lambda x: x != [], future_events)
+        future_events = [[x for x in evs if x['start'] >= start_time] for evs in future_events]
+        future_events = [x for x in future_events if x != []]
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
             query = 'DELETE FROM %s WHERE schedule_id = %%s AND start >= %%s' % table_name

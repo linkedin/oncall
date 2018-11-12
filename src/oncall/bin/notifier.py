@@ -151,7 +151,7 @@ def main():
 
     init_messengers(config.get('messengers', []))
 
-    worker_tasks = [spawn(worker) for x in xrange(100)]
+    worker_tasks = [spawn(worker) for x in range(100)]
     reminder_on = False
     if config['reminder']['activated']:
         reminder_worker = spawn(reminder.reminder, config['reminder'])

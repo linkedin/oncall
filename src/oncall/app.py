@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 
-from urllib import unquote_plus
+from six.moves.urllib.parse import unquote_plus
 from importlib import import_module
 
 import falcon

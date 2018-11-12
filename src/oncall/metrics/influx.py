@@ -36,7 +36,7 @@ class influx(object):
             return
         now = str(datetime.now())
         payload = []
-        for metric, value in metrics.iteritems():
+        for metric, value in metrics.items():
             data = {
                 'measurement': self.appname,
                 'tags': {},

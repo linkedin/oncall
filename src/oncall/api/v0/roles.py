@@ -13,7 +13,7 @@ columns = {
     'display_order': '`role`.`display_order` as `display_order`',
 }
 
-all_columns = ', '.join(columns.values())
+all_columns = ', '.join(list(columns.values()))
 
 constraints = {
     'id': '`role`.`id` = %s',

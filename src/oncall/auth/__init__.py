@@ -254,7 +254,7 @@ def init(application, config):
             app_key_cache[row[0]] = row[1]
         cursor.close()
         connection.close()
-        logger.debug('loaded applications: %s', app_key_cache.keys())
+        logger.debug('loaded applications: %s', list(app_key_cache.keys()))
 
         auth = importlib.import_module(config['module'])
         auth_manager = getattr(auth, 'Authenticator')(config)

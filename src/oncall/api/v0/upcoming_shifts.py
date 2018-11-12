@@ -77,7 +77,7 @@ def on_get(req, resp, user_name):
             formatted.append(event)
         else:
             links[event['link_id']].append(event)
-    for events in links.itervalues():
+    for events in links.values():
         first_event = min(events, key=operator.itemgetter('start'))
         first_event['num_events'] = len(events)
         formatted.append(first_event)

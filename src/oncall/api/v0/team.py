@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 import uuid
 import time
-from urllib import unquote
+from six.moves.urllib.parse import unquote
 from falcon import HTTPNotFound, HTTPBadRequest, HTTPError
 from ujson import dumps as json_dumps
 
@@ -156,7 +156,7 @@ def on_get(req, resp, team):
 
     if not fields:
         # default to get all data
-        fields = populate_map.keys()
+        fields = list(populate_map.keys())
     for field in fields:
         populate = populate_map.get(field)
         if not populate:
@@ -198,7 +198,7 @@ def on_put(req, resp, team):
     connection = db.connect()
     cursor = connection.cursor()
 
-    data_cols = data.keys()
+    data_cols = list(data.keys())
     if 'name' in data:
         invalid_char = invalid_char_reg.search(data['name'])
         if invalid_char:

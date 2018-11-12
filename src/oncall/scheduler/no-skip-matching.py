@@ -1,4 +1,4 @@
-import default
+from . import default
 
 
 class Scheduler(default.Scheduler):
