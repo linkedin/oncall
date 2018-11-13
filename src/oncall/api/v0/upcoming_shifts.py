@@ -3,7 +3,7 @@
 
 from ... import db
 from .events import all_columns
-from ujson import dumps as json_dumps
+from json import dumps as json_dumps
 from collections import defaultdict
 import operator
 

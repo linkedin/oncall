@@ -8,7 +8,7 @@ import yaml
 import logging
 import time
 from importlib import import_module
-from ujson import loads as json_loads
+from json import loads as json_loads
 from gevent import queue, spawn, sleep
 
 from oncall import db, metrics

@@ -5,7 +5,7 @@
 
 import yaml
 from uuid import uuid4
-from ujson import loads as json_loads, dumps as json_dumps
+from json import loads as json_loads, dumps as json_dumps
 from falcon import HTTPBadRequest
 from importlib import import_module
 from datetime import datetime

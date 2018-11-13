@@ -1,7 +1,7 @@
 import time
 import logging
 from gevent import sleep
-from ujson import dumps as json_dumps
+from json import dumps as json_dumps
 from datetime import datetime
 from pytz import timezone
 from oncall import db, constants

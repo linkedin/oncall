@@ -3,7 +3,7 @@
 
 from six.moves.urllib.parse import unquote
 from falcon import HTTPError, HTTPNotFound, HTTPBadRequest
-from ujson import dumps as json_dumps
+from json import dumps as json_dumps
 
 from ...auth import login_required, check_team_auth
 from ... import db

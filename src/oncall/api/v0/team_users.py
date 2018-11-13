@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from falcon import HTTPError, HTTP_201
-from ujson import dumps as json_dumps
+from json import dumps as json_dumps
 from .users import get_user_data
 from ... import db
 from ...auth import login_required, check_team_auth

@@ -4,7 +4,7 @@ import uuid
 import time
 from six.moves.urllib.parse import unquote
 from falcon import HTTPNotFound, HTTPBadRequest, HTTPError
-from ujson import dumps as json_dumps
+from json import dumps as json_dumps
 
 from ... import db, iris
 from .users import get_user_data

@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from ... import db
-from ujson import dumps
+from json import dumps
 
 
 def on_get(req, resp):

@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from falcon import HTTPBadRequest, HTTP_201
-from ujson import dumps as json_dumps
+from json import dumps as json_dumps
 from ... import db
 from ...auth import login_required, check_user_auth
 from ...utils import load_json_body

@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 import time
-from ujson import dumps as json_dumps
+from json import dumps as json_dumps
 from falcon import HTTPNotFound, HTTPBadRequest, HTTPUnauthorized
 
 from ...auth import login_required, check_calendar_auth, check_team_auth

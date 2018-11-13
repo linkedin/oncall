@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from falcon import HTTPError, HTTPBadRequest
-from ujson import dumps as json_dumps
+from json import dumps as json_dumps
 import time
 
 from ...auth import login_required, check_calendar_auth_by_id

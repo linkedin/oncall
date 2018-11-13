@@ -17,7 +17,6 @@ setuptools.setup(
         'falcon==1.1.0',
         'falcon-cors',
         'gevent',
-        'ujson',
         'sqlalchemy',
         'PyYAML',
         'PyMYSQL',
@@ -27,17 +26,16 @@ setuptools.setup(
         'webassets',
         'beaker',
         'cryptography==2.3',
-        'python-ldap',
         'pytz',
-        'irisclient',
         'six',
-        'slackclient',
         'icalendar',
         'pymsteams'
     ],
     extras_require={
         'ldap': ['python-ldap'],
         'prometheus': ['prometheus_client'],
+        'iris': ['iricclient'],
+        'slack': ['slackclient'],
         'dev': [
             'pytest',
             'pytest-mock',

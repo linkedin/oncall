@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from falcon import HTTPNotFound
-from ujson import dumps
+from json import dumps
 from ...utils import load_json_body
 
 from ... import db
