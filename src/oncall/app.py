@@ -11,11 +11,7 @@ import re
 from beaker.middleware import SessionMiddleware
 from falcon_cors import CORS
 
-from . import db, constants, auth
-try:
-    from . import iris
-except ImportError:
-    pass
+from . import db, constants, iris, auth
 
 import logging
 logger = logging.getLogger('oncall.app')

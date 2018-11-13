@@ -4,8 +4,9 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import json
+
 import requests
-import ujson
 from testutils import prefix, api_v0
 
 
@@ -180,7 +181,7 @@ def test_api_v0_rotation(team, user, roster):
 
     # test updating user to put into rotation
     re = requests.put(api_v0('teams/%s/rosters/%s/users/%s' % (team_name, roster_name, user_name)),
-                      data=ujson.dumps({'in_rotation': True}))
+                      data=json.dumps({'in_rotation': True}))
     assert re.status_code == 200
 
     # verify user is now in rotation
