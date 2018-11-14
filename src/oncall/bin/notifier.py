@@ -3,12 +3,13 @@
 
 from __future__ import absolute_import
 
+import codecs
 import sys
 import yaml
 import logging
 import time
 from importlib import import_module
-from json import loads as json_loads
+from ujson import loads as json_loads
 from gevent import queue, spawn, sleep
 
 from oncall import db, metrics
@@ -39,8 +40,8 @@ default_timezone = None
 
 
 def load_config_file(config_path):
-    with open(config_path) as h:
-        config = yaml.load(h)
+    with codecs.open(config_path, 'r', encoding="utf-8") as f:
+        config = yaml.safe_load(f)
 
     if 'init_config_hook' in config:
         try:
@@ -137,8 +138,8 @@ def metrics_sender():
 
 
 def main():
-    with open(sys.argv[1], 'r') as config_file:
-        config = yaml.safe_load(config_file)
+    with codecs.open(sys.argv[1], 'r', encoding="utf-8") as f:
+        config = yaml.safe_load(f)
 
     init_notifier(config)
     metrics_on = False

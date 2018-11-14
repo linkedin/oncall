@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from falcon import HTTPNotFound, HTTPUnauthorized, HTTPBadRequest
 from falcon.util import uri
 from oncall.api.v0.users import get_user_data
-from json import dumps
+from ujson import dumps
 from oncall import db
 from random import SystemRandom
 from . import auth_manager

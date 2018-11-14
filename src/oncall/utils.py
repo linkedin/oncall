@@ -6,7 +6,7 @@
 import yaml
 import codecs
 from uuid import uuid4
-from json import loads as json_loads, dumps as json_dumps
+from ujson import loads as json_loads, dumps as json_dumps
 from falcon import HTTPBadRequest
 from importlib import import_module
 from datetime import datetime

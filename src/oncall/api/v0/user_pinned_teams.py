@@ -1,7 +1,7 @@
 from ... import db
 from ...utils import load_json_body
 from ...auth import login_required, check_user_auth
-from json import dumps as json_dumps
+from ujson import dumps as json_dumps
 from falcon import HTTPBadRequest, HTTP_201, HTTPError
 
 

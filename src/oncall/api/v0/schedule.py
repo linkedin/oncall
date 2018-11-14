@@ -7,7 +7,7 @@ from ...auth import login_required, check_team_auth
 from .schedules import insert_schedule_events
 from ... import db
 from ...utils import load_json_body
-from json import dumps as json_dumps
+from ujson import dumps as json_dumps
 from .schedules import validate_simple_schedule, get_schedules
 
 columns = {

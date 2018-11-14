@@ -4,7 +4,7 @@
 from falcon import HTTP_201, HTTPError, HTTPBadRequest
 import time
 
-from json import dumps as json_dumps
+from ujson import dumps as json_dumps
 from ... import db, constants
 from ...utils import (
     load_json_body, gen_link_id, user_in_team_by_name

@@ -1,5 +1,5 @@
 from ... import db
-from json import dumps as json_dumps
+from ujson import dumps as json_dumps
 from falcon import HTTPNotFound, HTTPBadRequest
 
 

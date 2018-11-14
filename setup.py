@@ -17,6 +17,7 @@ setuptools.setup(
         'falcon==1.1.0',
         'falcon-cors',
         'gevent',
+        'ujson',
         'sqlalchemy',
         'PyYAML',
         'PyMYSQL',
@@ -34,7 +35,7 @@ setuptools.setup(
     extras_require={
         'ldap': ['python-ldap'],
         'prometheus': ['prometheus_client'],
-        'iris': ['iricclient'],
+        'iris': ['irisclient'],
         'slack': ['slackclient'],
         'dev': [
             'pytest',

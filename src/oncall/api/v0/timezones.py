@@ -1,5 +1,5 @@
 from ...constants import SUPPORTED_TIMEZONES
-from json import dumps as json_dumps
+from ujson import dumps as json_dumps
 
 
 def on_get(req, resp):

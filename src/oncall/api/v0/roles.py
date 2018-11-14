@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from falcon import HTTP_201, HTTPError
-from json import dumps as json_dumps
+from ujson import dumps as json_dumps
 from ... import db
 from ...auth import debug_only
 from ...utils import load_json_body

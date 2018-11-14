@@ -3,7 +3,7 @@
 
 import time
 from falcon import HTTP_201, HTTPError, HTTPBadRequest
-from json import dumps as json_dumps
+from ujson import dumps as json_dumps
 from ...auth import login_required, check_calendar_auth
 from ... import db, constants
 from ...utils import (

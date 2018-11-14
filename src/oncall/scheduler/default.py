@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from pytz import timezone, utc
 from oncall.utils import gen_link_id
 from falcon import HTTPBadRequest
-from json import dumps as json_dumps
+from ujson import dumps as json_dumps
 import time
 import logging
 import operator

@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from ... import db
-from json import dumps
+from ujson import dumps
 from collections import defaultdict
 from falcon import HTTPNotFound
 

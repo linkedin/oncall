@@ -4,8 +4,9 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import requests
 import json
+
+import requests
 from testutils import prefix, api_v0
 
 
