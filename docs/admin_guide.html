@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Admin guide &mdash; Oncall 1.0.0 documentation</title>
+  <title>Admin guide &mdash; Oncall 1.1.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Oncall 1.0.0 documentation" href="index.html"/>
+    <link rel="top" title="Oncall 1.1.0 documentation" href="index.html"/>
         <link rel="next" title="REST API" href="api.html"/>
         <link rel="prev" title="User guide" href="user_guide.html"/> 
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -96,6 +96,9 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Admin guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#quickstart">Quickstart</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#test-with-docker">Test with Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-users">Adding Users</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ldap-authentication">Ldap Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#iris-integration">Iris Integration</a></li>
 </ul>
 </li>
 </ul>
@@ -170,8 +173,12 @@
 <h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="test-with-docker">
 <h3>Test with Docker<a class="headerlink" href="#test-with-docker" title="Permalink to this headline">¶</a></h3>
-<p>A local test instance of Oncall can be setup with <a class="reference external" href="https://www.docker.com/community-edition">Docker</a> in two commands:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>docker run -d --name oncall-mysql -e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span><span class="s1">&#39;1234&#39;</span> mysql
+<p>A local test instance of Oncall can be setup with <a class="reference external" href="https://www.docker.com/community-edition">Docker</a> in a few commands:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">cd</span> ./ops/packer
+mkdir output
+python gen_packer_cfg.py ./oncall.yaml <span class="p">|</span> tail -n +2 &gt; ./output/oncall.json
+packer build -only<span class="o">=</span>docker oncall.json
+docker run -d --name oncall-mysql -e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span><span class="s1">&#39;1234&#39;</span> mysql:5.7
 docker run -d --link oncall-mysql:mysql -p <span class="m">8080</span>:8080 -e <span class="nv">DOCKER_DB_BOOTSTRAP</span><span class="o">=</span><span class="m">1</span> quay.io/iris/oncall
 </pre></div>
 </div>
@@ -192,6 +199,97 @@ exists in the DB). You can navigate to the &#8220;Browse Teams&#8221; page and c
 &#8220;Test Team&#8221;, which shows a calendar page where you can create and modify
 events. See <a class="reference internal" href="user_guide.html#user-guide"><span class="std std-ref">User guide</span></a> for more information on how to interact with the
 UI.</p>
+</div>
+<div class="section" id="adding-users">
+<h3>Adding Users<a class="headerlink" href="#adding-users" title="Permalink to this headline">¶</a></h3>
+<p>Users may be imported from other systems such as LDAP and Slack. This process is
+extensible by developing your own plugins.</p>
+<p>Let&#8217;s use LDAP as an example. First we configure the user_sync process to use the
+ldap_sync module, then we provide specific configuration for this module to
+connect to LDAP.</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">user_sync</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">module</span><span class="p p-Indicator">:</span> <span class="s">&#39;oncall.user_sync.ldap_sync&#39;</span>
+
+<span class="l l-Scalar l-Scalar-Plain">ldap_sync</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">url</span><span class="p p-Indicator">:</span> <span class="s">&#39;ldaps://ldapserver.org&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">base</span><span class="p p-Indicator">:</span> <span class="s">&#39;ou=accounts,dc=company,dc=org&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">user</span><span class="p p-Indicator">:</span> <span class="s">&#39;cn=oncall,ou=serviceaccount,dc=company,dc=org&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">password</span><span class="p p-Indicator">:</span> <span class="s">&#39;xxxx&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">cert_path</span><span class="p p-Indicator">:</span> <span class="s">&#39;/etc/ldap_cert.pem&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">query</span><span class="p p-Indicator">:</span> <span class="s">&#39;(uid=*)&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">attrs</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">username</span><span class="p p-Indicator">:</span> <span class="s">&#39;uid&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">full_name</span><span class="p p-Indicator">:</span> <span class="s">&#39;cn&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">mail</span><span class="p p-Indicator">:</span> <span class="s">&#39;mail&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">mobile</span><span class="p p-Indicator">:</span> <span class="s">&#39;mobile&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">image_url</span><span class="p p-Indicator">:</span> <span class="s">&#39;https://image.example.com/api/%s/picture&#39;</span>
+</pre></div>
+</div>
+<p>User synchronization is a seperate process which needs to be started manually,
+but will continue to run in a loop, updating users as necessary.</p>
+<p>To run this process, you simply point to the configuration file:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>./oncall-user-sync /home/oncall/config/config.yaml
+</pre></div>
+</div>
+<p>Now that your users are in Oncall, they can be accessed by Iris. Note that
+this too is a manually triggered synchronization process, rather than just
+a call to Oncall. But while Iris will import these as Targets, it will still
+call Oncall to determine who is the current Oncall-primary and secondary, when
+creating a new message to be sent.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is also possible to use <a class="reference external" href="https://github.com/dwang159/oncall-admin">Oncall-admin</a> to do manual user administration</p>
+</div>
+</div>
+<div class="section" id="ldap-authentication">
+<h3>Ldap Authentication<a class="headerlink" href="#ldap-authentication" title="Permalink to this headline">¶</a></h3>
+<p>Alternatively, you can configure oncall ldap authentication to use the <cite>oncall.auth.modules.ldap_import</cite> module.
+When a user try to connect to oncall, the module will check if the user is already present or not.
+If not, the user will be automatically added to the oncall user database, and conacts information will be synced.
+If the user already exists, his contacts informations will be updated according to ldap informations.
+You can deactivate this feature by setting the <cite>import_user</cite> option to <cite>False</cite>.</p>
+<p>Here is an example of ldap auth configuration :</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">auth</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">debug</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+  <span class="l l-Scalar l-Scalar-Plain">module</span><span class="p p-Indicator">:</span> <span class="s">&#39;oncall.auth.modules.ldap_import&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">ldap_url</span><span class="p p-Indicator">:</span> <span class="s">&#39;ldaps://ldapserver.org&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">ldap_user_suffix</span><span class="p p-Indicator">:</span> <span class="s">&#39;&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">ldap_cert_path</span><span class="p p-Indicator">:</span> <span class="s">&#39;/etc/ldap_cert.pem&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">ldap_bind_user</span><span class="p p-Indicator">:</span> <span class="s">&#39;cn=oncall,ou=serviceaccount,dc=company,dc=org&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">ldap_bind_password</span><span class="p p-Indicator">:</span> <span class="s">&#39;xxxx&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">ldap_base_dn</span><span class="p p-Indicator">:</span> <span class="s">&#39;ou=accounts,dc=company,dc=org&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">ldap_search_filter</span><span class="p p-Indicator">:</span> <span class="s">&#39;(uid=%s)&#39;</span>
+  <span class="l l-Scalar l-Scalar-Plain">import_user</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+  <span class="l l-Scalar l-Scalar-Plain">attrs</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">username</span><span class="p p-Indicator">:</span> <span class="s">&#39;uid&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">full_name</span><span class="p p-Indicator">:</span> <span class="s">&#39;cn&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">email</span><span class="p p-Indicator">:</span> <span class="s">&#39;mail&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">call</span><span class="p p-Indicator">:</span> <span class="s">&#39;0123456789&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">sms</span><span class="p p-Indicator">:</span> <span class="s">&#39;0123456789&#39;</span>
+    <span class="l l-Scalar l-Scalar-Plain">slack</span><span class="p p-Indicator">:</span> <span class="s">&#39;uid&#39;</span>
+</pre></div>
+</div>
+<p>Note if one of the attrs for ldap mapping to oncall contacts information is missing in ldap, the configured attr value will be used as the default value.
+For example if the ldap does not have a phone attribute for a user, the default valut will be the 0123456789 call number.</p>
+</div>
+<div class="section" id="iris-integration">
+<h3>Iris Integration<a class="headerlink" href="#iris-integration" title="Permalink to this headline">¶</a></h3>
+<p>To allow Oncall users to escalate issues via Iris, you will need to configure
+the <code class="docutils literal"><span class="pre">iris_plan_integration</span></code> section of the Oncall config. This lets you define
+a dynamic Iris plan for urgent and non-urgent escalations from the Oncall
+frontend, and also allows teams to define a custom escalation plan that may
+be triggered. The example Iris/Oncall installations should be configured with a
+working Oncall escalation plan called &#8220;Oncall test&#8221;. To configure this setting,
+do the following:</p>
+<ol class="arabic simple">
+<li>In the Iris frontend logged in as an admin user (demo by default), create an application corresponding to Oncall (&#8220;oncall&#8221; in the example data). This application must define the &#8220;requester&#8221; and &#8220;description&#8221; variables.</li>
+<li>Update the Oncall config file with this name, along with the Iris API key and host</li>
+<li>Create a template in Iris that has an application template for Oncall.</li>
+<li>Create a dynamic plan in Iris (&#8220;Oncall test&#8221; in the example).</li>
+<li>Ensure CORS is allowed from Oncall to Iris in the Iris configuration file.</li>
+<li>Update the Oncall config file with this dynamic plan name, and map roles/targets to that plan&#8217;s dynamic targets. In the example, target 0 in &#8220;Oncall test&#8221; maps to a team&#8217;s primary oncall, target 1 maps to all members of the team, and target 2 maps to the manager of the team.</li>
+<li>Test the integration via the Oncall frontend. Oncall should create an Iris incident and trigger the configured Iris plan&#8217;s escalation steps.</li>
+</ol>
 </div>
 </div>
 </div>
@@ -240,7 +338,7 @@ UI.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
