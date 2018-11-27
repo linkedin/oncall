@@ -39,8 +39,8 @@ def test_api_v0_fill_gap_new_user(user, team, role, roster, event):
                   'user': user_name_4,
                   'team': team_name,
                   'role': role_name})
-    re = requests.get(api_v0('teams/%s/rosters/%s/%s/suggest?start=%s' %
-                             (team_name, roster_name, role_name, start + 2000)))
+    re = requests.get(api_v0('teams/%s/rosters/%s/%s/suggest?start=%s&end=%s' %
+                             (team_name, roster_name, role_name, start + 2000, start + 3000)))
     assert re.status_code == 200
     assert re.json()['user'] == user_name_5
 
@@ -77,8 +77,8 @@ def test_api_v0_fill_gap(user, team, role, roster, event):
                   'user': user_name,
                   'team': team_name,
                   'role': role_name})
-    re = requests.get(api_v0('teams/%s/rosters/%s/%s/suggest?start=%s' %
-                             (team_name, roster_name, role_name, start + 2000)))
+    re = requests.get(api_v0('teams/%s/rosters/%s/%s/suggest?start=%s&end=%s' %
+                             (team_name, roster_name, role_name, start + 2000, start + 3000)))
     assert re.status_code == 200
     assert re.json()['user'] == user_name
 
@@ -121,12 +121,12 @@ def test_api_v0_fill_gap_skip_busy(user, team, role, roster, event):
                   'user': user_name,
                   'team': team_name,
                   'role': role_name})
-    event.create({'start': start + 1000,
+    event.create({'start': start + 2500,
                   'end': start + 3000,
                   'user': user_name_4,
                   'team': team_name,
                   'role': role_name_2})
-    re = requests.get(api_v0('teams/%s/rosters/%s/%s/suggest?start=%s' %
-                             (team_name, roster_name, role_name, start + 2000)))
+    re = requests.get(api_v0('teams/%s/rosters/%s/%s/suggest?start=%s&end=%s' %
+                             (team_name, roster_name, role_name, start + 2000, start + 3000)))
     assert re.status_code == 200
     assert re.json()['user'] == user_name
