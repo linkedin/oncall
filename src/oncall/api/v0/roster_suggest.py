@@ -5,6 +5,7 @@ from falcon import HTTPNotFound, HTTPBadRequest
 
 def on_get(req, resp, team, roster, role):
     start = req.get_param_as_int('start', required=True)
+    end = req.get_param_as_int('end', required=True)
 
     connection = db.connect()
     cursor = connection.cursor()
@@ -31,10 +32,11 @@ def on_get(req, resp, team, roster, role):
                 'role_id': role_id,
                 'past': start - length,
                 'start': start,
+                'end': end,
                 'future': start + length}
 
         cursor.execute('''SELECT `user`.`name` FROM `event` JOIN `user` ON `event`.`user_id` = `user`.`id`
-                          WHERE `team_id` = %(team_id)s AND %(start)s BETWEEN `event`.`start` AND `event`.`end`''',
+                          WHERE `team_id` = %(team_id)s AND %(start)s < `event`.`end` AND %(end)s > `event`.`start`''',
                        data)
         busy_users = set(row[0] for row in cursor)
 
