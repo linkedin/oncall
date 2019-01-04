@@ -31,6 +31,7 @@ setuptools.setup(
         'pytz',
         'irisclient',
         'slackclient',
+        'icalendar'
     ],
     extras_require={
         'ldap': ['python-ldap'],
