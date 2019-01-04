@@ -28,6 +28,7 @@ def test_user_ical(event, team, user, role):
 
     re = requests.get(api_v0('users/%s/ical' % user_name))
     cal = re.content
+    # Parse icalendar, make sure event info is correct
     ical = icalendar.Calendar.from_ical(re.content)
     for component in ical.walk():
         if component.name == 'VEVENT':
@@ -60,6 +61,7 @@ def test_team_ical(event, team, user, role):
                         'role': role_name})
 
     re = requests.get(api_v0('teams/%s/ical' % team_name))
+    # Parse icalendar, make sure event info is correct
     ical = icalendar.Calendar.from_ical(re.content)
     for component in ical.walk():
         if component.name == 'VEVENT':
@@ -71,5 +73,5 @@ def test_team_ical(event, team, user, role):
                 assert start + 100 == calendar.timegm(component.get('dtstart').dt.timetuple())
                 assert end + 100 == calendar.timegm(component.get('dtend').dt.timetuple())
                 user2 = True
-
+    # Check that both events appear in the calendar
     assert user1 and user2

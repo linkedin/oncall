@@ -30,8 +30,7 @@ def events_to_ical(events, identifier):
                 WHERE `user`.`name` = %s
             ''', username)
             info = {'username': username, 'contacts': {}}
-            rows = cursor.fetchall()
-            for row in rows:
+            for row in cursor:
                 info['full_name'] = row[0]
                 info['contacts'][row[1]] = row[2]
             users[username] = info

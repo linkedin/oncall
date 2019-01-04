@@ -49,7 +49,7 @@ def on_get(req, resp, team):
         (start, team))
 
     events = cursor.fetchall()
-    connection.close()
     cursor.close()
+    connection.close()
     resp.body = ical.events_to_ical(events, team)
     resp.set_header('Content-Type', 'text/calendar')
