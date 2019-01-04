@@ -94,6 +94,10 @@ def init(application, config):
     application.add_route('/api/v0/teams/{team}/subscriptions', team_subscriptions)
     application.add_route('/api/v0/teams/{team}/subscriptions/{subscription}/{role}', team_subscription)
 
+    from . import user_ical, team_ical
+    application.add_route('/api/v0/users/{user_name}/ical', user_ical)
+    application.add_route('/api/v0/teams/{team}/ical', team_ical)
+
     # Optional Iris integration
     from . import iris_settings
     application.add_route('/api/v0/iris_settings', iris_settings)
