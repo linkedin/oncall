@@ -232,7 +232,7 @@
               if (todayBtn) {
                 return $('<button id="inc-controls-today" class="btn btn-blue">Today</button>')
                         .click(function () {
-                          self.stepToDate(self.options.today);
+                          self.stepToDate(moment());
                         });
               }
             }
