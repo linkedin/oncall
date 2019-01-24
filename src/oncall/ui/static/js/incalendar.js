@@ -232,7 +232,12 @@
               if (todayBtn) {
                 return $('<button id="inc-controls-today" class="btn btn-blue">Today</button>')
                         .click(function () {
-                          self.stepToDate(moment());
+                          if(moment().isAfter(self.options.today, 'day')){
+                            location.reload();
+                          }
+                          else{
+                            self.stepToDate(self.options.today);
+                          }
                         });
               }
             }
