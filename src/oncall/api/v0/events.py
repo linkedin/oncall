@@ -1,7 +1,8 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
-
+import pymsteams
 import time
+
 from falcon import HTTP_201, HTTPError, HTTPBadRequest
 from ujson import dumps as json_dumps
 from ...auth import login_required, check_calendar_auth
@@ -249,6 +250,28 @@ def on_post(req, resp):
     :statuscode 422: Event creation failed: nonexistent role/event/team
     """
     data = load_json_body(req)
+    
+    role1=data.get('role')
+    start1=time.strftime("%d/%m/%y - %H:%M Hrs",time.localtime(data.get('start')))
+    end1=time.strftime("%d/%m/%y - %H:%M Hrs",time.localtime(data.get('end')))
+    name1=data.get('user')
+    ind=name1.find(".")
+    name2=name1[0:ind].upper()
+    team1=data.get('team').upper()
+    mess1=""
+    #add the roles for which you need notifications
+    if(role1=="vacation" or role1=="unavailable"):
+        if(role1=="vacation"):
+            mess1=str(name2)+" is on vacation from "+start1+" to "+end1+", from team "+team1
+        if(role1=="unavailable"):
+            mess1=str(name2)+" is unavailable from "+start1+" to "+end1+", from team "+team1
+        #add the MS-Teams channel incoming webhook url
+        myTeamsMessage = pymsteams.connectorcard("WEBHOOK_URL")
+        myTeamsMessage.title("NOTIFICATION")
+        myTeamsMessage.text(str(mess1))
+        # send the message.
+        myTeamsMessage.send()
+
     now = time.time()
     if data['start'] < now - constants.GRACE_PERIOD:
         raise HTTPBadRequest('Invalid event', 'Creating events in the past not allowed')
