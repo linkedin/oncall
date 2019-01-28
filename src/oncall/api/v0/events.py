@@ -1,5 +1,9 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
+'''
+$ sudo -1
+$ pip install pymsteams
+'''
 import pymsteams
 import time
 
