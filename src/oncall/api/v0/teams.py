@@ -18,7 +18,12 @@ constraints = {
     'name__endswith': '`team`.`name` LIKE CONCAT("%%", %s)',
     'id': '`team`.`id` = %s',
     'id__eq': '`team`.`id` = %s',
-    'active': '`team`.`active` = %s'
+    'active': '`team`.`active` = %s',
+    'email': '`team`.`email` = %s',
+    'email__eq': '`team`.`email` = %s',
+    'email__contains': '`team`.`email` LIKE CONCAT("%%", %s, "%%")',
+    'email__startswith': '`team`.`email` LIKE CONCAT(%s, "%%")',
+    'email__endswith': '`team`.`email` LIKE CONCAT("%%", %s)',
 }
 
 
@@ -36,6 +41,11 @@ def on_get(req, resp):
     :query id: team id
     :query id__eq: team id
     :query active: team active/deleted (1 and 0, respectively)
+    :query email: team email
+    :query email__eq: team email
+    :query email__contains: team email contains param
+    :query email__startswith: team email starts with param
+    :query email__endswith: team email ends with param
 
     **Example request**:
 
