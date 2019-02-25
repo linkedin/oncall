@@ -113,9 +113,13 @@ messengers:
 #    application: oncall
 #    iris_api_key: magic
 #    api_host: http://localhost:16649
+#
+#  - type: teams_messenger
+#    webhook: "channel_webhook_url"
 
-  - type: teams_messenger
-    webhook: "channels_webhook_url"
+  - type: dummy
+    application: oncall
+    iris_api_key: magic
 
 ############################
 ### Oncall frontend settings
