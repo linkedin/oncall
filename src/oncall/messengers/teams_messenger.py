@@ -2,9 +2,10 @@ import pymsteams
 import logging
 from oncall.constants import TEAMS_SUPPORT
 
+
 class teams_messenger(object):
     supports = frozenset([TEAMS_SUPPORT])
-    
+
     def __init__(self, config):
         self.webhook = config['webhook']
 
