@@ -88,7 +88,7 @@ notifications:
   # Reminders are sent using these modes of contact
   default_modes:
     - "email"
-
+    - "teams_messenger"
 # Reminder task settings
 reminder:
   activated: True
@@ -114,9 +114,8 @@ messengers:
 #    iris_api_key: magic
 #    api_host: http://localhost:16649
 
-  - type: dummy
-    application: oncall
-    iris_api_key: magic
+  - type: teams_messenger
+    webhook: "channels_webhook_url"
 
 ############################
 ### Oncall frontend settings
