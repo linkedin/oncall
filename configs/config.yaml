@@ -88,7 +88,7 @@ notifications:
   # Reminders are sent using these modes of contact
   default_modes:
     - "email"
-
+    # - "teams_messenger"
 # Reminder task settings
 reminder:
   activated: True
@@ -103,6 +103,9 @@ user_validator:
 
 # Reminders sent using these messengers
 messengers:
+#   - type: teams_messenger
+#     webhook: "channel_webhook_url"
+#
 #   - type: rocketchat_messenger
 #     user: username
 #     password: abc123
