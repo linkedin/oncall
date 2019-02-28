@@ -166,7 +166,7 @@ def on_get(req, resp):
     cursor = connection.cursor(db.DictCursor)
 
     # Build where clause. If including subscriptions, deal with team parameters later
-    params = req.params.viewkeys() - TEAM_PARAMS if include_sub else req.params
+    params = req.params.keys() - TEAM_PARAMS if include_sub else req.params
     for key in params:
         val = req.get_param(key)
         if key in constraints:
@@ -176,7 +176,7 @@ def on_get(req, resp):
     # Deal with team subscriptions and team parameters
     team_where = []
     subs_vals = []
-    team_params = req.params.viewkeys() & TEAM_PARAMS
+    team_params = req.params.keys() & TEAM_PARAMS
     if include_sub and team_params:
 
         for key in team_params:

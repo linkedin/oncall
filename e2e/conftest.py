@@ -17,7 +17,7 @@ def require_db():
     # Read config based on pytest root directory. Assumes config lives at oncall/configs/config.yaml
     cfg_path = os.path.join(str(pytest.config.rootdir), 'configs/config.yaml')
     with open(cfg_path) as f:
-        config = yaml.load(f)
+        config = yaml.safe_load(f)
     db.init(config['db'])
 
 

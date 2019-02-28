@@ -4,9 +4,6 @@
 # See LICENSE in the project root for license information.
 
 # -*- coding:utf-8 -*-
-
-from __future__ import print_function
-
 import sys
 import time
 import importlib
@@ -63,7 +60,7 @@ def main():
             for schedule in get_schedules({'team_id': team['id']}):
                 schedule_map[schedule['scheduler']['name']].append(schedule)
 
-            for scheduler_name, schedules in schedule_map.iteritems():
+            for scheduler_name, schedules in schedule_map.items():
                 schedulers[scheduler_name].schedule(team, schedules, (connection, db_cursor))
 
         # Sleep until next time

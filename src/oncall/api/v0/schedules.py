@@ -1,7 +1,7 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from urllib import unquote
+from urllib.parse import unquote
 from falcon import HTTP_201, HTTPError, HTTPBadRequest
 from ujson import dumps as json_dumps
 
@@ -26,7 +26,7 @@ columns = {
     'scheduler': '`scheduler`.`name` AS `scheduler`'
 }
 
-all_columns = columns.keys()
+all_columns = list(columns.keys())
 
 constraints = {
     'id': '`schedule`.`id` = %s',
@@ -88,7 +88,7 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
     from_clause = ['`schedule`']
 
     if fields is None:
-        fields = columns.keys()
+        fields = list(columns.keys())
     if any(f not in columns for f in fields):
         raise HTTPBadRequest('Bad fields', 'One or more invalid fields')
     if 'roster' in fields:
@@ -106,7 +106,7 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
 
     if 'id' not in fields:
         fields.append('id')
-    fields = map(columns.__getitem__, fields)
+    fields = list(map(columns.__getitem__, fields))
     cols = ', '.join(fields)
     from_clause = ' '.join(from_clause)
 
@@ -119,7 +119,7 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
         connection, cursor = dbinfo
 
     where = ' AND '.join(constraints[key] % connection.escape(value)
-                         for key, value in filter_params.iteritems()
+                         for key, value in filter_params.items()
                          if key in constraints)
     query = 'SELECT %s FROM %s' % (cols, from_clause)
     if where:
@@ -158,7 +158,7 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
             start = row.pop('start')
             duration = row.pop('duration')
             ret[schedule_id]['events'].append({'start': start, 'duration': duration})
-        data = ret.values()
+        data = list(ret.values())
 
     if scheduler:
         for schedule in data:

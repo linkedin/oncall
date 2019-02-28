@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 
 from ... import db
-from schedules import get_schedules
+from .schedules import get_schedules
 from falcon import HTTPNotFound
 from oncall.bin.scheduler import load_scheduler
 import operator

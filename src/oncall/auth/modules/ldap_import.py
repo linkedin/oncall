@@ -41,7 +41,7 @@ class Authenticator:
 
         connection = ldap.initialize(self.ldap_url)
         connection.set_option(ldap.OPT_REFERRALS, 0)
-        attrs = ['dn'] + self.attrs.values()
+        attrs = ['dn'] + list(self.attrs.values())
         ldap_contacts = {}
 
         if not password:
@@ -58,7 +58,7 @@ class Authenticator:
                     return False
                 auth_user = result[0][0]
                 ldap_attrs = result[0][1]
-                for key, val in self.attrs.iteritems():
+                for key, val in self.attrs.items():
                     if ldap_attrs.get(val):
                         if type(ldap_attrs.get(val)) == list:
                             ldap_contacts[key] = ldap_attrs.get(val)[0]

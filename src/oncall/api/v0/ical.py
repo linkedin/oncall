@@ -47,7 +47,7 @@ def events_to_ical(events, identifier):
                       '%s %s shift: %s' % (event['team'], event['role'], full_name))
         cal_event.add('description',
                       '%s\n' % full_name +
-                      '\n'.join(['%s: %s' % (mode, dest) for mode, dest in user['contacts'].iteritems()]))
+                      '\n'.join(['%s: %s' % (mode, dest) for mode, dest in user['contacts'].items()]))
 
         # Attach info about the user oncall
         attendee = vCalAddress('MAILTO:%s' % user['contacts'].get('email'))
