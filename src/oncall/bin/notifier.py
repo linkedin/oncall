@@ -1,8 +1,5 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
-
-from __future__ import absolute_import
-
 import sys
 import yaml
 import logging
@@ -40,7 +37,7 @@ default_timezone = None
 
 def load_config_file(config_path):
     with open(config_path) as h:
-        config = yaml.load(h)
+        config = yaml.safe_load(h)
 
     if 'init_config_hook' in config:
         try:
@@ -151,7 +148,7 @@ def main():
 
     init_messengers(config.get('messengers', []))
 
-    worker_tasks = [spawn(worker) for x in xrange(100)]
+    worker_tasks = [spawn(worker) for x in range(100)]
     reminder_on = False
     if config['reminder']['activated']:
         reminder_worker = spawn(reminder.reminder, config['reminder'])

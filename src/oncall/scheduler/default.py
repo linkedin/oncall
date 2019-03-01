@@ -185,7 +185,7 @@ class Scheduler(object):
 
     def weekday_from_schedule_time(self, schedule_time):
         '''Returns 0 for Monday, 1 for Tuesday...'''
-        return (schedule_time / SECONDS_IN_A_DAY - 1) % 7
+        return (schedule_time // SECONDS_IN_A_DAY - 1) % 7
 
     def epoch_from_datetime(self, dt):
         '''
@@ -221,7 +221,7 @@ class Scheduler(object):
         date = (tz.localize(date, is_dst=1)).astimezone(utc)
         td = date - UNIX_EPOCH
         # Convert timedelta to seconds
-        return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10 ** 6) / 10 ** 6
+        return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10 ** 6) // 10 ** 6
 
     # End time helpers
 
@@ -244,7 +244,7 @@ class Scheduler(object):
         first_event = min(events, key=operator.itemgetter('start'))
         end = max(e['start'] + e['duration'] for e in events)
         period = end - first_event['start']
-        return ((period + SECONDS_IN_A_WEEK - 1) / SECONDS_IN_A_WEEK)
+        return ((period + SECONDS_IN_A_WEEK - 1) // SECONDS_IN_A_WEEK)
 
     def calculate_future_events(self, schedule, cursor, start_epoch=None):
         period = self.get_period_len(schedule)
@@ -394,8 +394,8 @@ class Scheduler(object):
         self.set_last_epoch(schedule['id'], last_epoch, cursor)
 
         # Delete existing events from the start of the first event
-        future_events = [filter(lambda x: x['start'] >= start_time, evs) for evs in future_events]
-        future_events = filter(lambda x: x != [], future_events)
+        future_events = [[x for x in evs if x['start'] >= start_time] for evs in future_events]
+        future_events = [x for x in future_events if x != []]
         if future_events:
             first_event_start = min(future_events[0], key=lambda x: x['start'])['start']
             query = 'DELETE FROM %s WHERE schedule_id = %%s AND start >= %%s' % table_name

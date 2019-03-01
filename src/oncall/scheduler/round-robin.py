@@ -1,5 +1,5 @@
 from oncall.utils import gen_link_id
-import default
+from . import default
 import logging
 
 logger = logging.getLogger()

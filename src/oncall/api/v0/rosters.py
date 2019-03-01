@@ -1,7 +1,7 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from urllib import unquote
+from urllib.parse import unquote
 from falcon import HTTPError, HTTP_201, HTTPBadRequest
 from ujson import dumps as json_dumps
 from ...utils import load_json_body, invalid_char_reg, create_audit
@@ -27,7 +27,7 @@ def get_roster_by_team_id(cursor, team_id, params=None):
     where_params = []
     where_vals = []
     if params:
-        for key, val in params.iteritems():
+        for key, val in params.items():
             if key in constraints:
                 where_params.append(constraints[key])
                 where_vals.append(val)

@@ -95,7 +95,7 @@ def on_get(req, resp, team, role=None):
             continue
         dest = row.pop('destination')
         ret[user]['contacts'][mode] = dest
-    data = ret.values()
+    data = list(ret.values())
     for event in data:
         if override_number and event['role'] == 'primary':
             event['contacts']['call'] = override_number

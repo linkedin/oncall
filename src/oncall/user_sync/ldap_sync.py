@@ -103,7 +103,7 @@ def fetch_ldap():
     }
 
     base = LDAP_SETTINGS['base']
-    attrs = ['distinguishedName'] + LDAP_SETTINGS['attrs'].values()
+    attrs = ['distinguishedName'] + list(LDAP_SETTINGS['attrs'].values())
     query = LDAP_SETTINGS['query']
 
     users = {}
@@ -184,7 +184,7 @@ def import_user(username, ldap_contacts, engine):
         logger.exception('Failed to add user %s' % username)
         return
     stats['users_added'] += 1
-    for key, value in ldap_contacts.iteritems():
+    for key, value in ldap_contacts.items():
         if value and key in modes:
             logger.debug('\t%s -> %s' % (key, value))
             user_contact_add_sql = 'INSERT INTO `user_contact` (`user_id`, `mode_id`, `destination`) VALUES (%s, %s, %s)'
@@ -328,7 +328,7 @@ def sync(config, engine):
             logger.exception('Failed to add user %s' % username)
             continue
         stats['users_added'] += 1
-        for key, value in ldap_users[username].iteritems():
+        for key, value in ldap_users[username].items():
             if value and key in modes:
                 logger.debug('\t%s -> %s' % (key, value))
                 user_contact_add_sql = 'INSERT INTO `user_contact` (`user_id`, `mode_id`, `destination`) VALUES (%s, %s, %s)'
@@ -424,5 +424,5 @@ def main(config):
 if __name__ == '__main__':
     config_path = sys.argv[1]
     with open(config_path, 'r') as config_file:
-        config = yaml.load(config_file)
+        config = yaml.safe_load(config_file)
     main(config)
