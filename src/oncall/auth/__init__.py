@@ -124,7 +124,7 @@ def check_calendar_auth_by_id(team_id, req):
 
 def is_client_digest_valid(client_digest, api_key, window, method, path, body):
     text = '%s %s %s %s' % (window, method, path, body)
-    HMAC = hmac.new(api_key, text, hashlib.sha512)
+    HMAC = hmac.new(api_key, text.encode('utf-8'), hashlib.sha512)
     digest = base64.urlsafe_b64encode(HMAC.digest())
     if equals(client_digest, digest):
         return True
@@ -139,7 +139,7 @@ def authenticate_application(auth_token, req):
     qs = req.env['QUERY_STRING']
     if qs:
         path = path + '?' + qs
-    body = req.context['body']
+    body = req.context['body'].decode('utf-8')
     try:
         app_name, client_digest = auth_token[5:].split(':', 1)
         if app_name not in app_key_cache:
@@ -154,7 +154,7 @@ def authenticate_application(auth_token, req):
                 cursor.close()
                 connection.close()
                 raise HTTPUnauthorized('Authentication failure', 'Application not found', '')
-        api_key = str(app_key_cache[app_name])
+        api_key = app_key_cache[app_name].encode('utf-8')
         window = int(time.time()) // 5
         if is_client_digest_valid(client_digest, api_key, window, method, path, body):
             req.context['app'] = app_name
