@@ -71,7 +71,7 @@ def reminder(config):
             JOIN `team` ON `event`.`team_id` = `team`.`id`
             JOIN `role` ON `event`.`role_id` = `role`.`id`
             LEFT JOIN `event` AS `e` ON `event`.`link_id` = `e`.`link_id` AND `e`.`start` < `event`.`start`
-            WHERE `e`.`id` IS NULL
+            WHERE `e`.`id` IS NULL AND `user`.`active` = 1
     '''
 
     while(1):
