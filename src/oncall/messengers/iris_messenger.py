@@ -13,5 +13,11 @@ class iris_messenger(object):
         self.iris_client = IrisClient(config['application'], config['iris_api_key'], config['api_host'])
 
     def send(self, message):
-        self.iris_client.notification(role='user', target=message['user'], priority=message.get('priority'),
-                                      mode=message.get('mode'), subject=message['subject'], body=message['body'])
+        try:
+            self.iris_client.notification(role='user', target=message['user'], priority=message.get('priority'),
+                                          mode=message.get('mode'), subject=message['subject'], body=message['body'])
+        except ValueError as e:
+            if 'INVALID role:target' not in e.args[0]:
+                raise e
+        except Exception as e:
+            raise e
