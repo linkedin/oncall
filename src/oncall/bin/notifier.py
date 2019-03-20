@@ -118,7 +118,7 @@ def format_and_send_message():
     msg['body'] = msg_info['body'] % context
     try:
         send_message(msg)
-    except:
+    except Exception:
         logger.exception('Failed to send message %s', msg)
         mark_message_as_unsent(msg_info)
         metrics.stats['message_fail_cnt'] += 1
