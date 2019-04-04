@@ -68,7 +68,7 @@ def on_get(req, resp):
 
     '''
 
-    query = 'SELECT `name`, `email`, `slack_channel`, `scheduling_timezone`, `iris_plan` FROM `team`'
+    query = 'SELECT `name`, `id` FROM `team`'
     if 'active' not in req.params:
         req.params['active'] = True
 
@@ -86,7 +86,11 @@ def on_get(req, resp):
         query = '%s WHERE %s' % (query, where_query)
 
     cursor.execute(query, query_values)
-    data = [r[0] for r in cursor]
+    data = [None]
+    if req.get_param_as_bool('get_id'):
+        data = [(r[0],r[1]) for r in cursor]
+    else:
+        data = [r[0] for r in cursor]
     cursor.close()
     connection.close()
     resp.body = json_dumps(data)
