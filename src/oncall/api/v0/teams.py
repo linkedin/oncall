@@ -88,7 +88,7 @@ def on_get(req, resp):
     cursor.execute(query, query_values)
     data = [None]
     if req.get_param_as_bool('get_id'):
-        data = [(r[0],r[1]) for r in cursor]
+        data = [(r[0], r[1]) for r in cursor]
     else:
         data = [r[0] for r in cursor]
     cursor.close()
