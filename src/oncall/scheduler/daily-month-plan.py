@@ -178,7 +178,7 @@ class Scheduler(object):
         logger.info("Step 3: Query executed")
         for i in team_name:
             team_name_get=i
-        data_raw = requests.get("https://oncall.rivigo.com/api/v0/teams_roster/"+str(team_name_get))
+        data_raw = requests.get("localhost:8080/api/v0/teams_roster/"+str(team_name_get))
         data_fetch = data_raw.json()
 
         data_fetch = data_raw.json()
