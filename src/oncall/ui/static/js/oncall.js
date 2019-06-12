@@ -1738,7 +1738,8 @@ var oncall = {
         scheduleItem: '.module-card',
         schedulerTemplates: {
           'default': $('#default-scheduler-template').html(),
-          'round-robin': $('#round-robin-scheduler-template').html()
+          'round-robin': $('#round-robin-scheduler-template').html(),
+	  'daily-month-plan': $('#daily-month-plan-scheduler-template').html()
         },
         schedulerTypeContainer: '.scheduler-type-container',
         schedulesUrl: '/api/v0/schedules/',
