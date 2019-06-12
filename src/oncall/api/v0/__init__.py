@@ -14,6 +14,9 @@ def init(application, config):
     from . import team_admins, team_admin
     application.add_route('/api/v0/teams/{team}/admins', team_admins)
     application.add_route('/api/v0/teams/{team}/admins/{user}', team_admin)
+    
+    from . import teams_roster
+    application.add_route('/api/v0/teams_roster/{team_name}',teams_roster)
 
     from . import team_users, team_user
     application.add_route('/api/v0/teams/{team}/users', team_users)
