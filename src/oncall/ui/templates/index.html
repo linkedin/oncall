@@ -965,7 +965,7 @@
         <label class="light label-col">Rotation:</label>
         <ul class="data-col schedule-rotation">
           {{#if is_12_hr}}
-            {{#isEqual events.length 7}}
+	    {{#isEqual events.length 7}}
               {{timeSince events.[0].start 'toString'}} - Weekly (12 hr)
             {{else}}
               {{timeSince events.[0].start 'toString'}} - Bi-Weekly (12 hr)
@@ -1023,7 +1023,7 @@
         {{/if}}
         <div class="pull-right">
           <div class="toggle-input pull-right">
-            <input type="checkbox" class="toggle-advanced" id="toggle-advanced-{{selected_schedule.id}}" {{#if selected_schedule.advanced_mode}} checked {{/if}}>
+            <input type="checkbox" class="toggle-advanced toggle-on-plan-change" id="toggle-advanced-{{selected_schedule.id}}" {{#if selected_schedule.advanced_mode}} checked {{/if}}>
             <label for="toggle-advanced-{{selected_schedule.id}}">Advanced</label>
           </div>
         </div>
@@ -1076,7 +1076,7 @@
           </ul>
           {{#unless selected_schedule.advanced_mode}}
             <div class="schedule-row schedule-is-12-hr clearfix">
-              <input type="checkbox" id="twelve-hour" {{#if selected_schedule.is_12_hr}} checked {{/if}}>
+              <input type="checkbox" class="toggle-on-plan-change" id="twelve-hour" {{#if selected_schedule.is_12_hr}} checked {{/if}}>
               <label for="twelve-hour">Limit shifts to 12 hours</label>
             </div>
           {{/unless}}
@@ -1102,9 +1102,10 @@
       <div class="schedule-algo col-md-3">
         <label class="label-col">Scheduling Algorithms:</label>
         <br>
-        <select name="from" class="form-control schedule-algorithm" id="schedule-algorithm">
+        <select onClick="scheduler_select(event)" name="from" class="form-control schedule-algorithm" id="schedule-algorithm">
           <option value="default" {{isSelected 'default' selected_schedule.scheduler.name}}> Default </option>
           <option value="round-robin" {{isSelected 'round-robin' selected_schedule.scheduler.name}}> Round-robin </option>
+	  <option value="daily-round-robin" {{isSelected 'daily-round-robin' selected_schedule.scheduler.name}}"> Daily-round-robin </option>
         </select>
         <div class="scheduler-type-container light">
           <!-- scheduler specific data renders here -->
@@ -1125,7 +1126,19 @@
     </div>
   </form>
 </script>
-
+	<script>
+		function scheduler_select(e)
+		{
+			if(e.target && e.target.value && e.target.value === 'daily-round-robin') {
+				var toggleElems = document.querySelectorAll(".toggle-on-plan-change");
+				[].forEach.call(toggleElems, function(el){el.disabled = true;});
+			}
+			else {
+                                var toggleElems = document.querySelectorAll(".toggle-on-plan-change");
+                                [].forEach.call(toggleElems, function(el){el.disabled = false;});
+			}
+		}
+	</script>
 <!-- // rotation item partial -->
 <script id="rotation-item-template" type="text/x-handlebars-template">
   <li class="rotation-item clearfix">
@@ -1206,6 +1219,11 @@
       {{/each}}
     </ul>
   </div>
+</script>
+
+<!-- // daily-month-plan-scheduler-template -->
+<script id="daily-round-robin-scheduler-template" type="text/x-handlebars-template">
+  The Daily-round-robin scheduler takes the user profiles from the defined rosters and creates x events that span for 30 days or more. The value of x is dependent upon the closest multiple of the number of team members that is either 30 or greater than it. (eg: Number of members in roster = 7, thus 7X5=35 is the closest multiple of seven that is either 30 or greater than it, hence 35 events will be created.)
 </script>
 
 <!--// **********************
