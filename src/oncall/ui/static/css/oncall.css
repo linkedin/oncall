@@ -1103,6 +1103,48 @@ div[data-admin="false"] .team-info .toggle-rotation {
   border-bottom: 1px dashed #ccc;
 }
 
+.module-schedule-create[data-scheduler="daily-month-plan"] .daily-month-plan-scheduler {
+  border: 1px solid #ccc;
+  color: #5c5b5c;
+  border-radius: 4px;
+  margin: 5px 0;
+  padding: 10px;
+}
+
+.module-schedule-create[data-scheduler="daily-month-plan"] .daily-month-plan-scheduler ul {
+  margin-top: 5px;
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+.module-schedule-create[data-scheduler="daily-month-plan"] .daily-month-plan-scheduler li {
+  cursor: move;
+  padding: 2px;
+  transition: background .3s;
+  user-select: none;
+}
+
+.module-schedule-create[data-scheduler="daily-month-plan"] .daily-month-plan-scheduler svg {
+  display: inline-block;
+  font-size: inherit;
+  height: 1em;
+  overflow: visible;
+  vertical-align: -.125em;
+  width: 25px;
+}
+
+.module-schedule-create[data-scheduler="daily-month-plan"] .daily-month-plan-scheduler li:hover {
+  background: #efefef;
+}
+
+.module-schedule-create[data-scheduler="daily-month-plan"] .daily-month-plan-scheduler .dragging {
+  opacity: .3;
+}
+
+.module-schedule-create[data-scheduler="daily-month-plan"] .daily-month-plan-scheduler .drag-over {
+  border-bottom: 1px dashed #ccc;
+}
+
 .module-schedule {
   width: 24%;
   margin: 0 .5%;

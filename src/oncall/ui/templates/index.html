@@ -1222,8 +1222,21 @@
 </script>
 
 <!-- // daily-month-plan-scheduler-template -->
-<script id="daily-round-robin-scheduler-template" type="text/x-handlebars-template">
-  The Daily-round-robin scheduler takes the user profiles from the defined rosters and creates x events that span for 30 days or more. The value of x is dependent upon the closest multiple of the number of team members that is either 30 or greater than it. (eg: Number of members in roster = 7, thus 7X5=35 is the closest multiple of seven that is either 30 or greater than it, hence 35 events will be created.)
+<script id="daily-month-plan-scheduler-template" type="text/x-handlebars-template">
+  The Daily-month-plan scheduler follows scheduling of Round-robin fashion and create events for every day.
+  
+  <div class="daily-month-plan-scheduler">
+    Set Order <span class="light">(Drag to reorder)</span>
+    <ul class="draggable">
+      {{#each this}}
+        <li draggable="true" data-user="{{this}}">
+          <svg aria-hidden="true" data-fa-processed="" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="svg-inline--fa fa-bars fa-w-14"><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z" class=""></path></svg>
+          {{this}}
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+
 </script>
 
 <!--// **********************

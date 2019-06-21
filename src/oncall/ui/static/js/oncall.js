@@ -2359,6 +2359,25 @@ var oncall = {
             $container.html(template(users));
           }
           this.drag.init($container.find('.draggable'));
+        } else if ( scheduler === 'daily-month-plan' ) {
+          // Pass in user list to template if custom order is selected
+          var schedule_id = $card.attr('data-edit-id'),
+              order = $card.attr('data-schedule-data'),
+              users = this.data.teamData.rosters[roster].users.map(function(user) {return user.name});
+              schedule = this.data.teamData.rosters[roster].schedules.filter(function (schedule) {
+                return schedule.id === parseInt(schedule_id)
+              })[0];
+
+          if (order !== undefined) {
+            order = JSON.parse(order);
+          }
+          // If order includes all roster users, use order. Otherwise, just use roster
+          if (order !== undefined && order.every(function(u) { return users.indexOf(u) !== -1})) {
+            $container.html(template(order));
+          } else {
+            $container.html(template(users));
+          }
+          this.drag.init($container.find('.draggable'));
         } else {
           $container.html(template());
         }
