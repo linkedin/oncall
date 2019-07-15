@@ -16,7 +16,7 @@ setuptools.setup(
     install_requires=[
         'falcon==1.4.1',
         'falcon-cors',
-        'gevent',
+        'gevent==1.4.0',
         'ujson',
         'sqlalchemy',
         'PyYAML',

@@ -13,9 +13,9 @@ import yaml
 
 
 @pytest.fixture(scope="session", autouse=True)
-def require_db():
+def require_db(request):
     # Read config based on pytest root directory. Assumes config lives at oncall/configs/config.yaml
-    cfg_path = os.path.join(str(pytest.config.rootdir), 'configs/config.yaml')
+    cfg_path = os.path.join(str(request.config.rootdir), 'configs/config.yaml')
     with open(cfg_path) as f:
         config = yaml.safe_load(f)
     db.init(config['db'])
@@ -69,6 +69,7 @@ def team(request, user, service):
         def __init__(self, prefix):
             self.prefix = prefix
             self.created = set()
+            self.created_ids = set()
             self.connection = db.connect()
             self.cursor = self.connection.cursor()
 
@@ -76,7 +77,9 @@ def team(request, user, service):
             name = '_'.join([self.prefix, 'team', str(len(self.created))])
             re = requests.post(api_v0('teams'), json={'name': name, 'scheduling_timezone': 'utc'})
             assert re.status_code in [201, 422]
+            team_id = requests.get(api_v0('teams/%s' % name)).json()['id']
             self.created.add(name)
+            self.created_ids.add(team_id)
             return name
 
         def mark_for_cleaning(self, team_name):
@@ -85,8 +88,8 @@ def team(request, user, service):
         def cleanup(self):
             for team in self.created:
                 requests.delete(api_v0('teams/' + team))
-            if self.created:
-                self.cursor.execute('DELETE FROM team WHERE name IN %s', (self.created,))
+            if self.created_ids:
+                self.cursor.execute('DELETE FROM team WHERE id IN %s', (self.created_ids,))
                 self.connection.commit()
             self.cursor.close()
             self.connection.close()
