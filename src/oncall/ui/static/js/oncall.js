@@ -1745,7 +1745,8 @@ var oncall = {
         scheduleItem: '.module-card',
         schedulerTemplates: {
           'default': $('#default-scheduler-template').html(),
-          'round-robin': $('#round-robin-scheduler-template').html()
+          'round-robin': $('#round-robin-scheduler-template').html(),
+          'no-skip-matching': $('#allow-duplicate-scheduler-template').html(),
         },
         schedulerTypeContainer: '.scheduler-type-container',
         schedulesUrl: '/api/v0/schedules/',
@@ -3035,12 +3036,18 @@ var oncall = {
       return str.replace('#', '');
     });
 
-    //takes a photo_url and if null retuns the default blank headshot-blank
-   Handlebars.registerHelper('defaultPhoto', function(src){
-     // removes hash tag from string
-       return src || "/static/images/headshot-blank.jpg";
-   });
+    Handlebars.registerHelper('friendlyScheduler', function(str){
+      if (str ==='no-skip-matching') {
+        return 'Default (allow duplicate)';
+      }
+      return str;
+    });
 
+    //takes a photo_url and if null retuns the default blank headshot-blank
+    Handlebars.registerHelper('defaultPhoto', function(src){
+      // removes hash tag from string
+        return src || "/static/images/headshot-blank.jpg";
+    });
 
     Handlebars.registerHelper('getUserInfo', function(user, users, key){
       // accepts a user name, the user object containing all user contact info, and the key you need the value for
