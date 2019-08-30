@@ -29,7 +29,7 @@ def update_notification(x, y):
 
 
 def read_config(config_path):
-    with open(config_path, 'r') as config_file:
+    with open(config_path, 'r', encoding='utf8') as config_file:
         return yaml.safe_load(config_file)
 
 
