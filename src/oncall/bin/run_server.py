@@ -24,7 +24,6 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
         for key, value in config.items():
             self.cfg.set(key.lower(), value)
 
-
     def load(self):
         import oncall
         importlib.reload(oncall.utils)
