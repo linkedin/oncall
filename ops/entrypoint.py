@@ -14,7 +14,7 @@ initializedfile = '/home/oncall/db_initialized'
 
 
 def load_sqldump(config, sqlfile, one_db=True):
-    print 'Importing %s...' % sqlfile
+    print('Importing %s...' % sqlfile)
     with open(sqlfile) as h:
         cmd = ['/usr/bin/mysql', '-h', config['host'], '-u',
                config['user'], '-p' + config['password']]
@@ -24,18 +24,18 @@ def load_sqldump(config, sqlfile, one_db=True):
         proc.communicate()
 
         if proc.returncode == 0:
-            print 'DB successfully loaded ' + sqlfile
+            print('DB successfully loaded ' + sqlfile)
             return True
         else:
-            print ('Ran into problems during DB bootstrap. '
+            print(('Ran into problems during DB bootstrap. '
                    'oncall will likely not function correctly. '
-                   'mysql exit code: %s for %s') % (proc.returncode, sqlfile)
+                   'mysql exit code: %s for %s') % (proc.returncode, sqlfile))
             return False
 
 
 def wait_for_mysql(config):
-    print 'Checking MySQL liveness on %s...' % config['host']
-    db_address = (config['host'], 3306)
+    print('Checking MySQL liveness on %s...' % config['host'])
+    db_address = (config['host'], config['port'])
     tries = 0
     while True:
         try:
@@ -45,17 +45,17 @@ def wait_for_mysql(config):
             break
         except socket.error:
             if tries > 20:
-                print 'Waited too long for DB to come up. Bailing.'
+                print('Waited too long for DB to come up. Bailing.')
                 sys.exit(1)
 
-            print 'DB not up yet. Waiting a few seconds..'
+            print('DB not up yet. Waiting a few seconds..')
             time.sleep(2)
             tries += 1
             continue
 
 
 def initialize_mysql_schema(config):
-    print 'Initializing oncall database'
+    print('Initializing oncall database')
     # disable one_db to let schema.v0.sql create the database
     re = load_sqldump(config, os.path.join(dbpath, 'schema.v0.sql'), one_db=False)
     if not re:
@@ -71,7 +71,7 @@ def initialize_mysql_schema(config):
         sys.stderr.write('Failed to load dummy data.')
 
     with open(initializedfile, 'w'):
-        print 'Wrote %s so we don\'t bootstrap db again' % initializedfile
+        print('Wrote %s so we don\'t bootstrap db again' % initializedfile)
 
 
 def main():
@@ -88,7 +88,7 @@ def main():
             initialize_mysql_schema(mysql_config)
 
     os.execv('/usr/bin/uwsgi',
-             ['', '--yaml', '/home/oncall/daemons/uwsgi.yaml:prod'])
+             ['/usr/bin/uwsgi', '--yaml', '/home/oncall/daemons/uwsgi.yaml:prod'])
 
 
 if __name__ == '__main__':

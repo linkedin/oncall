@@ -10,7 +10,8 @@ db:
       scheme: mysql+pymysql
       user: root
       password: '1234'
-      host: mysql
+      host: oncall-mysql
+      port: 3306
       database: oncall
       charset: utf8
       echo: True
