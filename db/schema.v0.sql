@@ -312,7 +312,7 @@ CREATE TABLE IF NOT EXISTS `contact_mode` (
 -- Initialize contact modes
 -- -----------------------------------------------------
 INSERT INTO `contact_mode` (`name`)
-VALUES ('email'), ('sms'), ('call'), ('slack'), ('teams_messenger');
+VALUES ('email'), ('sms'), ('call'), ('slack');
 
 -- -----------------------------------------------------
 -- Table `user_contact`
@@ -464,8 +464,10 @@ VALUES ('default',
         'Default scheduling algorithm'),
        ('round-robin',
         'Round robin in roster order; does not respect vacations/conflicts'),
-  ('no-skip-matching',
-   'Default scheduling algorithm; doesn\'t skips creating events if matching events already exist on the calendar');
+       ('no-skip-matching',
+        'Default scheduling algorithm; doesn\'t skips creating events if matching events already exist on the calendar'),
+       ('daily-round-robin',
+        'Follows roster order of round-robin, but divides week long shifts into day long shifts among different users');
 
 -- -----------------------------------------------------
 -- Initialize notification types

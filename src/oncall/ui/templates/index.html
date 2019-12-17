@@ -965,7 +965,7 @@
         <label class="light label-col">Rotation:</label>
         <ul class="data-col schedule-rotation">
           {{#if is_12_hr}}
-            {{#isEqual events.length 7}}
+	    {{#isEqual events.length 7}}
               {{timeSince events.[0].start 'toString'}} - Weekly (12 hr)
             {{else}}
               {{timeSince events.[0].start 'toString'}} - Bi-Weekly (12 hr)
@@ -1023,7 +1023,7 @@
         {{/if}}
         <div class="pull-right">
           <div class="toggle-input pull-right">
-            <input type="checkbox" class="toggle-advanced" id="toggle-advanced-{{selected_schedule.id}}" {{#if selected_schedule.advanced_mode}} checked {{/if}}>
+            <input type="checkbox" class="toggle-advanced toggle-on-plan-change" id="toggle-advanced-{{selected_schedule.id}}" {{#if selected_schedule.advanced_mode}} checked {{/if}}>
             <label for="toggle-advanced-{{selected_schedule.id}}">Advanced</label>
           </div>
         </div>
@@ -1076,7 +1076,7 @@
           </ul>
           {{#unless selected_schedule.advanced_mode}}
             <div class="schedule-row schedule-is-12-hr clearfix">
-              <input type="checkbox" id="twelve-hour" {{#if selected_schedule.is_12_hr}} checked {{/if}}>
+              <input type="checkbox" class="toggle-on-plan-change" id="twelve-hour" {{#if selected_schedule.is_12_hr}} checked {{/if}}>
               <label for="twelve-hour">Limit shifts to 12 hours</label>
             </div>
           {{/unless}}
@@ -1102,9 +1102,10 @@
       <div class="schedule-algo col-md-3">
         <label class="label-col">Scheduling Algorithms:</label>
         <br>
-        <select name="from" class="form-control schedule-algorithm" id="schedule-algorithm">
+        <select onClick="scheduler_select(event)" name="from" class="form-control schedule-algorithm" id="schedule-algorithm">
           <option value="default" {{isSelected 'default' selected_schedule.scheduler.name}}> Default </option>
           <option value="round-robin" {{isSelected 'round-robin' selected_schedule.scheduler.name}}> Round-robin </option>
+	  <option value="daily-round-robin" {{isSelected 'daily-round-robin' selected_schedule.scheduler.name}}"> Daily-round-robin </option>
         </select>
         <div class="scheduler-type-container light">
           <!-- scheduler specific data renders here -->
@@ -1125,7 +1126,19 @@
     </div>
   </form>
 </script>
-
+	<script>
+		function scheduler_select(e)
+		{
+			if(e.target && e.target.value && e.target.value === 'daily-round-robin') {
+				var toggleElems = document.querySelectorAll(".toggle-on-plan-change");
+				[].forEach.call(toggleElems, function(el){el.disabled = true;});
+			}
+			else {
+                                var toggleElems = document.querySelectorAll(".toggle-on-plan-change");
+                                [].forEach.call(toggleElems, function(el){el.disabled = false;});
+			}
+		}
+	</script>
 <!-- // rotation item partial -->
 <script id="rotation-item-template" type="text/x-handlebars-template">
   <li class="rotation-item clearfix">
@@ -1206,6 +1219,24 @@
       {{/each}}
     </ul>
   </div>
+</script>
+
+<!-- // daily-month-plan-scheduler-template -->
+<script id="daily-month-plan-scheduler-template" type="text/x-handlebars-template">
+  The Daily-month-plan scheduler follows scheduling of Round-robin fashion and create events for every day.
+  
+  <div class="daily-month-plan-scheduler">
+    Set Order <span class="light">(Drag to reorder)</span>
+    <ul class="draggable">
+      {{#each this}}
+        <li draggable="true" data-user="{{this}}">
+          <svg aria-hidden="true" data-fa-processed="" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="svg-inline--fa fa-bars fa-w-14"><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z" class=""></path></svg>
+          {{this}}
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+
 </script>
 
 <!--// **********************

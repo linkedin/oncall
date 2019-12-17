@@ -8,7 +8,8 @@ from ...auth import login_required, check_team_auth
 from ...utils import load_json_body, unsubscribe_notifications, create_audit
 from ... import db
 from ...constants import ROSTER_USER_DELETED, ROSTER_USER_EDITED
-
+import logging
+logger = logging.getLogger()
 
 @login_required
 def on_delete(req, resp, team, roster, user):
@@ -44,15 +45,49 @@ def on_delete(req, resp, team, roster, user):
     roster_id = cursor.fetchone()
     if roster_id is None:
         raise HTTPNotFound()
+
+    cursor.execute('''SELECT `user_id` FROM `roster_user`
+                           WHERE `roster_id` = %s''',
+                       roster_id)
+    user_ids = [r[0] for r in cursor]
+    cursor.execute('''SELECT `id` FROM `user`
+                           WHERE `name` = %s''',
+                       user)
+    user_id = [r[0] for r in cursor]
+    cursor.execute('''SELECT `id` FROM `schedule`
+                           WHERE `roster_id` = %s AND `last_scheduled_user_id`=%s ''',
+                       (roster_id,user_id[0]))
+    schedule_id = [r[0] for r in cursor]
+    last_scheduled_user_id=None
+    if(schedule_id):
+        cursor.execute('''SELECT `last_scheduled_user_id` FROM `schedule`
+                           WHERE `roster_id` = %s AND `id`=%s ''',
+                       (roster_id,schedule_id[0]))
+        last_scheduled_user_id = [r[0] for r in cursor]
+
+    if(last_scheduled_user_id):
+        if(last_scheduled_user_id[0]==user_id[0]):
+            user_index=user_ids.index(user_id[0])
+            last_scheduled_user=0
+    
+            if(user_index==0):
+                last_scheduled_user=user_ids[len(user_ids)-1]
+            else:
+                last_scheduled_user=user_ids[user_index-1]
+            for ids in schedule_id:
+                cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = %s WHERE `id` = %s', (last_scheduled_user, ids))
+
     cursor.execute('''DELETE FROM `roster_user`
                       WHERE `roster_id`= %s
                       AND `user_id`=(SELECT `id` FROM `user` WHERE `name`=%s)''',
                    (roster_id, user))
+
     cursor.execute('''DELETE `schedule_order` FROM `schedule_order`
                       JOIN `schedule` ON `schedule`.`id` = `schedule_order`.`schedule_id`
                       WHERE `roster_id` = %s
                       AND user_id = (SELECT `id` FROM `user` WHERE `name` = %s)''',
                    (roster_id, user))
+    
     create_audit({'roster': roster, 'user': user}, team, ROSTER_USER_DELETED, req, cursor)
 
     # Remove user from the team if needed
