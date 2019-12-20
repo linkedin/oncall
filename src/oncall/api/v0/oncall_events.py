@@ -55,7 +55,7 @@ def on_get(req, resp):
     """
     Search for events. Allows filtering based on a number of parameters,
     detailed below. Also returns only the users who are paid to be on call. Uses response from
-    http://oncall-bonus.prod.linkedin.com/bonus/api/v0/teams/{team} to identify paid status.
+    oncall-bonus to identify paid status.
 
     **Example request**:
 
@@ -139,21 +139,22 @@ def on_get(req, resp):
     config_file_path = os.path.join(env.config_path, 'oncall-api.yaml')
     with open(config_file_path) as f:
         config = yaml.safe_load(f)
-    oncall_blacklist = set(config.get('oncall_blacklist', []))
-    oncall_whitelist = set(config.get('oncall_whitelist', []))
+    oncall_bonus_blacklist = set(config.get('oncall_blacklist', []))
+    oncall_bonus_whitelist = set(config.get('oncall_whitelist', []))
+    bonus_url_prefix = config.get('bonus_url', None)
     ldap_grouping = defaultdict(list)
     user_bonus_status = {}
     for event in json.loads(resp.body):
         if event['role'].lower() == 'manager':
             continue
         team = event['team']
-        if team in oncall_whitelist:
+        if team in oncall_bonus_whitelist:
             ldap_grouping[event['user']].append(event)
             continue
-        if team in oncall_blacklist:
+        if team in oncall_bonus_blacklist:
             continue
         if team not in user_bonus_status:
-            bonus_url = "http://oncall-bonus.prod.linkedin.com/bonus/api/v0/teams/" + team
+            bonus_url = bonus_url_prefix + team
             try:
                 team_payment_details = requests.get(bonus_url).json()
             except:

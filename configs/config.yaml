@@ -214,3 +214,5 @@ require_auth: False
 #     mail: 'mail'
 #     mobile: 'mobile'
 #   image_url: 'https://image.example.com/api/%s/picture'
+
+add_bonus_events_api: False
