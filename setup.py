@@ -14,7 +14,7 @@ setuptools.setup(
     packages=setuptools.find_packages('src'),
     include_package_data=True,
     install_requires=[
-        'falcon==1.4.1',
+        'falcon==1.1.0',
         'falcon-cors',
         'gevent==1.4.0',
         'ujson',
@@ -30,7 +30,7 @@ setuptools.setup(
         'python-ldap',
         'pytz',
         'irisclient',
-        'slackclient',
+        'slackclient==1.3.1',
         'icalendar',
         'pymsteams'
     ],

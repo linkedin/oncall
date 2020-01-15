@@ -1,6 +1,9 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
-from urllib.parse import unquote_plus
+
+from __future__ import absolute_import
+
+from urllib import unquote_plus
 from importlib import import_module
 
 import falcon
