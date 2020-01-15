@@ -256,7 +256,7 @@
             </tr>
           {{/each}}
         </table>
-      </div>
+      </div> 
       {{else}}
         <ul class="search-module">
           <h4>No users found</h4>
@@ -987,7 +987,7 @@
       </li>
       <li>
         <label class="light label-col" title="Scheduler">Scheduler:</label>
-        <span class="data-col schedule-algorithm">{{friendlyScheduler scheduler.name}}</span>
+        <span class="data-col schedule-algorithm">{{scheduler.name}}</span>
       </li>
     </ul>
     <div class="schedule-actions text-actions">
@@ -1105,7 +1105,6 @@
         <select name="from" class="form-control schedule-algorithm" id="schedule-algorithm">
           <option value="default" {{isSelected 'default' selected_schedule.scheduler.name}}> Default </option>
           <option value="round-robin" {{isSelected 'round-robin' selected_schedule.scheduler.name}}> Round-robin </option>
-          <option value="no-skip-matching" {{isSelected 'no-skip-matching' selected_schedule.scheduler.name}}> Default (allow duplicate) </option>
         </select>
         <div class="scheduler-type-container light">
           <!-- scheduler specific data renders here -->
@@ -1207,11 +1206,6 @@
       {{/each}}
     </ul>
   </div>
-</script>
-
-<!-- allow-duplicate scheduler template -->
-<script id="allow-duplicate-scheduler-template" type="text/x-handlebars-template">
-  The Default (allow duplicate) scheduler uses the same algorithm as Default, but allows more than one user to be on-call at the same time for a given role. This lets you have duplicate primary events across several schedule templates.
 </script>
 
 <!--// **********************

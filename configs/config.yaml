@@ -11,13 +11,12 @@ db:
     kwargs:
       scheme: mysql+pymysql
       user: root
-      password: "1234"
+      password: ""
       host: 127.0.0.1
-      port: 3306
       database: oncall
       charset: utf8
       echo: True
-    str: "%(scheme)s://%(user)s:%(password)s@%(host)s:%(port)s/%(database)s?charset=%(charset)s"
+    str: "%(scheme)s://%(user)s:%(password)s@%(host)s/%(database)s?charset=%(charset)s"
   kwargs:
     pool_recycle: 3600
 healthcheck_path: /tmp/status

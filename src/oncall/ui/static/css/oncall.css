@@ -783,27 +783,6 @@ body[data-authenticated="false"] #pinned-teams {
   opacity: 1;
  }
 
-#team-edit-modal[data-advanced="false"] .settings-normal {
-  display: unset;
-}
-
-#team-edit-modal[data-advanced="false"] .settings-advanced {
-  display: none;
-}
-
-#team-edit-modal[data-advanced="true"] .settings-normal {
-  display: none;
-}
-
-#team-edit-modal[data-advanced="true"] .settings-advanced {
-  display: unset;
-}
-
-#team-edit-modal .advanced-toggle {
-  text-align: center;
-  cursor: pointer;
-}
-
  body[data-authenticated="false"] #pin-team {
   display: none;
 }

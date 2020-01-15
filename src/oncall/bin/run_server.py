@@ -7,8 +7,8 @@ import gc
 import sys
 import multiprocessing
 import gunicorn.app.base
+from gunicorn.six import iteritems
 import oncall.utils
-import importlib
 
 
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
@@ -19,14 +19,14 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
         super(StandaloneApplication, self).__init__()
 
     def load_config(self):
-        config = {key: value for key, value in self.options.items()
+        config = {key: value for key, value in iteritems(self.options)
                   if key in self.cfg.settings and value is not None}
-        for key, value in config.items():
+        for key, value in iteritems(config):
             self.cfg.set(key.lower(), value)
 
     def load(self):
         import oncall
-        importlib.reload(oncall.utils)
+        reload(oncall.utils)
 
         import oncall.app
         app = oncall.app.get_wsgi_app()

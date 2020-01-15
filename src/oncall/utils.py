@@ -10,8 +10,8 @@ from falcon import HTTPBadRequest
 from importlib import import_module
 from datetime import datetime
 from pytz import timezone
-from .constants import ONCALL_REMINDER
-from . import constants
+from constants import ONCALL_REMINDER
+import constants
 import re
 
 invalid_char_reg = re.compile(r'[!"#%-,\.\/;->@\[-\^`\{-~]+')
@@ -29,8 +29,8 @@ def update_notification(x, y):
 
 
 def read_config(config_path):
-    with open(config_path, 'r', encoding='utf8') as config_file:
-        return yaml.safe_load(config_file)
+    with open(config_path, 'r') as config_file:
+        return yaml.load(config_file)
 
 
 def create_notification(context, team_id, role_ids, type_name, users_involved, cursor, **kwargs):
@@ -56,7 +56,7 @@ def create_notification(context, team_id, role_ids, type_name, users_involved, c
 
     for notification in notifications:
         tz = notification['time_zone'] if notification['time_zone'] else 'UTC'
-        for var_name, timestamp in kwargs.items():
+        for var_name, timestamp in kwargs.iteritems():
             context[var_name] = ' '.join([datetime.fromtimestamp(timestamp,
                                                                  timezone(tz)).strftime('%Y-%m-%d %H:%M:%S'),
                                           tz])

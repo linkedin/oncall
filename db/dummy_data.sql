@@ -5,7 +5,7 @@ LOCK TABLES `user` WRITE;
 INSERT INTO `user` VALUES
     (1,'root',1,'God User',NULL,NULL,1),
     (2,'manager',1,'Team Admin',NULL,NULL,0),
-    (3,'jdoe',1,'Juan Doş',NULL,NULL,0),
+    (3,'jdoe',1,'John Doe',NULL,NULL,0),
     (4,'asmith',1,'Alice Smith',NULL,NULL,0);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
