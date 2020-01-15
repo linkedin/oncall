@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-
-from __future__ import print_function
-
 from docutils import nodes
 from docutils.statemachine import ViewList
 
@@ -49,7 +46,7 @@ class AutofalconDirective(Directive):
         app = autohttp_import_object(self.arguments[0])
         for method, path, handler in get_routes(app):
             docstring = handler.__doc__
-            if not isinstance(docstring, unicode):
+            if not isinstance(docstring, str):
                 analyzer = ModuleAnalyzer.for_module(handler.__module__)
                 docstring = force_decode(docstring, analyzer.encoding)
             if not docstring and 'include-empty-docstring' not in self.options:

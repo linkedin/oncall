@@ -4,7 +4,7 @@
 from ... import db
 from ...utils import load_json_body
 from ...auth import check_team_auth, login_required
-from schedules import get_schedules
+from .schedules import get_schedules
 from falcon import HTTPNotFound
 from oncall.bin.scheduler import load_scheduler
 

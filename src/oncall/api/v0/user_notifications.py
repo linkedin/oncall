@@ -88,7 +88,7 @@ def on_get(req, resp, user_name):
 
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data.values())
+    resp.body = json_dumps(list(data.values()))
 
 
 @login_required

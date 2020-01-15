@@ -1,5 +1,5 @@
 from oncall.utils import gen_link_id
-import default
+from . import default
 import logging
 
 logger = logging.getLogger()
@@ -80,4 +80,4 @@ class Scheduler(default.Scheduler):
         _, cursor = dbinfo
         # Null last_scheduled_user to force find_next_user to determine that from the calendar
         cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = NULL WHERE `id` = %s', schedule['id'])
-        super(Scheduler, self).populate(schedule, start_time, dbinfo, table_name='event')
+        super(Scheduler, self).populate(schedule, start_time, dbinfo, table_name=table_name)

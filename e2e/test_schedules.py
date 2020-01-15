@@ -4,7 +4,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import urllib
+import urllib.parse
 import requests
 from testutils import prefix, api_v0
 
@@ -163,5 +163,5 @@ def test_api_v0_schedules_with_spaces_in_roster_name(team):
     assert re.status_code == 201
 
     re = requests.get(api_v0('teams/%s/rosters/%s/schedules' %
-                             (team_name, urllib.quote(roster_name, safe=''))))
+                             (team_name, urllib.parse.quote(roster_name, safe=''))))
     assert re.status_code == 200

@@ -8,6 +8,8 @@ var oncall = {
     $userInfoContainer: $('.user-info-container'),
     $loginForm: $('#navbar-form'),
     $logoutBtn: $('.logout'),
+    $editAdvanced: $('.advanced-toggle'),
+    $editModal: $('#team-edit-modal'),
     errorTemplate: $('#error-page-template').html(),
     loginUrl: '/login',
     logoutUrl: '/logout',
@@ -121,6 +123,10 @@ var oncall = {
       oncall.alerts.createAlert('Logout failed.', 'danger');
     });
   },
+  toggleAdvanced: function() {
+    var advanced = this.data.$editModal.attr('data-advanced');
+    this.data.$editModal.attr('data-advanced', advanced === 'false' ? 'true' : 'false');
+  },
   getUserInfo: function(){
     var self = this;
     return $.get(this.data.userUrl + this.data.user).done(function(data){
@@ -205,6 +211,7 @@ var oncall = {
     });
     this.data.$loginForm.on('submit', this.login.bind(this));
     this.data.$logoutBtn.on('click', this.logout.bind(this));
+    this.data.$editAdvanced.on('click', this.toggleAdvanced.bind(this));
   },
   updateTitleTag: function(newTitle){
     if(newTitle == ""){
@@ -1738,7 +1745,8 @@ var oncall = {
         scheduleItem: '.module-card',
         schedulerTemplates: {
           'default': $('#default-scheduler-template').html(),
-          'round-robin': $('#round-robin-scheduler-template').html()
+          'round-robin': $('#round-robin-scheduler-template').html(),
+          'no-skip-matching': $('#allow-duplicate-scheduler-template').html(),
         },
         schedulerTypeContainer: '.scheduler-type-container',
         schedulesUrl: '/api/v0/schedules/',
@@ -3028,12 +3036,18 @@ var oncall = {
       return str.replace('#', '');
     });
 
-    //takes a photo_url and if null retuns the default blank headshot-blank
-   Handlebars.registerHelper('defaultPhoto', function(src){
-     // removes hash tag from string
-       return src || "/static/images/headshot-blank.jpg";
-   });
+    Handlebars.registerHelper('friendlyScheduler', function(str){
+      if (str ==='no-skip-matching') {
+        return 'Default (allow duplicate)';
+      }
+      return str;
+    });
 
+    //takes a photo_url and if null retuns the default blank headshot-blank
+    Handlebars.registerHelper('defaultPhoto', function(src){
+      // removes hash tag from string
+        return src || "/static/images/headshot-blank.jpg";
+    });
 
     Handlebars.registerHelper('getUserInfo', function(user, users, key){
       // accepts a user name, the user object containing all user contact info, and the key you need the value for

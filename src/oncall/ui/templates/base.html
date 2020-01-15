@@ -114,7 +114,7 @@
         </form>
       </div>
     </div>
-    <div class="modal fade" id="team-edit-modal" tabindex="-1" role="dialog" aria-labelledby="team-edit">
+    <div class="modal fade" id="team-edit-modal" tabindex="-1" role="dialog" aria-labelledby="team-edit" data-advanced="false">
       <div class="modal-dialog" role="document">
         <form class="modal-form modal-content">
           <div class="modal-header">
@@ -139,24 +139,39 @@
                 {% endfor %}
               </select>
             </p>
-            <p>
-              <label for="team-override-phone">Team Override Phone Number:</label>
-              <i class="svg-icon svg-icon-question svg-icon-no-modal" title="This overrides the current primary oncall's number; used for pass-the-pager setups">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 10 10">
-                  <path d="M2.47 0c-.85 0-1.48.26-1.88.66-.4.4-.54.9-.59 1.28l1 .13c.04-.25.12-.5.31-.69.19-.19.49-.38 1.16-.38.66 0 1.02.16 1.22.34.2.18.28.4.28.66 0 .83-.34 1.06-.84 1.5-.5.44-1.16 1.08-1.16 2.25v.25h1v-.25c0-.83.31-1.06.81-1.5.5-.44 1.19-1.08 1.19-2.25 0-.48-.17-1.02-.59-1.41-.43-.39-1.07-.59-1.91-.59zm-.5 7v1h1v-1h-1z"
-                  transform="translate(2)" />
+            <p class="advanced-toggle light">
+              Advanced
+              <i class="svg-icon svg-icon-chevron svg-icon-chevron-down settings-normal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+                  <path d="M1.5 0l-1.5 1.5 4 4 4-4-1.5-1.5-2.5 2.5-2.5-2.5z" transform="translate(0 1)" />
                 </svg>
               </i>
-              <input type="text" name="override_phone_number" id="team-override-phone" class="form-control" placeholder="Override Phone Number" />
+              <i class="svg-icon svg-icon-chevron svg-icon-chevron-up settings-advanced">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 10 10" style="fill: currentColor">
+                  <path d="M4 0l-4 4 1.5 1.5 2.5-2.5 2.5 2.5 1.5-1.5-4-4z" transform="translate(0 1)" />
+                </svg>
+              </i>
             </p>
-            {%  if iris_plan_settings.activated %}
-            <p>
-              <label for="team-irisplan"> Team Iris Escalation Plan:</label>
-              <input type="text" data-type="plans" name="iris_plan" class="form-control" id="team-irisplan" placeholder="Plan Name" />
-            </p>
-            <input type="checkbox" id="team-iris-enabled" name="iris_enabled">
-            <label for="team-iris-enabled">Enable Iris Escalation for this team</label>
-            {% endif %}
+            <div class="settings-advanced">
+              <p>
+                <label for="team-override-phone">Team Override Phone Number:</label>
+                <i class="svg-icon svg-icon-question svg-icon-no-modal" title="This overrides the current primary oncall's number; used for pass-the-pager setups">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 10 10">
+                    <path d="M2.47 0c-.85 0-1.48.26-1.88.66-.4.4-.54.9-.59 1.28l1 .13c.04-.25.12-.5.31-.69.19-.19.49-.38 1.16-.38.66 0 1.02.16 1.22.34.2.18.28.4.28.66 0 .83-.34 1.06-.84 1.5-.5.44-1.16 1.08-1.16 2.25v.25h1v-.25c0-.83.31-1.06.81-1.5.5-.44 1.19-1.08 1.19-2.25 0-.48-.17-1.02-.59-1.41-.43-.39-1.07-.59-1.91-.59zm-.5 7v1h1v-1h-1z"
+                    transform="translate(2)" />
+                  </svg>
+                </i>
+                <input type="text" name="override_phone_number" id="team-override-phone" class="form-control" placeholder="Override Phone Number" />
+              </p>
+              {%  if iris_plan_settings.activated %}
+              <p>
+                <label for="team-irisplan"> Team Iris Escalation Plan:</label>
+                <input type="text" data-type="plans" name="iris_plan" class="form-control" id="team-irisplan" placeholder="Plan Name" />
+              </p>
+              <input type="checkbox" id="team-iris-enabled" name="iris_enabled">
+              <label for="team-iris-enabled">Enable Iris Escalation for this team</label>
+              {% endif %}
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>

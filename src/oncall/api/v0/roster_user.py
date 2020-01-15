@@ -1,7 +1,7 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from urllib import unquote
+from urllib.parse import unquote
 from falcon import HTTPNotFound, HTTPBadRequest, HTTP_200
 
 from ...auth import login_required, check_team_auth

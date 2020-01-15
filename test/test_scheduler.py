@@ -65,7 +65,7 @@ def test_calculate_future_events_7_12_shifts(mocker):
     mocker.patch('time.time').return_value = time.mktime(mock_dt.timetuple())
     start = 3 * DAY + 12 * HOUR  # Wednesday at noon
     events = []
-    for i in xrange(7):
+    for i in range(7):
         events.append({'start': start + DAY * i, 'duration': 12 * HOUR})
     schedule_foo = {
         'timezone': 'US/Eastern',
@@ -95,7 +95,7 @@ def test_calculate_future_events_14_12_shifts(mocker):
     mocker.patch('time.time').return_value = time.mktime(mock_dt.timetuple())
     start = 3 * DAY + 12 * HOUR  # Wednesday at noon
     events = []
-    for i in xrange(14):
+    for i in range(14):
         events.append({'start': start + DAY * i, 'duration': 12 * HOUR})
     schedule_foo = {
         'timezone': 'US/Central',
@@ -106,7 +106,7 @@ def test_calculate_future_events_14_12_shifts(mocker):
     future_events, last_epoch = scheduler.calculate_future_events(schedule_foo, None)
     assert len(future_events) == 2
     assert len(future_events[1]) == 14
-    days = range(21, 31) + range(1, 6)
+    days = list(range(21, 31)) + list(range(1, 6))
     for ev, day in zip(future_events[1], days):
         start_dt = utc.localize(datetime.datetime.utcfromtimestamp(ev['start']))
         start_dt = start_dt.astimezone(timezone('US/Central'))

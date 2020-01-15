@@ -2,7 +2,7 @@
 # See LICENSE in the project root for license information.
 import uuid
 import time
-from urllib import unquote
+from urllib.parse import unquote
 from falcon import HTTPNotFound, HTTPBadRequest, HTTPError
 from ujson import dumps as json_dumps
 
