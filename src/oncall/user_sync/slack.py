@@ -87,7 +87,7 @@ def sync_action(slack_client):
     mode_ids = {row[1]: row[0] for row in cursor}
     cursor.close()
 
-    slack_usernames = set(slack_users.viewkeys())
+    slack_usernames = set(slack_users.keys())
     oncall_usernames = set(fetch_oncall_usernames(connection))
 
     users_to_insert = slack_usernames - oncall_usernames

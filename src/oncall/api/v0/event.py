@@ -12,7 +12,7 @@ from ...utils import (
 )
 from ...constants import EVENT_DELETED, EVENT_EDITED
 
-from events import columns, all_columns
+from .events import columns, all_columns
 
 update_columns = {
     'start': '`start`=%(start)s',

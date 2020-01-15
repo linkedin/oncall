@@ -34,7 +34,7 @@ class prometheus(object):
     def send_metrics(self, metrics):
         if not self.enable_metrics:
             return
-        for metric, value in metrics.iteritems():
+        for metric, value in metrics.items():
             if metric not in self.gauges:
                 self.gauges[metric] = Gauge(self.appname + '_' + metric, '')
             logger.info('Setting metrics gauge %s to %s', metric, value)

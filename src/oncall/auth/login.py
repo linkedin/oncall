@@ -1,8 +1,6 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from __future__ import absolute_import
-
 from falcon import HTTPNotFound, HTTPUnauthorized, HTTPBadRequest
 from falcon.util import uri
 from oncall.api.v0.users import get_user_data
@@ -15,7 +13,7 @@ allow_no_auth = True
 
 
 def on_post(req, resp):
-    login_info = uri.parse_query_string(req.context['body'])
+    login_info = uri.parse_query_string(req.context['body'].decode('utf-8'))
 
     user = login_info.get('username')
     password = login_info.get('password')

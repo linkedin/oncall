@@ -25,3 +25,11 @@ check:
 	make test
 
 .PHONY: test e2e
+
+APP_NAME=oncall
+
+build:
+	docker build --ulimit nofile=1024 -t $(APP_NAME) .
+
+run: build
+	docker run -p 8080:8080 $(APP_NAME)

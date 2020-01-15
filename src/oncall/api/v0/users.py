@@ -79,7 +79,7 @@ def get_user_data(fields, filter_params, dbinfo=None):
         connection, cursor = dbinfo
 
     where = ' AND '.join(constraints[key] % connection.escape(value)
-                         for key, value in filter_params.iteritems()
+                         for key, value in filter_params.items()
                          if key in constraints)
     query = 'SELECT %s FROM %s' % (cols, from_clause)
     if where:
@@ -106,7 +106,7 @@ def get_user_data(fields, filter_params, dbinfo=None):
                 continue
             dest = row.pop('destination')
             ret[user_id]['contacts'][mode] = dest
-        data = ret.values()
+        data = list(ret.values())
     return data
 
 

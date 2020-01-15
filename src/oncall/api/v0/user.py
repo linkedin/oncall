@@ -169,7 +169,7 @@ def on_put(req, resp, user_name):
 
     if set_contacts:
         contacts = []
-        for mode, dest in data['contacts'].iteritems():
+        for mode, dest in data['contacts'].items():
             contact = {}
             contact['mode'] = mode
             contact['destination'] = dest

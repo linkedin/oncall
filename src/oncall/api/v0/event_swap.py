@@ -76,7 +76,7 @@ def on_post(req, resp):
         events = events_0 + events_1
         # Validation checks
         now = time.time()
-        if any(map(lambda ev: ev['start'] < now - constants.GRACE_PERIOD, events)):
+        if any([ev['start'] < now - constants.GRACE_PERIOD for ev in events]):
             raise HTTPBadRequest('Invalid event swap request',
                                  'Cannot edit events in the past')
         if len(set(ev['team_id'] for ev in events)) > 1:
