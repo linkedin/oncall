@@ -1,7 +1,7 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from urllib import unquote
+from urllib.parse import unquote
 from falcon import HTTPError, HTTPNotFound, HTTPBadRequest
 from ujson import dumps as json_dumps
 
@@ -129,7 +129,7 @@ def on_put(req, resp, team, roster):
                                 AND team_id = (SELECT id from team WHERE name = %s))''',
                            (roster, team))
             roster_users = {row[0] for row in cursor}
-            if not all(map(lambda x: x in roster_users, roster_order)):
+            if not all([x in roster_users for x in roster_order]):
                 raise HTTPBadRequest('Invalid roster order', 'All users in provided order must be part of the roster')
             if not len(roster_order) == len(roster_users):
                 raise HTTPBadRequest('Invalid roster order', 'Roster order must include all roster members')

@@ -1,7 +1,7 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from urllib import unquote
+from urllib.parse import unquote
 from falcon import HTTPError, HTTP_201, HTTPBadRequest
 from ujson import dumps as json_dumps
 from ...utils import load_json_body, invalid_char_reg, subscribe_notifications, create_audit
@@ -68,7 +68,7 @@ def on_get(req, resp):
 
     '''
 
-    query = 'SELECT `name`, `email`, `slack_channel`, `scheduling_timezone`, `iris_plan` FROM `team`'
+    query = 'SELECT `name`, `id` FROM `team`'
     if 'active' not in req.params:
         req.params['active'] = True
 
@@ -86,7 +86,11 @@ def on_get(req, resp):
         query = '%s WHERE %s' % (query, where_query)
 
     cursor.execute(query, query_values)
-    data = [r[0] for r in cursor]
+    data = [None]
+    if req.get_param_as_bool('get_id'):
+        data = [(r[0], r[1]) for r in cursor]
+    else:
+        data = [r[0] for r in cursor]
     cursor.close()
     connection.close()
     resp.body = json_dumps(data)
