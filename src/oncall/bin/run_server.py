@@ -8,7 +8,6 @@ import sys
 import multiprocessing
 import gunicorn.app.base
 import oncall.utils
-import importlib
 
 
 class StandaloneApplication(gunicorn.app.base.BaseApplication):
@@ -26,7 +25,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
 
     def load(self):
         import oncall
-        importlib.reload(oncall.utils)
+        reload(oncall.utils)
 
         import oncall.app
         app = oncall.app.get_wsgi_app()

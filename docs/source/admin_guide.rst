@@ -8,27 +8,31 @@ Test with Docker
 ````````````````
 
 .. _Docker: https://www.docker.com/community-edition
+.. _DockerCompose: https://docs.docker.com/compose/
 
-A local test instance of Oncall can be setup with Docker_ in a few commands:
+A local test instance of Oncall can be setup with Docker_ and
+DockerCompose_ in a single command:
 
 .. code-block:: bash
 
-    cd ./ops/packer
-    mkdir output
-    python gen_packer_cfg.py ./oncall.yaml | tail -n +2 > ./output/oncall.json
-    packer build -only=docker oncall.json
-    docker run -d --name oncall-mysql -e MYSQL_ROOT_PASSWORD='1234' mysql:5.7
-    docker run -d --link oncall-mysql:mysql -p 8080:8080 -e DOCKER_DB_BOOTSTRAP=1 quay.io/iris/oncall
+    docker-compose up
 
-.. NOTE::
-    We pass a **DOCKER_DB_BOOTSTRAP** environment variable to the Oncall container
-    indicating to our setup script that the database needs to be initialized. This
-    will populate the database with a small amount of dummy data and set up the
-    proper schema so we can get up and running.
-
-The above commands set up an Oncall service and MySQL database. Note that we
+The above command sets up an Oncall service and MySQL database. Note that we
 set the MySQL root password to '1234'; you may wish to change this to something
 more secure.
+
+Details about the container configuration are in ``docker-compose.yml`` and
+``Dockerfile``.  During the first run the database schema will be created and
+populated with some dummy data.  You can edit the dummy data in
+``./db/dummy_data.sql``, but you will need to stop and recreate your containers
+to load your new data.
+
+.. code-block:: bash
+
+    docker-compose stop
+    docker-compose rm -f
+    docker-compose build
+    docker-compose up
 
 The test instance of Oncall can be accessed at http://localhost:8080.  Try
 logging in as the user "jdoe", with any password (the Docker image defaults to
@@ -100,6 +104,7 @@ You can deactivate this feature by setting the `import_user` option to `False`.
 Here is an example of ldap auth configuration :
 
 .. code-block:: yaml
+
     auth:
       debug: False
       module: 'oncall.auth.modules.ldap_import'
