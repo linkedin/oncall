@@ -126,7 +126,7 @@ class Priorities(object):
                 continue
 
             # check if event's role is payed for that team
-            team_payment_details = next((item for item in oncall_bonus_teams if item["name"] == team), None)
+            team_payment_details = next((item for item in oncall_bonus_teams if item.get('name', '') == team), None)
             if team_payment_details:
                 team_payed_roles = {'primary': team_payment_details.get('primary_paid', 0), 'secondary': team_payment_details.get('secondary_paid', 0)}
                 if team_payed_roles.get(event['role']):
