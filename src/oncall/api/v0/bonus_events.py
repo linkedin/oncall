@@ -9,7 +9,7 @@ from ujson import dumps as json_dumps
 from falcon import HTTPStatus, HTTP_200
 
 
-class Priorities(object):
+class PaidEvents(object):
     def __init__(self, config):
         self.config = config
 

@@ -62,8 +62,8 @@ def init(application, config):
     application.add_route('/api/v0/events/link/{link_id}', event_link)
     # optional external bonus integration
     if config.get('add_bonus_events_api', None):
-        from oncall.api.v0.bonus_events import Priorities
-        application.add_route('/api/v0/events/bonus', Priorities(config))
+        from oncall.api.v0.bonus_events import PaidEvents
+        application.add_route('/api/v0/events/bonus', PaidEvents(config))
 
     from . import users, user, user_teams, user_notifications
     application.add_route('/api/v0/users', users)
