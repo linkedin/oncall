@@ -187,6 +187,17 @@ slack_instance: foobar
 # APIs without authentication
 require_auth: False
 
+###########################
+### Oncall bonus management
+###########################
+# add_bonus_events_api: True
+# bonus_url: 'https://ONCALL_BONUS_TEAMS_ENDPOINT'
+# bonus_whitelist:
+#      - 'team_foo'
+# bonus_blacklist:
+#      - 'team_bar'
+#      - 'team_baz'
+
 ##########################
 ### Oncall user management
 ##########################
