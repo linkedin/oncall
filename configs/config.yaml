@@ -138,12 +138,12 @@ supported_timezones:
 
 index_content_setting:
   # Page footer contents
-  footer: |
-    <ul>
-      <li>Oncall © LinkedIn 2017</li>
-      <li>Feedback</li>
-      <li><a href="http://oncall.tools" target="_blank">About</a></li>
-    </ul>
+  #footer: |
+  #  <ul>
+  #    <li>Oncall © LinkedIn 2020</li>
+  #    <li>Feedback</li>
+  #    <li><a href="http://oncall.tools" target="_blank">About</a></li>
+  #  </ul>
   # Note displayed when a user has no phone number
   missing_number_note: 'No number'
 header_color: '#3a3a3a'

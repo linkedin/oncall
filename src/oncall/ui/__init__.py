@@ -10,6 +10,7 @@ import re
 from ..constants import SUPPORTED_TIMEZONES
 from os import path, environ
 from falcon import HTTPNotFound
+from datetime import date
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment as Jinja2Environment
 from webassets import Environment as AssetsEnvironment, Bundle
@@ -62,7 +63,7 @@ mimes = {
 
 INDEX_CONTENT_SETTING = {
     'user_setting_note': '',
-    'footer': '<ul><li>Oncall © LinkedIn 2017</li></ul>',
+    'footer': '<ul><li>Oncall © LinkedIn %s</li><li><a href="http://oncall.tools" target="_blank">About</a></li></ul>' % date.today().year,
 }
 
 SLACK_INSTANCE = None
