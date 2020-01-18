@@ -47,7 +47,7 @@ supported_timezones:
   - 'UTC'
 
 index_content_setting:
-  footer: |
+  #footer: |
   #  <ul>
   #    <li>Oncall © LinkedIn 2020</li>
   #    <li>Feedback</li>
