@@ -47,12 +47,12 @@ supported_timezones:
   - 'UTC'
 
 index_content_setting:
-  footer: |
-    <ul>
-      <li>Oncall © LinkedIn 2017</li>
-      <li>Feedback</li>
-      <li><a href="http://oncall.tools" target="_blank">About</a></li>
-    </ul>
+  #footer: |
+  #  <ul>
+  #    <li>Oncall © LinkedIn 2020</li>
+  #    <li>Feedback</li>
+  #    <li><a href="http://oncall.tools" target="_blank">About</a></li>
+  #  </ul>
   missing_number_note: 'No number'
 
 notifications:
