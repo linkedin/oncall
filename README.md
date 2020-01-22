@@ -10,7 +10,7 @@ Development setup
 -----------------
 ### Prerequisites
 
-  * Debian/Ubuntu - `sudo apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev python-pip python-setuptools mysql-server mysql-client`
+  * Debian/Ubuntu - `sudo apt-get install libsasl2-dev python-dev libldap2-dev libssl-dev python-pip python-setuptools mysql-server mysql-client libffi-dev libyaml-cpp-dev python-dateutil`
 
 ### Install
 
