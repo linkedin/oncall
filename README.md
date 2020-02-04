@@ -1,4 +1,4 @@
-Oncall [![Gitter chat](https://badges.gitter.im/irisoncall/Lobby.png)](https://gitter.im/irisoncall/Lobby) [![Build Status](https://circleci.com/gh/linkedin/oncall.svg?style=shield)](https://circleci.com/gh/linkedin/oncall) ![Upload to pypi.org](https://github.com/linkedin/oncall/workflows/Upload%20to%20pypi.org/badge.svg?branch=master) ![Upload to test.pypi.org](https://github.com/linkedin/oncall/workflows/Upload%20to%20test.pypi.org/badge.svg?branch=master)
+Oncall [![Gitter chat](https://badges.gitter.im/irisoncall/Lobby.png)](https://gitter.im/irisoncall/Lobby) [![Build Status](https://circleci.com/gh/linkedin/oncall.svg?style=shield)](https://circleci.com/gh/linkedin/oncall)
 ======
 
 <p align="center"><img src="https://github.com/linkedin/oncall/raw/master/docs/source/_static/demo.png" width="600"></p>
