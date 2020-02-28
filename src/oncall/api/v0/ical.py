@@ -7,9 +7,9 @@ from icalendar import Calendar, Event, vCalAddress, vText
 from pytz import utc
 
 
-def events_to_ical(events, identifier):
+def events_to_ical(events, identifier, contact=True):
     connection = db.connect()
-    cursor = connection.cursor()
+    cursor = connection.cursor(db.DictCursor)
 
     ical = Calendar()
     ical.add('calscale', 'GREGORIAN')
@@ -22,17 +22,29 @@ def events_to_ical(events, identifier):
     for event in events:
         username = event['user']
         if username not in users:
-            cursor.execute('''
-                SELECT `user`.`full_name`, `contact_mode`.`name`, `user_contact`.`destination`
-                FROM `user_contact`
-                JOIN `contact_mode` ON `contact_mode`.`id` = `user_contact`.`mode_id`
-                JOIN `user` ON `user`.`id` = `user_contact`.`user_id`
-                WHERE `user`.`name` = %s
-            ''', username)
+            if contact:
+                cursor.execute('''
+                    SELECT
+                        `user`.`full_name` AS full_name,
+                        `contact_mode`.`name` AS contact_mode,
+                        `user_contact`.`destination` AS destination
+                    FROM `user_contact`
+                    JOIN `contact_mode` ON `contact_mode`.`id` = `user_contact`.`mode_id`
+                    JOIN `user` ON `user`.`id` = `user_contact`.`user_id`
+                    WHERE `user`.`name` = %s
+                ''', username)
+            else:
+                cursor.execute('''
+                    SELECT `user`.`full_name` AS full_name
+                    FROM `user`
+                    WHERE `user`.`name` = %s
+                ''', username)
+
             info = {'username': username, 'contacts': {}}
             for row in cursor:
-                info['full_name'] = row[0]
-                info['contacts'][row[1]] = row[2]
+                info['full_name'] = row['full_name']
+                if contact:
+                    info['contacts'][row['contact_mode']] = row['destination']
             users[username] = info
         user = users[username]
 
@@ -47,10 +59,10 @@ def events_to_ical(events, identifier):
                       '%s %s shift: %s' % (event['team'], event['role'], full_name))
         cal_event.add('description',
                       '%s\n' % full_name +
-                      '\n'.join(['%s: %s' % (mode, dest) for mode, dest in user['contacts'].items()]))
+                      ('\n'.join(['%s: %s' % (mode, dest) for mode, dest in user['contacts'].items()]) if contact else ''))
 
         # Attach info about the user oncall
-        attendee = vCalAddress('MAILTO:%s' % user['contacts'].get('email'))
+        attendee = vCalAddress('MAILTO:%s' % (user['contacts'].get('email') if contact else ''))
         attendee.params['cn'] = vText(full_name)
         attendee.params['ROLE'] = vText('REQ-PARTICIPANT')
         cal_event.add('attendee', attendee, encode=0)
