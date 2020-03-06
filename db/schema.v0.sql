@@ -445,7 +445,7 @@ CREATE TABLE IF NOT EXISTS `ical_key` (
   `time_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`requester`, `name`, `type`),
   INDEX `key_idx` (`KEY`)
-)
+);
 
 CREATE TABLE IF NOT EXISTS `team_subscription` (
   `team_id`         BIGINT(20) UNSIGNED NOT NULL,
