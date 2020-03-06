@@ -102,6 +102,10 @@ def init(application, config):
     application.add_route('/api/v0/users/{user_name}/ical', user_ical)
     application.add_route('/api/v0/teams/{team}/ical', team_ical)
 
+    from . import ical_key_user, ical_key_team
+    application.add_route('/api/v0/ical_key/user/{user_name}', ical_key_user)
+    application.add_route('/api/v0/ical_key/team/{team}', ical_key_team)
+
     # Optional Iris integration
     from . import iris_settings
     application.add_route('/api/v0/iris_settings', iris_settings)

@@ -434,6 +434,19 @@ CREATE TABLE IF NOT EXISTS `application` (
   PRIMARY KEY (`id`)
 );
 
+-- -----------------------------------------------------
+-- Table `ical_key`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ical_key` (
+  `key` CHAR(36) CHARACTER SET ascii NOT NULL,
+  `requester` CHAR(255) NOT NULL,
+  `name` CHAR(255) NOT NULL,
+  `type` ENUM('team', 'user') NOT NULL,
+  `time_created` BIGINT(20) NOT NULL,
+  PRIMARY KEY (`requester`, `name`, `type`),
+  INDEX `key_idx` (`KEY`)
+);
+
 CREATE TABLE IF NOT EXISTS `team_subscription` (
   `team_id`         BIGINT(20) UNSIGNED NOT NULL,
   `subscription_id` BIGINT(20) UNSIGNED NOT NULL,
