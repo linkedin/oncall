@@ -35,8 +35,8 @@ def update_ical_key(requester, name, type, key):
     cursor.execute(
         '''
         INSERT INTO `ical_key` (`key`, `requester`, `name`, `type`, `time_created`)
-        VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP())
-        ON DUPLICATE KEY UPDATE `key` = %s, `time_created` = CURRENT_TIMESTAMP()
+        VALUES (%s, %s, %s, %s, UNIX_TIMESTAMP())
+        ON DUPLICATE KEY UPDATE `key` = %s, `time_created` = UNIX_TIMESTAMP()
         ''',
         (key, requester, name, type, key))
     connection.commit()

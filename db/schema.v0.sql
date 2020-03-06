@@ -442,7 +442,7 @@ CREATE TABLE IF NOT EXISTS `ical_key` (
   `requester` CHAR(255) NOT NULL,
   `name` CHAR(255) NOT NULL,
   `type` ENUM('team', 'user') NOT NULL,
-  `time_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `time_created` BIGINT(20) NOT NULL,
   PRIMARY KEY (`requester`, `name`, `type`),
   INDEX `key_idx` (`KEY`)
 );
