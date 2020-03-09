@@ -4,6 +4,27 @@
 from ... import db
 
 
+def get_name_and_type_from_key(key):
+    connection = db.connect()
+    cursor = connection.cursor()
+
+    result = None
+    cursor.execute(
+        '''
+        SELECT `name`, `type`
+        FROM `ical_key`
+        WHERE `key` = %s
+        ''',
+        (key))
+    if cursor.rowcount != 0:
+        row = cursor.fetchone()
+        result = (row[0], row[1])
+
+    cursor.close()
+    connection.close()
+    return result
+
+
 def get_ical_key(requester, name, type):
     connection = db.connect()
     cursor = connection.cursor()
