@@ -88,6 +88,13 @@ def prune_user(engine, username):
         logger.error('Deleting user %s failed: %s', username, e)
         stats['sql_errors'] += 1
 
+    try:
+        engine.execute('DELETE FROM `ical_key` WHERE `requester` = %s', username)
+        logger.info('Invalidated ical_key of inactive user %s', username)
+    except Exception as e:
+        logger.error('Invalidating ical_key of inactive user %s failed: %s', username, e)
+        stats['sql_errors'] += 1
+
 
 def fetch_ldap():
     ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_ALLOW)

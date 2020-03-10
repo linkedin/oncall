@@ -102,9 +102,12 @@ def init(application, config):
     application.add_route('/api/v0/users/{user_name}/ical', user_ical)
     application.add_route('/api/v0/teams/{team}/ical', team_ical)
 
-    from . import ical_key_user, ical_key_team
+    from . import ical_key_user, ical_key_team, ical_key_detail, ical_key_requester
     application.add_route('/api/v0/ical_key/user/{user_name}', ical_key_user)
     application.add_route('/api/v0/ical_key/team/{team}', ical_key_team)
+    # available to admin only
+    application.add_route('/api/v0/ical_key/key/{key}', ical_key_detail)
+    application.add_route('/api/v0/ical_key/requester/{requester}', ical_key_requester)
 
     from . import public_ical
     application.add_route('/api/v0/ical/{key}', public_ical)

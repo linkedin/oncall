@@ -15,7 +15,7 @@ def get_name_and_type_from_key(key):
         FROM `ical_key`
         WHERE `key` = %s
         ''',
-        (key))
+        (key, ))
     if cursor.rowcount != 0:
         row = cursor.fetchone()
         result = (row[0], row[1])
@@ -79,6 +79,82 @@ def delete_ical_key(requester, name, type):
             `type` = %s
         ''',
         (requester, name, type))
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+
+#####
+# admin actions below
+#####
+
+
+def get_ical_key_detail(key):
+    connection = db.connect()
+    cursor = connection.cursor(db.DictCursor)
+
+    cursor.execute(
+        '''
+        SELECT `requester`, `name`, `type`, `time_created`
+        FROM `ical_key`
+        WHERE `key` = %s
+        ''',
+        (key, ))
+    # fetchall because we may want to know if there is any key (uuid) collision
+    results = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+    return results
+
+
+def get_ical_key_detail_by_requester(requester):
+    connection = db.connect()
+    cursor = connection.cursor(db.DictCursor)
+
+    cursor.execute(
+        '''
+        SELECT `key`, `name`, `type`, `time_created`
+        FROM `ical_key`
+        WHERE `requester` = %s
+        ''',
+        (requester, ))
+    results = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+    return results
+
+
+def invalidate_ical_key(key):
+    connection = db.connect()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        '''
+        DELETE FROM `ical_key`
+        WHERE
+            `key` = %s
+        ''',
+        (key, ))
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+
+def invalidate_ical_key_by_requester(requester):
+    connection = db.connect()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        '''
+        DELETE FROM `ical_key`
+        WHERE
+            `requester` = %s
+        ''',
+        (requester, ))
     connection.commit()
 
     cursor.close()
