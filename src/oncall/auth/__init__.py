@@ -32,6 +32,10 @@ def is_god(challenger):
     return is_god != 0
 
 
+def check_ical_key_admin(challenger):
+    return is_god(challenger)
+
+
 def check_user_auth(user, req):
     """
     Check to see if current user is user or admin of team where user is in
