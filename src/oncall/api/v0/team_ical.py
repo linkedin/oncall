@@ -25,7 +25,7 @@ def get_team_events(team, start):
             JOIN `user` ON `event`.`user_id` = `user`.`id`
             JOIN `role` ON `event`.`role_id` = `role`.`id`
         WHERE
-            `event`.`start` > %s AND
+            `event`.`end` > %s AND
             `team`.`name` = %s
         ''',
         (start, team))
