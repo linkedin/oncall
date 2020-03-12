@@ -25,7 +25,7 @@ def on_get(req, resp, key):
     if type == 'user':
         events = get_user_events(name, start)
     elif type == 'team':
-        events = get_team_events(name, start)
+        events = get_team_events(name, start, include_subscribed=True)
     else:                       # should not happen
         events = []
 
