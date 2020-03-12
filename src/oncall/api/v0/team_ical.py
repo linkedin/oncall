@@ -7,12 +7,26 @@ from . import ical
 from ... import db
 
 
-def get_team_events(team, start):
+def get_team_events(team, start, include_subscribed=False):
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
 
-    cursor.execute(
-        '''
+    team_condition = "`team`.`name` = %s"
+    if include_subscribed:
+        cursor.execute(
+            '''
+            SELECT `subscription_id`, `role_id`
+            FROM `team_subscription`
+            JOIN `team` ON `team_id` = `team`.`id`
+            WHERE `team`.`name` = %s
+            ''', team)
+        if cursor.rowcount != 0:
+            subscriptions = ' OR '.join(['(`team`.`id` = %s AND `role`.`id` = %s)' %
+                                         (row['subscription_id'], row['role_id'])
+                                         for row in cursor])
+            team_condition = '(%s OR (%s))' % (team_condition, subscriptions)
+
+    query = '''
         SELECT
             `event`.`id`,
             `team`.`name` AS team,
@@ -25,10 +39,11 @@ def get_team_events(team, start):
             JOIN `user` ON `event`.`user_id` = `user`.`id`
             JOIN `role` ON `event`.`role_id` = `role`.`id`
         WHERE
-            `event`.`start` > %s AND
-            `team`.`name` = %s
-        ''',
-        (start, team))
+            `event`.`end` > %s AND
+        ''' + team_condition
+
+    cursor.execute(
+        query, (start, team))
 
     events = cursor.fetchall()
     cursor.close()
@@ -58,7 +73,10 @@ def on_get(req, resp, team):
     contact = req.get_param_as_bool('contact')
     if contact is None:
         contact = True
+    include_sub = req.get_param_as_bool('include_subscribed')
+    if include_sub is None:
+        include_sub = True
 
-    events = get_team_events(team, start)
+    events = get_team_events(team, start, include_subscribed=include_sub)
     resp.body = ical.events_to_ical(events, team, contact)
     resp.set_header('Content-Type', 'text/calendar')
