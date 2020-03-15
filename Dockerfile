@@ -11,6 +11,7 @@ RUN useradd -m -s /bin/bash oncall
 COPY src /home/oncall/source/src
 COPY setup.py /home/oncall/source/setup.py
 COPY MANIFEST.in /home/oncall/source/MANIFEST.in
+COPY README.md /home/oncall/source/README.md
 
 WORKDIR /home/oncall
 
