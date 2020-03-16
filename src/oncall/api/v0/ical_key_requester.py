@@ -14,10 +14,10 @@ from .ical_key import (
 @login_required
 def on_get(req, resp, requester):
     challenger = req.context['user']
-    if not check_ical_key_admin(challenger):
+    if not (challenger == requester or check_ical_key_admin(challenger)):
         raise HTTPForbidden(
             'Unauthorized',
-            'Action not allowed: "%s" is not an admin of ical_key' % (challenger, ),
+            'Action not allowed: "%s" is not allowed to view ical_keys of "%s"' % (challenger, requester),
         )
 
     results = get_ical_key_detail_by_requester(requester)
@@ -31,10 +31,10 @@ def on_get(req, resp, requester):
 @login_required
 def on_delete(req, resp, requester):
     challenger = req.context['user']
-    if not check_ical_key_admin(challenger):
+    if not (challenger == requester or check_ical_key_admin(challenger)):
         raise HTTPForbidden(
             'Unauthorized',
-            'Action not allowed: "%s" is not an admin of ical_key' % (challenger, ),
+            'Action not allowed: "%s" is not allowed to delete ical_keys of "%s"' % (challenger, ),
         )
 
     invalidate_ical_key_by_requester(requester)
