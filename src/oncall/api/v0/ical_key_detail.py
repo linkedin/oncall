@@ -5,13 +5,13 @@ from falcon import HTTPNotFound, HTTPForbidden
 from ujson import dumps as json_dumps
 
 from ...auth import login_required, check_ical_key_admin
-from .ical_key import get_ical_key_detail, invalidate_ical_key
+from .ical_key import get_ical_key_detail, invalidate_ical_key, check_ical_key_requester
 
 
 @login_required
 def on_get(req, resp, key):
     challenger = req.context['user']
-    if not check_ical_key_admin(challenger):
+    if not (check_ical_key_requester(key, challenger) or check_ical_key_admin(challenger)):
         raise HTTPForbidden(
             'Unauthorized',
             'Action not allowed: "%s" is not an admin of ical_key' % (challenger, ),
@@ -28,7 +28,7 @@ def on_get(req, resp, key):
 @login_required
 def on_delete(req, resp, key):
     challenger = req.context['user']
-    if not check_ical_key_admin(challenger):
+    if not (check_ical_key_requester(key, challenger) or check_ical_key_admin(challenger)):
         raise HTTPForbidden(
             'Unauthorized',
             'Action not allowed: "%s" is not an admin of ical_key' % (challenger, ),

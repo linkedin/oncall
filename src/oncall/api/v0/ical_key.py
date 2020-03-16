@@ -4,6 +4,24 @@
 from ... import db
 
 
+def check_ical_key_requester(key, requester):
+    connection = db.connect()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        '''
+        SELECT `key`
+        FROM `ical_key`
+        WHERE `key` = %s AND `requester` = %s
+        ''',
+        (key, requester))
+    is_requester = cursor.rowcount
+
+    cursor.close()
+    connection.close()
+    return is_requester != 0
+
+
 def get_name_and_type_from_key(key):
     connection = db.connect()
     cursor = connection.cursor()
@@ -83,11 +101,6 @@ def delete_ical_key(requester, name, type):
 
     cursor.close()
     connection.close()
-
-
-#####
-# admin actions below
-#####
 
 
 def get_ical_key_detail(key):
