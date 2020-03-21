@@ -50,8 +50,12 @@ def on_post(req, resp, team):
     challenger = req.context['user']
     check_calendar_auth(team, req)
 
-    update_ical_key(challenger, team, 'team', str(uuid.uuid4()))
+    key = str(uuid.uuid4())
+    update_ical_key(challenger, team, 'team', key)
+
     resp.status = HTTP_201
+    resp.body = key
+    resp.set_header('Content-Type', 'text/plain')
 
 
 @login_required

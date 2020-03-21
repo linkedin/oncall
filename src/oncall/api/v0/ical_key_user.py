@@ -60,8 +60,12 @@ def on_post(req, resp, user_name):
             'Action not allowed: "%s" is not allowed to update ical_key of "%s"' % (challenger, user_name)
         )
 
-    update_ical_key(challenger, user_name, 'user', str(uuid.uuid4()))
+    key = str(uuid.uuid4())
+    update_ical_key(challenger, user_name, 'user', key)
+
     resp.status = HTTP_201
+    resp.body = key
+    resp.set_header('Content-Type', 'text/plain')
 
 
 @login_required
