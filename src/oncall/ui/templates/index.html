@@ -1416,6 +1416,7 @@
     <ul class="container-fluid">
       <li {{#isEqual page "settings"}}class="active"{{/isEqual}} href="/user/{{username}}" data-navigo> Settings </li>
       <li {{#isEqual page "notifications"}}class="active"{{/isEqual}} href="/user/{{username}}/notifications" data-navigo> Notifications </li>
+      <li {{#isEqual page "ical_key"}}class="active"{{/isEqual}} href="/user/{{username}}/ical_key" data-navigo> Public Calendar Keys </li>
     </ul>
   </nav>
 </script>
@@ -1691,6 +1692,24 @@
       </div>
     </div>
   </form>
+</script>
+
+<!--// **********************
+  Public Calendar Key Page
+*********************** //-->
+
+<script id="ical-key-template" type="text/x-handlebars-template">
+  <div class="subheader-wrapper">
+    {{>settings-subheader username=name page="ical_key"}}
+  </div>
+  <div class="main container-fluid">
+    <h3 class="module-heading"> User Calendar </h3>
+    <div class="module">
+    </div>
+    <h3 class="module-heading"> Team Calendar </h3>
+    <div class="module">
+    </div>
+  </div>
 </script>
 
 <!--// **********************

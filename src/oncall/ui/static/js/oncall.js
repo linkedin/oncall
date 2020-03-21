@@ -284,6 +284,12 @@ var oncall = {
         self.settings.notifications.init();
         self.updateTitleTag("Notifications");
       },
+      '/user/:user/ical_key': function(){
+        oncall.callbacks.onLogin = $.noop;
+        oncall.callbacks.onLogout = $.noop;
+        self.settings.ical_key.init();
+        self.updateTitleTag("Public Calendar Keys");
+      },
       '/query/:query/:fields': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
@@ -2829,6 +2835,45 @@ var oncall = {
           $modal.modal('hide');
           $form.remove();
         }
+      }
+    },
+    ical_key: {
+      data: {
+        $page: $('.content-wrapper'),
+        url: '/api/v0/users/',
+        icalKeyUrl: '/api/v0/ical_key/',
+        pageSource: $('#ical-key-template').html(),
+        settingsSubheaderTemplate: $('#settings-subheader-template').html(),
+        subheaderWrapper: '.subheader-wrapper'
+      },
+      init: function(){
+        Handlebars.registerPartial('settings-subheader', this.data.settingsSubheaderTemplate);
+        this.getData();
+        oncall.getModes();
+      },
+      events: function(){
+        router.updatePageLinks();
+      },
+      getData: function(){
+        var self = this;
+
+        if (oncall.data.user) {
+          $.when(
+            // TODO: get ical_key here
+            oncall.data.modesPromise
+          ).done(function(){
+
+            self.renderPage.call(self, {});
+          })
+        } else {
+          router.navigate('/');
+        }
+      },
+      renderPage: function(data){
+        var template = Handlebars.compile(this.data.pageSource);
+
+        this.data.$page.html(template(data));
+        this.events();
       }
     }
   },
