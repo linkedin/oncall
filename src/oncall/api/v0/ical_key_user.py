@@ -1,12 +1,10 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-import uuid
-
 from falcon import HTTPNotFound, HTTPForbidden, HTTP_201
 
 from ...auth import login_required
-from .ical_key import get_ical_key, update_ical_key, delete_ical_key
+from .ical_key import get_ical_key, update_ical_key, delete_ical_key, generate_ical_key
 
 
 @login_required
@@ -60,7 +58,7 @@ def on_post(req, resp, user_name):
             'Action not allowed: "%s" is not allowed to update ical_key of "%s"' % (challenger, user_name)
         )
 
-    key = str(uuid.uuid4())
+    key = generate_ical_key()
     update_ical_key(challenger, user_name, 'user', key)
 
     resp.status = HTTP_201
