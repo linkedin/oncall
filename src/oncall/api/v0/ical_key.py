@@ -1,7 +1,13 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
+import uuid
+
 from ... import db
+
+
+def generate_ical_key():
+    return str(uuid.uuid4())
 
 
 def check_ical_key_requester(key, requester):

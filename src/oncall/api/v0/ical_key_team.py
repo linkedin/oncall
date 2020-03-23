@@ -1,12 +1,10 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-import uuid
-
 from falcon import HTTPNotFound, HTTP_201
 
 from ...auth import login_required, check_calendar_auth
-from .ical_key import get_ical_key, update_ical_key, delete_ical_key
+from .ical_key import get_ical_key, update_ical_key, delete_ical_key, generate_ical_key
 
 
 @login_required
@@ -50,8 +48,12 @@ def on_post(req, resp, team):
     challenger = req.context['user']
     check_calendar_auth(team, req)
 
-    update_ical_key(challenger, team, 'team', str(uuid.uuid4()))
+    key = generate_ical_key()
+    update_ical_key(challenger, team, 'team', key)
+
     resp.status = HTTP_201
+    resp.body = key
+    resp.set_header('Content-Type', 'text/plain')
 
 
 @login_required
