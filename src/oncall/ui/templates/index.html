@@ -1703,43 +1703,34 @@
     {{>settings-subheader username=name page="ical_key"}}
   </div>
   <div class="main container-fluid">
-    <h3 class="module-heading"> User Calendar <button id="request-user-ical-key" class="btn btn-primary pull-right">+ Ical Key</button></h3>
-    <div class="module">
-      <table width="100%">
-        <thead>
-          <th>User Name</th>
-          <th>Key</th>
-        </thead>
-        <tbody>
-        {{#each userKeys}}
-        <tr>
-          <td>{{this.name}}</td>
-          <td>{{this.key}}</td>
-        </tr>
-        {{/each}}
-        </tbody>
-      </table>
-    </div>
-    <h3 class="module-heading"> Team Calendar <button id="request-team-ical-key" class="btn btn-primary pull-right">+ Ical Key</button></h3>
-    <div class="module">
-      <table width="100%">
-        <thead>
-          <th>Team Name</th>
-          <th>Key</th>
-        </thead>
-        <tbody>
-        {{#each teamKeys}}
-        <tr>
-          <td>{{this.name}}</td>
-          <td>{{this.key}}</td>
-        </tr>
-        {{/each}}
-        </tbody>
-      </table>
-    </div>
+    <!-- user calendar keys -->
+    {{>ical-key key_type="user" keys=userKeys}}
+    <!-- team calendar keys -->
+    {{>ical-key key_type="team" keys=teamKeys}}
     <h4 class="module-heading">How to subscribe to your calendars</h4>
     <div>
     </div>
+  </div>
+</script>
+
+<!-- // ical key view partial -->
+<script id="module-ical-key-template" type="text/x-handlebars-template">
+  <h3 class="module-heading"> {{capitalize key_type}} Calendar Keys <button id="request-ical-key" class="btn btn-primary pull-right">+ {{capitalize key_type}} Ical Key</button></h3>
+  <div class="module">
+    <table width="100%" class="table table-striped">
+      <thead><th>{{capitalize key_type}} Name</th><th>Key</th><th>Time Created</th></thead>
+      <tbody>
+        {{#each keys}}
+        <tr class="ical-key-row" data-id="{{this.key}}">
+          <td><span>{{this.name}}</span></td>
+          <td><span class="ical-key">{{this.key}}</span></td>
+          <td><span class="ical-key-time-created">{{this.time_created}}</span></td>
+          <td><button id="update-ical-key" class="btn btn-warning btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.updateIcalKey" data-modal-title="Regenerate Ical Key for {{this.type}} {{this.name}}" data-modal-content="Regenerate an ical key will invalidate the existing key." data-ical-key="{{this.key}}" data-ical-type="{{this.type}}" data-ical-name="{{this.name}}">Regenerate</button></td>
+          <td><button id="delete-ical-key" class="btn btn-danger btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.deleteIcalKey" data-modal-content="Invalidate key {{this.key}}?" data-modal-title="Delete Ical Key for {{this.type}} {{this.name}}" data-ical-key="{{this.key}}">Delete</button></td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
   </div>
 </script>
 

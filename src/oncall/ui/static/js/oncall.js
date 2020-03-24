@@ -2844,15 +2844,23 @@ var oncall = {
         icalKeyUrl: '/api/v0/ical_key/',
         pageSource: $('#ical-key-template').html(),
         settingsSubheaderTemplate: $('#settings-subheader-template').html(),
-        subheaderWrapper: '.subheader-wrapper'
+        moduleIcalKeyTemplate: $('#module-ical-key-template').html(),
+        subheaderWrapper: '.subheader-wrapper',
+        icalKeyRow: '.ical-key-row',
+        requestIcalKey: '#request-ical-key'
       },
       init: function(){
+        Handlebars.registerHelper('capitalize', function(str){
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        });
         Handlebars.registerPartial('settings-subheader', this.data.settingsSubheaderTemplate);
+        Handlebars.registerPartial('ical-key', this.data.moduleIcalKeyTemplate);
         this.getData();
         oncall.getModes();
       },
       events: function(){
         router.updatePageLinks();
+        this.data.$page.on('click', this.data.requestIcalKey, this.requestIcalKey.bind(this));
       },
       getData: function(){
         var self = this;
@@ -2867,6 +2875,7 @@ var oncall = {
             var userKeys = [],
                 teamKeys = [];
             for (var i = 0; i < icalKeys.length; i++) {
+              icalKeys[i].time_created = moment(icalKeys[i].time_created * 1000).format('YYYY/MM/DD hh:mm');
               if (icalKeys[i].type === 'user')
                 userKeys.push(icalKeys[i]);
               else if (icalKeys[i].type === 'team') {
@@ -2890,6 +2899,66 @@ var oncall = {
 
         this.data.$page.html(template(data));
         this.events();
+      },
+      requestIcalKey: function(e, data){
+        console.log(e, data);
+      },
+      updateIcalKey: function($modal, $caller){
+        var self = this,
+            $cta = $modal.find('.modal-cta'),
+            ical_key = $caller.attr('data-ical-key'),
+            ical_type = $caller.attr('data-ical-type'),
+            ical_name = $caller.attr('data-ical-name'),
+            $icalKeyRow = this.data.$page.find(this.data.icalKeyRow + '[data-id="' + ical_key + '"]')
+            url = this.data.icalKeyUrl + ical_type + '/' + ical_name;
+
+        if ((ical_type === 'user' || ical_type === 'team') && ical_name) {
+          $cta.addClass('loading disabled').prop('disabled', true);
+
+          $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'html'
+          }).done(function(data){
+            $modal.modal('hide');
+            $icalKeyRow.find('span.ical-key').text(data.trim());
+            $icalKeyRow.find('span.ical-key-time-created').text(moment().format('YYYY/MM/DD hh:mm'));
+          }).fail(function(data){
+            var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Delete failed.';
+            oncall.alerts.createAlert(error, 'danger');
+          }).always(function(){
+            $cta.removeClass('loading disabled').prop('disabled', false);
+          });
+        } else {
+          $modal.modal('hide');
+        }
+      },
+      deleteIcalKey: function($modal, $caller){
+        var self = this,
+            $cta = $modal.find('.modal-cta'),
+            key = $caller.attr('data-ical-key'),
+            $icalKeyRow = this.data.$page.find(this.data.icalKeyRow + '[data-id="' + key + '"]')
+            url = this.data.icalKeyUrl + 'key/' + key;
+
+        if (key) {
+          $cta.addClass('loading disabled').prop('disabled', true);
+
+          $.ajax({
+            type: 'DELETE',
+            url: url,
+            dataType: 'html'
+          }).done(function(){
+            $modal.modal('hide');
+            $icalKeyRow.remove();
+          }).fail(function(data){
+            var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Delete failed.';
+            oncall.alerts.createAlert(error, 'danger');
+          }).always(function(){
+            $cta.addClass('loading disabled').prop('disabled', false);
+          });
+        } else {
+          $modal.modal('hide');
+        }
       }
     }
   },
