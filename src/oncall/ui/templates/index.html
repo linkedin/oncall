@@ -1703,11 +1703,42 @@
     {{>settings-subheader username=name page="ical_key"}}
   </div>
   <div class="main container-fluid">
-    <h3 class="module-heading"> User Calendar </h3>
+    <h3 class="module-heading"> User Calendar <button id="request-user-ical-key" class="btn btn-primary pull-right">+ Ical Key</button></h3>
     <div class="module">
+      <table width="100%">
+        <thead>
+          <th>User Name</th>
+          <th>Key</th>
+        </thead>
+        <tbody>
+        {{#each userKeys}}
+        <tr>
+          <td>{{this.name}}</td>
+          <td>{{this.key}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+      </table>
     </div>
-    <h3 class="module-heading"> Team Calendar </h3>
+    <h3 class="module-heading"> Team Calendar <button id="request-team-ical-key" class="btn btn-primary pull-right">+ Ical Key</button></h3>
     <div class="module">
+      <table width="100%">
+        <thead>
+          <th>Team Name</th>
+          <th>Key</th>
+        </thead>
+        <tbody>
+        {{#each teamKeys}}
+        <tr>
+          <td>{{this.name}}</td>
+          <td>{{this.key}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <h4 class="module-heading">How to subscribe to your calendars</h4>
+    <div>
     </div>
   </div>
 </script>

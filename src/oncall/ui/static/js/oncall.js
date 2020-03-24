@@ -2859,12 +2859,28 @@ var oncall = {
 
         if (oncall.data.user) {
           $.when(
-            // TODO: get ical_key here
+            $.get(this.data.icalKeyUrl + 'requester/' + oncall.data.user),
             oncall.data.modesPromise
-          ).done(function(){
+          ).done(function(icalKeys){
+            icalKeys = icalKeys[0];
 
+            var userKeys = [],
+                teamKeys = [];
+            for (var i = 0; i < icalKeys.length; i++) {
+              if (icalKeys[i].type === 'user')
+                userKeys.push(icalKeys[i]);
+              else if (icalKeys[i].type === 'team') {
+                teamKeys.push(icalKeys[i]);
+              }
+            }
+            icalKeys.userKeys = userKeys;
+            icalKeys.teamKeys = teamKeys;
+            icalKeys.name = oncall.data.user;
+
+            self.renderPage.call(self, icalKeys);
+          }).fail(function(){
             self.renderPage.call(self, {});
-          })
+          });
         } else {
           router.navigate('/');
         }
