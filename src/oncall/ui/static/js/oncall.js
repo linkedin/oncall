@@ -2847,7 +2847,7 @@ var oncall = {
         moduleIcalKeyTemplate: $('#module-ical-key-template').html(),
         subheaderWrapper: '.subheader-wrapper',
         icalKeyRow: '.ical-key-row',
-        requestIcalKey: '#request-ical-key'
+        createIcalKey: '#create-ical-key'
       },
       init: function(){
         Handlebars.registerHelper('capitalize', function(str){
@@ -2856,11 +2856,10 @@ var oncall = {
         Handlebars.registerPartial('settings-subheader', this.data.settingsSubheaderTemplate);
         Handlebars.registerPartial('ical-key', this.data.moduleIcalKeyTemplate);
         this.getData();
-        oncall.getModes();
       },
       events: function(){
         router.updatePageLinks();
-        this.data.$page.on('click', this.data.requestIcalKey, this.requestIcalKey.bind(this));
+        this.data.$page.on('click', this.data.createIcalKey, this.createIcalKey.bind(this));
       },
       getData: function(){
         var self = this;
@@ -2868,8 +2867,8 @@ var oncall = {
         if (oncall.data.user) {
           $.when(
             $.get(this.data.icalKeyUrl + 'requester/' + oncall.data.user),
-            oncall.data.modesPromise
-          ).done(function(icalKeys){
+            $.get(this.data.url + oncall.data.user + '/teams')
+          ).done(function(icalKeys, teamsData){
             icalKeys = icalKeys[0];
 
             var userKeys = [],
@@ -2885,6 +2884,7 @@ var oncall = {
             icalKeys.userKeys = userKeys;
             icalKeys.teamKeys = teamKeys;
             icalKeys.name = oncall.data.user;
+            icalKeys.teams = teamsData[0];
 
             self.renderPage.call(self, icalKeys);
           }).fail(function(){
@@ -2900,16 +2900,14 @@ var oncall = {
         this.data.$page.html(template(data));
         this.events();
       },
-      requestIcalKey: function(e, data){
+      createIcalKey: function(e, data){
         console.log(e, data);
       },
       updateIcalKey: function($modal, $caller){
         var self = this,
             $cta = $modal.find('.modal-cta'),
-            ical_key = $caller.attr('data-ical-key'),
             ical_type = $caller.attr('data-ical-type'),
             ical_name = $caller.attr('data-ical-name'),
-            $icalKeyRow = this.data.$page.find(this.data.icalKeyRow + '[data-id="' + ical_key + '"]')
             url = this.data.icalKeyUrl + ical_type + '/' + ical_name;
 
         if ((ical_type === 'user' || ical_type === 'team') && ical_name) {
@@ -2921,8 +2919,7 @@ var oncall = {
             dataType: 'html'
           }).done(function(data){
             $modal.modal('hide');
-            $icalKeyRow.find('span.ical-key').text(data.trim());
-            $icalKeyRow.find('span.ical-key-time-created').text(moment().format('YYYY/MM/DD HH:mm'));
+            self.getData();
           }).fail(function(data){
             var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Delete failed.';
             oncall.alerts.createAlert(error, 'danger');
@@ -2937,7 +2934,6 @@ var oncall = {
         var self = this,
             $cta = $modal.find('.modal-cta'),
             key = $caller.attr('data-ical-key'),
-            $icalKeyRow = this.data.$page.find(this.data.icalKeyRow + '[data-id="' + key + '"]')
             url = this.data.icalKeyUrl + 'key/' + key;
 
         if (key) {
@@ -2949,7 +2945,7 @@ var oncall = {
             dataType: 'html'
           }).done(function(){
             $modal.modal('hide');
-            $icalKeyRow.remove();
+            self.getData();
           }).fail(function(data){
             var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Delete failed.';
             oncall.alerts.createAlert(error, 'danger');

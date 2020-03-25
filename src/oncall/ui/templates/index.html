@@ -1710,36 +1710,41 @@
     <h4 class="module-heading">How to subscribe to your calendars</h4>
     <div>
       <p>
-        From your personal calendar application, subscribe to the following URL, followed by slash, and followed by one of the calendar key above.
+        From your personal calendar application, subscribe to the following URL, followed by slash, and followed by a calendar key above.  Or copy the link address of a key above.
         {% endraw %} <pre>{{public_calendar_base_url}}</pre> {% raw %}
       </p>
       <p>
         For example, if the key is abc-123, then your calendar subscription URL will be:
         {% endraw %} <pre>{{public_calendar_base_url}}/abc-123</pre> {% raw %}
       </p>
+      {% endraw %} <p>{{public_calendar_additional_message}}</p> {% raw %}
     </div>
   </div>
 </script>
 
 <!-- // ical key view partial -->
 <script id="module-ical-key-template" type="text/x-handlebars-template">
-  <h3 class="module-heading"> {{capitalize key_type}} Calendar Keys <button id="request-ical-key" class="btn btn-primary pull-right">+ {{capitalize key_type}} Ical Key</button></h3>
+  <h3 class="module-heading"> {{capitalize key_type}} Calendar Keys <button id="create-ical-key" class="btn btn-primary pull-right">+ {{capitalize key_type}} Ical Key</button></h3>
   <div class="module">
     <table width="100%" class="table table-striped">
       <thead><th>{{capitalize key_type}} Name</th><th>Key</th><th>Time Created</th></thead>
       <tbody>
         {{#each keys}}
-        <tr class="ical-key-row" data-id="{{this.key}}">
+        <tr>
           <td><span>{{this.name}}</span></td>
-          <td><span class="ical-key">{{this.key}}</span></td>
-          <td><span class="ical-key-time-created">{{this.time_created}}</span></td>
-          <td><button id="update-ical-key" class="btn btn-warning btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.updateIcalKey" data-modal-title="Regenerate Ical Key for {{this.type}} {{this.name}}" data-modal-content="Regenerate an ical key will invalidate the existing key." data-ical-key="{{this.key}}" data-ical-type="{{this.type}}" data-ical-name="{{this.name}}">Regenerate</button></td>
+          <td><span><a href="{% endraw %}{{public_calendar_base_url}}{% raw %}/{{this.key}}">{{this.key}}</a></span></td>
+          <td><span>{{this.time_created}}</span></td>
+          <td><button id="update-ical-key" class="btn btn-warning btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.updateIcalKey" data-modal-title="Regenerate Ical Key for {{this.type}} {{this.name}}" data-modal-content="Regenerate an ical key will invalidate the existing key." data-ical-type="{{this.type}}" data-ical-name="{{this.name}}">Regenerate</button></td>
           <td><button id="delete-ical-key" class="btn btn-danger btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.deleteIcalKey" data-modal-content="Invalidate key {{this.key}}?" data-modal-title="Delete Ical Key for {{this.type}} {{this.name}}" data-ical-key="{{this.key}}">Delete</button></td>
         </tr>
         {{/each}}
       </tbody>
     </table>
   </div>
+</script>
+
+<!-- // ical key view partial -->
+<script id="module-ical-key-create-template" type="text/x-handlebars-template">
 </script>
 
 <!--// **********************

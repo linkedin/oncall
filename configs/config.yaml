@@ -152,6 +152,8 @@ header_color: '#3a3a3a'
 # The public calendar url will be formatted as follows: "{public_calendar_base_url}/{ical_key}".
 # Replace localhost with the hostname of the oncall or iris-relay instance.
 public_calendar_base_url: 'http://localhost:8080/api/v0/ical'
+# Additional message you want to put here, could be a link to the FAQ
+public_calendar_additional_message: 'Link to FAQ'
 
 # Integration with Iris, allowing for escalation from Oncall
 iris_plan_integration:
