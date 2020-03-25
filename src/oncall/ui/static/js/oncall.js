@@ -2474,7 +2474,7 @@ var oncall = {
           if (context[key] == null){
             continue;
           } else if (key === 'start' || key === 'end') {
-            context[key] = moment(context[key] * 1000).format('YYYY/MM/DD hh:mm')
+            context[key] = moment(context[key] * 1000).format('YYYY/MM/DD HH:mm')
           } else if (context[key].constructor === Array) {
             for (a in context[key]) {
               oncall.team.audit.formatContext(a);
@@ -2875,7 +2875,7 @@ var oncall = {
             var userKeys = [],
                 teamKeys = [];
             for (var i = 0; i < icalKeys.length; i++) {
-              icalKeys[i].time_created = moment(icalKeys[i].time_created * 1000).format('YYYY/MM/DD hh:mm');
+              icalKeys[i].time_created = moment(icalKeys[i].time_created * 1000).format('YYYY/MM/DD HH:mm');
               if (icalKeys[i].type === 'user')
                 userKeys.push(icalKeys[i]);
               else if (icalKeys[i].type === 'team') {
@@ -2922,7 +2922,7 @@ var oncall = {
           }).done(function(data){
             $modal.modal('hide');
             $icalKeyRow.find('span.ical-key').text(data.trim());
-            $icalKeyRow.find('span.ical-key-time-created').text(moment().format('YYYY/MM/DD hh:mm'));
+            $icalKeyRow.find('span.ical-key-time-created').text(moment().format('YYYY/MM/DD HH:mm'));
           }).fail(function(data){
             var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Delete failed.';
             oncall.alerts.createAlert(error, 'danger');

@@ -88,6 +88,7 @@ def index(req, resp):
             header_color=HEADER_COLOR,
             iris_plan_settings=IRIS_PLAN_SETTINGS,
             usercontact_ui_readonly=USERCONTACT_UI_READONLY,
+            public_calendar_base_url=PUBLIC_CALENDAR_BASE_URL,
             footer=INDEX_CONTENT_SETTING['footer'],
             timezones=SUPPORTED_TIMEZONES
         )
@@ -134,11 +135,13 @@ def init(application, config):
     global HEADER_COLOR
     global IRIS_PLAN_SETTINGS
     global USERCONTACT_UI_READONLY
+    global PUBLIC_CALENDAR_BASE_URL
     global LOGIN_REQUIRED
     SLACK_INSTANCE = config.get('slack_instance')
     HEADER_COLOR = config.get('header_color', '#3a3a3a')
     IRIS_PLAN_SETTINGS = config.get('iris_plan_integration')
     USERCONTACT_UI_READONLY = config.get('usercontact_ui_readonly', True)
+    PUBLIC_CALENDAR_BASE_URL = config.get('public_calendar_base_url')
     LOGIN_REQUIRED = config.get('require_auth')
 
     application.add_sink(index, '/')

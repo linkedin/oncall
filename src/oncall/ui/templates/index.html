@@ -1709,6 +1709,14 @@
     {{>ical-key key_type="team" keys=teamKeys}}
     <h4 class="module-heading">How to subscribe to your calendars</h4>
     <div>
+      <p>
+        From your personal calendar application, subscribe to the following URL, followed by slash, and followed by one of the calendar key above.
+        {% endraw %} <pre>{{public_calendar_base_url}}</pre> {% raw %}
+      </p>
+      <p>
+        For example, if the key is abc-123, then your calendar subscription URL will be:
+        {% endraw %} <pre>{{public_calendar_base_url}}/abc-123</pre> {% raw %}
+      </p>
     </div>
   </div>
 </script>
