@@ -1724,7 +1724,10 @@
 
 <!-- // ical key view partial -->
 <script id="module-ical-key-template" type="text/x-handlebars-template">
-  <h3 class="module-heading"> {{capitalize key_type}} Calendar Keys <button id="create-ical-key" class="btn btn-primary pull-right">+ {{capitalize key_type}} Ical Key</button></h3>
+  <h3 class="module-heading"> {{capitalize key_type}} Calendar Keys <button id="create-ical-key-{{key_type}}" class="btn btn-primary pull-right">+ {{capitalize key_type}} Ical Key</button></h3>
+  <div class="ical-key-{{key_type}}-create-container">
+    <!--// create form renders here -->
+  </div>
   <div class="module">
     <table width="100%" class="table table-striped">
       <thead><th>{{capitalize key_type}} Name</th><th>Key</th><th>Time Created</th></thead>
@@ -1734,8 +1737,8 @@
           <td><span>{{this.name}}</span></td>
           <td><span><a href="{% endraw %}{{public_calendar_base_url}}{% raw %}/{{this.key}}">{{this.key}}</a></span></td>
           <td><span>{{this.time_created}}</span></td>
-          <td><button id="update-ical-key" class="btn btn-warning btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.updateIcalKey" data-modal-title="Regenerate Ical Key for {{this.type}} {{this.name}}" data-modal-content="Regenerate an ical key will invalidate the existing key." data-ical-type="{{this.type}}" data-ical-name="{{this.name}}">Regenerate</button></td>
-          <td><button id="delete-ical-key" class="btn btn-danger btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.deleteIcalKey" data-modal-content="Invalidate key {{this.key}}?" data-modal-title="Delete Ical Key for {{this.type}} {{this.name}}" data-ical-key="{{this.key}}">Delete</button></td>
+          <td><button id="update-ical-key" class="btn btn-warning btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.updateIcalKey" data-modal-title="Regenerate Ical Key for {{this.type}} {{this.name}}" data-modal-content="Regenerating an ical key will invalidate the existing key." data-ical-type="{{this.type}}" data-ical-name="{{this.name}}">Regenerate</button></td>
+          <td><button id="delete-ical-key" class="btn btn-danger btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.deleteIcalKey" data-modal-title="Delete Ical Key for {{this.type}} {{this.name}}" data-modal-content="Invalidate key {{this.key}}?" data-ical-key="{{this.key}}">Delete</button></td>
         </tr>
         {{/each}}
       </tbody>
@@ -1743,8 +1746,27 @@
   </div>
 </script>
 
-<!-- // ical key view partial -->
+<!-- // ical key create partial -->
 <script id="module-ical-key-create-template" type="text/x-handlebars-template">
+  <form class="module module-card module-ical-key-create" data-type="{{createType}}">
+    <div class="module-heading module-card-heading border-bottom">
+      <h4>Create a new {{createType}} calendar key</h4>
+    </div>
+    <div class="ical-key-create-body">
+      <input class="form-control ical-key-create-name" type="text" list="ical-key-options" />
+      <datalist id="ical-key-options">
+        {{#each icalKeyOptions}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </datalist>
+    </div>
+    <div class="border-top notification-actions clearfix">
+      <div class="pull-right">
+        <button class="btn btn-primary ical-key-create-save" type="submit"><span class="btn-text">Save</span> <i class="loader loader-small"></i> </button>
+        <button class="btn btn-blue ical-key-create-cancel" type="button"> Cancel </button>
+      </div>
+    </div>
+  </form>
 </script>
 
 <!--// **********************
