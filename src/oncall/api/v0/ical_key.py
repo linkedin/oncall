@@ -10,6 +10,27 @@ def generate_ical_key():
     return str(uuid.uuid4())
 
 
+def check_ical_team(team, requester):
+    """
+    Currently we allow users to request ical key for any team calendar
+    """
+    connection = db.connect()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        '''
+        SELECT `id`
+        FROM `team`
+        WHERE `name` = %s AND `active` = TRUE
+        ''',
+        (team, ))
+    team_exist_and_active = cursor.rowcount
+
+    cursor.close()
+    connection.close()
+    return team_exist_and_active != 0
+
+
 def check_ical_key_requester(key, requester):
     connection = db.connect()
     cursor = connection.cursor()
