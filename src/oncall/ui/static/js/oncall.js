@@ -3010,7 +3010,7 @@ var oncall = {
             var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Delete failed.';
             oncall.alerts.createAlert(error, 'danger');
           }).always(function(){
-            $cta.addClass('loading disabled').prop('disabled', false);
+            $cta.removeClass('loading disabled').prop('disabled', false);
           });
         } else {
           $modal.modal('hide');
