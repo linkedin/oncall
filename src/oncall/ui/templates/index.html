@@ -1714,10 +1714,10 @@
         {% endraw %} <pre>{{public_calendar_base_url}}</pre> {% raw %}
       </p>
       <p>
-        For example, if the key is abc-123, then your calendar subscription URL will be:
+        For example, if the key is <strong>abc-123</strong>, then your calendar subscription URL will be:
         {% endraw %} <pre>{{public_calendar_base_url}}/abc-123</pre> {% raw %}
       </p>
-      {% endraw %} <p>{{public_calendar_additional_message}}</p> {% raw %}
+      {% endraw %} <p>{{public_calendar_additional_message|safe}}</p> {% raw %}
     </div>
   </div>
 </script>
