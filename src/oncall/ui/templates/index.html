@@ -1416,6 +1416,7 @@
     <ul class="container-fluid">
       <li {{#isEqual page "settings"}}class="active"{{/isEqual}} href="/user/{{username}}" data-navigo> Settings </li>
       <li {{#isEqual page "notifications"}}class="active"{{/isEqual}} href="/user/{{username}}/notifications" data-navigo> Notifications </li>
+      <li {{#isEqual page "ical_key"}}class="active"{{/isEqual}} href="/user/{{username}}/ical_key" data-navigo> Public Calendar Keys </li>
     </ul>
   </nav>
 </script>
@@ -1688,6 +1689,81 @@
         {{#if selected.id}}
           <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.notifications.deleteNotification" data-modal-title="Delete notification {{selected.id}}" data-notification-id="{{selected.id}}" data-modal-content="Delete notification {{selected.id}}?"> Delete </button>
         {{/if}}
+      </div>
+    </div>
+  </form>
+</script>
+
+<!--// **********************
+  Public Calendar Key Page
+*********************** //-->
+
+<script id="ical-key-template" type="text/x-handlebars-template">
+  <div class="subheader-wrapper">
+    {{>settings-subheader username=name page="ical_key"}}
+  </div>
+  <div class="main container-fluid">
+    <!-- user calendar keys -->
+    {{>ical-key key_type="user" keys=userKeys}}
+    <!-- team calendar keys -->
+    {{>ical-key key_type="team" keys=teamKeys}}
+    <h4 class="module-heading">How to subscribe to your calendars</h4>
+    <div>
+      <p>
+        From your personal calendar application, subscribe to the following URL, followed by slash, and followed by a calendar key above.  Or copy the link address of a key above.
+        {% endraw %} <pre>{{public_calendar_base_url}}</pre> {% raw %}
+      </p>
+      <p>
+        For example, if the key is abc-123, then your calendar subscription URL will be:
+        {% endraw %} <pre>{{public_calendar_base_url}}/abc-123</pre> {% raw %}
+      </p>
+      {% endraw %} <p>{{public_calendar_additional_message}}</p> {% raw %}
+    </div>
+  </div>
+</script>
+
+<!-- // ical key view partial -->
+<script id="module-ical-key-template" type="text/x-handlebars-template">
+  <h3 class="module-heading"> {{capitalize key_type}} Calendar Keys <button id="create-ical-key-{{key_type}}" class="btn btn-primary pull-right">+ {{capitalize key_type}} Ical Key</button></h3>
+  <div class="ical-key-{{key_type}}-create-container">
+    <!--// create form renders here -->
+  </div>
+  <div class="module">
+    <table width="100%" class="table table-striped">
+      <thead><th>{{capitalize key_type}} Name</th><th>Key</th><th>Time Created</th></thead>
+      <tbody>
+        {{#each keys}}
+        <tr>
+          <td><span>{{this.name}}</span></td>
+          <td><span><a href="{% endraw %}{{public_calendar_base_url}}{% raw %}/{{this.key}}">{{this.key}}</a></span></td>
+          <td><span>{{this.time_created}}</span></td>
+          <td><button id="update-ical-key" class="btn btn-warning btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.updateIcalKey" data-modal-title="Regenerate Ical Key for {{this.type}} {{this.name}}" data-modal-content="Regenerating an ical key will invalidate the existing key." data-ical-type="{{this.type}}" data-ical-name="{{this.name}}">Regenerate</button></td>
+          <td><button id="delete-ical-key" class="btn btn-danger btn-sm pull-right" type="button" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.settings.ical_key.deleteIcalKey" data-modal-title="Delete Ical Key for {{this.type}} {{this.name}}" data-modal-content="Invalidate key {{this.key}}?" data-ical-key="{{this.key}}">Delete</button></td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</script>
+
+<!-- // ical key create partial -->
+<script id="module-ical-key-create-template" type="text/x-handlebars-template">
+  <form class="module module-card module-ical-key-create" data-type="{{createType}}">
+    <div class="module-heading module-card-heading border-bottom">
+      <h4>Create a new {{createType}} calendar key</h4>
+    </div>
+    <div class="ical-key-create-body">
+      <input class="form-control ical-key-create-name" type="text" list="ical-key-options" />
+      <datalist id="ical-key-options">
+        {{#each icalKeyOptions}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </datalist>
+    </div>
+    <div class="border-top notification-actions clearfix">
+      <div class="pull-right">
+        <button class="btn btn-primary ical-key-create-save" type="submit"><span class="btn-text">Save</span> <i class="loader loader-small"></i> </button>
+        <button class="btn btn-blue ical-key-create-cancel" type="button"> Cancel </button>
       </div>
     </div>
   </form>

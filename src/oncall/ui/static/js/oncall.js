@@ -284,6 +284,12 @@ var oncall = {
         self.settings.notifications.init();
         self.updateTitleTag("Notifications");
       },
+      '/user/:user/ical_key': function(){
+        oncall.callbacks.onLogin = $.noop;
+        oncall.callbacks.onLogout = $.noop;
+        self.settings.ical_key.init();
+        self.updateTitleTag("Public Calendar Keys");
+      },
       '/query/:query/:fields': function(params){
         oncall.callbacks.onLogin = $.noop;
         oncall.callbacks.onLogout = $.noop;
@@ -2468,7 +2474,7 @@ var oncall = {
           if (context[key] == null){
             continue;
           } else if (key === 'start' || key === 'end') {
-            context[key] = moment(context[key] * 1000).format('YYYY/MM/DD hh:mm')
+            context[key] = moment(context[key] * 1000).format('YYYY/MM/DD HH:mm')
           } else if (context[key].constructor === Array) {
             for (a in context[key]) {
               oncall.team.audit.formatContext(a);
@@ -2830,6 +2836,186 @@ var oncall = {
           $form.remove();
         }
       }
+    },
+    ical_key: {
+      data: {
+        $page: $('.content-wrapper'),
+        url: '/api/v0/users/',
+        icalKeyUrl: '/api/v0/ical_key/',
+        pageSource: $('#ical-key-template').html(),
+        settingsSubheaderTemplate: $('#settings-subheader-template').html(),
+        moduleIcalKeyTemplate: $('#module-ical-key-template').html(),
+        moduleIcalKeyCreateTemplate: $('#module-ical-key-create-template').html(),
+        icalKeyCreateForm: '.module-ical-key-create',
+        icalKeyCreateCancel: '.ical-key-create-cancel',
+        icalKeyUserCreateContainer: '.ical-key-user-create-container',
+        icalKeyTeamCreateContainer: '.ical-key-team-create-container',
+        subheaderWrapper: '.subheader-wrapper',
+        icalKeyRow: '.ical-key-row',
+        createIcalKeyUser: '#create-ical-key-user',
+        createIcalKeyTeam: '#create-ical-key-team'
+      },
+      init: function(){
+        Handlebars.registerPartial('settings-subheader', this.data.settingsSubheaderTemplate);
+        Handlebars.registerPartial('ical-key', this.data.moduleIcalKeyTemplate);
+        this.getData();
+      },
+      events: function(){
+        router.updatePageLinks();
+        this.data.$page.on('submit', this.data.icalKeyCreateForm, this.createIcalKey.bind(this));
+        this.data.$page.on('click', this.data.icalKeyCreateCancel, this.createIcalKeyCancel.bind(this));
+        this.data.$page.on('click', this.data.createIcalKeyUser, this.createIcalKeyUser.bind(this));
+        this.data.$page.on('click', this.data.createIcalKeyTeam, this.createIcalKeyTeam.bind(this));
+      },
+      getData: function(){
+        var self = this;
+
+        var icalKeyData = {
+          userKeys: [],
+          teamKeys: [],
+          name: oncall.data.user,
+          teams: []
+        };
+        this.data.icalKeyData = icalKeyData;
+
+        if (oncall.data.user) {
+          $.when(
+            $.get(this.data.icalKeyUrl + 'requester/' + oncall.data.user),
+            $.get(this.data.url + oncall.data.user + '/teams')
+          ).done(function(icalKeys, teamsData){
+            icalKeys = icalKeys[0];
+            for (var i = 0; i < icalKeys.length; i++) {
+              icalKeys[i].time_created = moment(icalKeys[i].time_created * 1000).format('YYYY/MM/DD HH:mm');
+              if (icalKeys[i].type === 'user')
+                icalKeyData.userKeys.push(icalKeys[i]);
+              else if (icalKeys[i].type === 'team') {
+                icalKeyData.teamKeys.push(icalKeys[i]);
+              }
+            }
+
+            icalKeyData.teams = teamsData[0];
+
+            self.renderPage.call(self, icalKeyData);
+          }).fail(function(){
+            // we need to handle failure because icalKeys promise return 404 when no key exists
+            self.renderPage.call(self, icalKeyData);
+          });
+        } else {
+          router.navigate('/');
+        }
+      },
+      renderPage: function(data){
+        var template = Handlebars.compile(this.data.pageSource);
+
+        this.data.$page.html(template(data));
+        this.events();
+      },
+      createIcalKeyUser: function(e, data){
+        var template = Handlebars.compile(this.data.moduleIcalKeyCreateTemplate),
+            $container = $(e.target).parents().find(this.data.icalKeyUserCreateContainer);
+
+        var userCreateData = {
+          createType: 'user',
+          icalKeyOptions: [this.data.icalKeyData.name]
+        };
+        $container.html(template(userCreateData));
+      },
+      createIcalKeyTeam: function(e, data){
+        var template = Handlebars.compile(this.data.moduleIcalKeyCreateTemplate),
+            $container = $(e.target).parents().find(this.data.icalKeyTeamCreateContainer);
+
+        var teamCreateData = {
+          createType: 'team',
+          icalKeyOptions: this.data.icalKeyData.teams
+        };
+        $container.html(template(teamCreateData));
+      },
+      createIcalKey: function(e){
+        e.preventDefault();
+
+        var self = this,
+            $form = $(e.target),
+            $cta = $form.find('.ical-key-create-save'),
+            createType = $form.data('type'),
+            // we cannot trim the name here because there are team names ending in space
+            createName = $form.find('.ical-key-create-name').val(),
+            url = this.data.icalKeyUrl + createType + '/' + createName;
+
+        if ((createType === 'user' || createType === 'team') && createName) {
+          $cta.addClass('loading disabled').prop('disabled', true);
+
+          $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'html'
+          }).done(function(data){
+            $form.remove();
+            self.getData();
+          }).fail(function(data){
+            var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Delete failed.';
+            oncall.alerts.createAlert(error, 'danger');
+          }).always(function(){
+            $cta.removeClass('loading disabled').prop('disabled', false);
+          });
+        }
+      },
+      createIcalKeyCancel: function(e, $caller){
+        var $form = $(e.target).parents(this.data.icalKeyCreateForm);
+        $form.remove();
+      },
+      updateIcalKey: function($modal, $caller){
+        var self = this,
+            $cta = $modal.find('.modal-cta'),
+            ical_type = $caller.attr('data-ical-type'),
+            ical_name = $caller.attr('data-ical-name'),
+            url = this.data.icalKeyUrl + ical_type + '/' + ical_name;
+
+        if ((ical_type === 'user' || ical_type === 'team') && ical_name) {
+          $cta.addClass('loading disabled').prop('disabled', true);
+
+          $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'html'
+          }).done(function(data){
+            $modal.modal('hide');
+            self.getData();
+          }).fail(function(data){
+            var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Delete failed.';
+            oncall.alerts.createAlert(error, 'danger');
+          }).always(function(){
+            $cta.removeClass('loading disabled').prop('disabled', false);
+          });
+        } else {
+          $modal.modal('hide');
+        }
+      },
+      deleteIcalKey: function($modal, $caller){
+        var self = this,
+            $cta = $modal.find('.modal-cta'),
+            key = $caller.attr('data-ical-key'),
+            url = this.data.icalKeyUrl + 'key/' + key;
+
+        if (key) {
+          $cta.addClass('loading disabled').prop('disabled', true);
+
+          $.ajax({
+            type: 'DELETE',
+            url: url,
+            dataType: 'html'
+          }).done(function(){
+            $modal.modal('hide');
+            self.getData();
+          }).fail(function(data){
+            var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Delete failed.';
+            oncall.alerts.createAlert(error, 'danger');
+          }).always(function(){
+            $cta.removeClass('loading disabled').prop('disabled', false);
+          });
+        } else {
+          $modal.modal('hide');
+        }
+      }
     }
   },
   modal: {
@@ -3034,6 +3220,10 @@ var oncall = {
     Handlebars.registerHelper('stripHash', function(str){
       // removes hash tag from string
       return str.replace('#', '');
+    });
+
+    Handlebars.registerHelper('capitalize', function(str){
+      return str.charAt(0).toUpperCase() + str.slice(1);
     });
 
     Handlebars.registerHelper('friendlyScheduler', function(str){
