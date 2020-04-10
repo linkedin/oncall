@@ -13,7 +13,6 @@ from .. import db
 
 logger = logging.getLogger('oncall.auth')
 auth_manager = None
-app_key_cache = {}
 
 
 def debug_only(function):
@@ -146,28 +145,27 @@ def authenticate_application(auth_token, req):
     body = req.context['body'].decode('utf-8')
     try:
         app_name, client_digest = auth_token[5:].split(':', 1)
-        if app_name not in app_key_cache:
-            connection = db.connect()
-            cursor = connection.cursor()
-            cursor.execute('SELECT `key` FROM `application` WHERE `name` = %s', app_name)
-            if cursor.rowcount > 0:
-                app_key_cache[app_name] = cursor.fetchone()[0]
-                cursor.close()
-                connection.close()
+        connection = db.connect()
+        cursor = connection.cursor()
+        cursor.execute('SELECT `key` FROM `application` WHERE `name` = %s', app_name)
+        if cursor.rowcount > 0:
+            api_key = cursor.fetchone()[0].encode('utf-8')
+            cursor.close()
+            connection.close()
+            window = int(time.time()) // 5
+            if is_client_digest_valid(client_digest, api_key, window, method, path, body):
+                req.context['app'] = app_name
+                return
+            elif is_client_digest_valid(client_digest, api_key, window - 1, method, path, body):
+                req.context['app'] = app_name
+                return
             else:
-                cursor.close()
-                connection.close()
-                raise HTTPUnauthorized('Authentication failure', 'Application not found', '')
-        api_key = app_key_cache[app_name].encode('utf-8')
-        window = int(time.time()) // 5
-        if is_client_digest_valid(client_digest, api_key, window, method, path, body):
-            req.context['app'] = app_name
-            return
-        elif is_client_digest_valid(client_digest, api_key, window - 1, method, path, body):
-            req.context['app'] = app_name
-            return
+                raise HTTPUnauthorized('Authentication failure', 'Wrong digest', '')
         else:
-            raise HTTPUnauthorized('Authentication failure', 'Wrong digest', '')
+            cursor.close()
+            connection.close()
+            raise HTTPUnauthorized('Authentication failure', 'Application not found', '')
+
     except (ValueError, KeyError):
         raise HTTPUnauthorized('Authentication failure', 'Wrong digest', '')
 
@@ -249,15 +247,6 @@ def init(application, config):
         global login_required
         login_required = lambda x: x
     else:
-        connection = db.connect()
-        cursor = connection.cursor()
-        cursor.execute('SELECT `name`, `key` FROM `application`')
-        for row in cursor:
-            app_key_cache[row[0]] = row[1]
-        cursor.close()
-        connection.close()
-        logger.debug('loaded applications: %s', list(app_key_cache.keys()))
-
         auth = importlib.import_module(config['module'])
         auth_manager = getattr(auth, 'Authenticator')(config)
 
