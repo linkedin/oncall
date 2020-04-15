@@ -1753,12 +1753,21 @@
       <h4>Create a new {{createType}} calendar key</h4>
     </div>
     <div class="ical-key-create-body">
-      <input class="form-control ical-key-create-name" type="text" list="ical-key-options" />
-      <datalist id="ical-key-options">
+      {{#isEqual createType "user"}}
+      <select class="form-control ical-key-create-name" type="text" placeholder="Enter your username here" >
+        {{#each icalKeyOptions}}
+        <option value="{{this}}">{{this}}</option>
+        {{/each}}
+      </select>
+      {{/isEqual}}
+      {{#isEqual createType "team"}}
+      <input class="form-control ical-key-create-name" type="text" placeholder="Enter your team name here" list="ical-key-options-team" />
+      <datalist id="ical-key-options-team">
         {{#each icalKeyOptions}}
         <option value="{{this}}">{{this}}</option>
         {{/each}}
       </datalist>
+      {{/isEqual}}
     </div>
     <div class="border-top notification-actions clearfix">
       <div class="pull-right">
