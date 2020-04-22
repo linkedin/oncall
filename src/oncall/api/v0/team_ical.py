@@ -3,7 +3,7 @@
 
 import time
 from . import ical
-
+from .roles import get_role_ids
 from ... import db
 
 
@@ -12,14 +12,10 @@ def get_team_events(team, start, roles=None, include_subscribed=False):
     cursor = connection.cursor(db.DictCursor)
 
     role_condition = ''
-    if roles:
-        role_query = 'SELECT DISTINCT `id` FROM `role` WHERE `name` IN ({0})'.format(
-            ','.join(['%s'] * len(roles)))
-        # we need prepared statements here because roles come from user input
-        cursor.execute(role_query, roles)
-        if cursor.rowcount != 0:
-            role_condition = ' AND `event`.`role_id` IN ({0})'.format(
-                ','.join([str(row['id']) for row in cursor]))
+    role_ids = get_role_ids(cursor, roles)
+    if role_ids:
+        role_condition = ' AND `event`.`role_id` IN ({0})'.format(
+            ','.join(map(str, role_ids)))
 
     team_condition = "`team`.`name` = %s"
     if include_subscribed:
