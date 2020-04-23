@@ -31,6 +31,17 @@ constraints = {
 }
 
 
+def get_role_ids(cursor, roles):
+    if not roles:
+        return []
+
+    role_query = 'SELECT DISTINCT `id` FROM `role` WHERE `name` IN ({0})'.format(
+        ','.join(['%s'] * len(roles)))
+    # we need prepared statements here because roles come from user input
+    cursor.execute(role_query, roles)
+    return [row['id'] for row in cursor]
+
+
 def on_get(req, resp):
     """
     Role search.

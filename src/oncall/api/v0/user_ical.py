@@ -3,15 +3,21 @@
 
 import time
 from . import ical
+from .roles import get_role_ids
 from ... import db
 
 
-def get_user_events(user_name, start):
+def get_user_events(user_name, start, roles=None):
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
 
-    cursor.execute(
-        '''
+    role_condition = ''
+    role_ids = get_role_ids(cursor, roles)
+    if role_ids:
+        role_condition = ' AND `event`.`role_id` IN ({0})'.format(
+            ','.join(map(str, role_ids)))
+
+    query = '''
         SELECT
             `event`.`id`,
             `team`.`name` AS team,
@@ -26,8 +32,9 @@ def get_user_events(user_name, start):
         WHERE
             `event`.`end` > %s AND
             `user`.`name` = %s
-        ''',
-        (start, user_name))
+        ''' + role_condition
+
+    cursor.execute(query, (start, user_name))
 
     events = cursor.fetchall()
     cursor.close()
@@ -58,7 +65,8 @@ def on_get(req, resp, user_name):
     contact = req.get_param_as_bool('contact')
     if contact is None:
         contact = True
+    roles = req.get_param_as_list('roles')
 
-    events = get_user_events(user_name, start)
+    events = get_user_events(user_name, start, roles=roles)
     resp.body = ical.events_to_ical(events, user_name, contact)
     resp.set_header('Content-Type', 'text/calendar')
