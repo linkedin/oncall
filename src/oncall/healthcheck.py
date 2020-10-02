@@ -1,7 +1,8 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from falcon import HTTPNotFound
+from falcon import HTTPNotFound, HTTPInternalServerError
+from . import db
 
 
 class HealthCheck(object):
@@ -21,6 +22,14 @@ class HealthCheck(object):
         if self.dummy_status:
             status = self.dummy_status
         else:
+            try:
+                connection = db.connect()
+                cursor = connection.cursor()
+                cursor.execute("SELECT VERSION();")
+                cursor.close()
+                connection.close()
+            except:
+                raise HTTPInternalServerError()
             try:
                 with open(self.path) as f:
                     status = f.readline().strip()
