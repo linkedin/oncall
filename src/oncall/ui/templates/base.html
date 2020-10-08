@@ -132,6 +132,9 @@
               <label for="team-slack"> Team Slack: </label> <input type="text" name="slack_channel" id="team-slack" class="form-control" placeholder="#SlackChannel" />
             </p>
             <p>
+              <label for="team-slack-notifications"> Notifications Slack: </label> <input type="text" name="slack_channel_notifications" id="team-slack-notifications" class="form-control" placeholder="#SlackChannel-Alerts" />
+            </p>
+            <p>
               <label for="team-timezone"> Team Scheduling Timezone: </label>
               <select name="scheduling_timezone" id="team-timezone" class="form-control team-timezone">
                 {%  for timezone in timezones %}
