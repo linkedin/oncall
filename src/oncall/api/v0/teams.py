@@ -128,7 +128,7 @@ def on_post(req, resp):
             "scheduling_timezone": "US/Pacific",
             "email": "team-foo@example.com",
             "slack_channel": "#team-foo",
-            "slack_channel": "#team-foo-alerts",
+            "slack_channel_notifications": "#team-foo-alerts",
         }
 
     **Example response:**
