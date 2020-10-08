@@ -184,7 +184,7 @@ def on_post(req, resp):
     try:
         cursor.execute('''INSERT INTO `team` (`name`, `slack_channel`, `slack_channel_notifications`, `email`, `scheduling_timezone`, `iris_plan`, `iris_enabled`,
                                               `override_phone_number`)
-                          VALUES (%s, %s, %s, %s, %s, %s, %s)''',
+                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s)''',
                        (team_name, slack, slack_notifications, email, scheduling_timezone, iris_plan, iris_enabled, override_number))
 
         team_id = cursor.lastrowid
