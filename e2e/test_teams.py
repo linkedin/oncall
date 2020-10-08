@@ -103,7 +103,7 @@ def test_api_v0_update_team(team):
     re = requests.put(api_v0('teams/'+team_name), json={'name': new_team_name,
                                                         'email': email,
                                                         'slack_channel': slack,
-                                                        'slack_channel_notificationse': slack_notifications,
+                                                        'slack_channel_notifications': slack_notifications,
                                                         'override_phone_number': override_num})
     assert re.status_code == 200
     team.mark_for_cleaning(new_team_name)
