@@ -87,8 +87,8 @@ def test_api_v0_update_team(team):
     team_name = team.create()
     new_team_name = "new-moninfra-update"
     email = 'abc@gmail.com'
-    slack = '#slack'
-    slack_notifications = '#slack-alerts'
+    slack = 'slack'
+    slack_notifications = 'slack-alerts'
 
     override_num = '1234'
 
