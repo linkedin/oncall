@@ -147,8 +147,9 @@ def on_get(req, resp, team):
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
-    cursor.execute('SELECT `id`, `name`, `email`, `slack_channel`, `slack_channel_notifications`, `scheduling_timezone`, `iris_plan`, `iris_enabled`, `override_phone_number` '
-                   'FROM `team` WHERE `name`=%s AND `active` = %s', (team, active))
+    cursor.execute('''SELECT `id`, `name`, `email`, `slack_channel`, `slack_channel_notifications`,
+                             `scheduling_timezone`, `iris_plan`, `iris_enabled`, `override_phone_number`
+                      FROM `team` WHERE `name`=%s AND `active` = %s''', (team, active))
     results = cursor.fetchall()
     if not results:
         raise HTTPNotFound()
