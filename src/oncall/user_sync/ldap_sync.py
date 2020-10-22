@@ -132,7 +132,7 @@ def fetch_ldap():
 
             username = ldap_dict[username_field][0].decode("utf-8")
 
-            mobile = ldap_dict.get(LDAP_SETTINGS['attrs']['mobile'].decode("utf-8")
+            mobile = ldap_dict.get(LDAP_SETTINGS['attrs']['mobile']).decode("utf-8")
             mail = ldap_dict.get(LDAP_SETTINGS['attrs']['mail']).decode("utf-8")
             name = ldap_dict.get(LDAP_SETTINGS['attrs']['full_name'])[0].decode("utf-8")
 
