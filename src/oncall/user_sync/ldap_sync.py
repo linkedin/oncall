@@ -132,7 +132,7 @@ def fetch_ldap():
 
             username = str(ldap_dict[username_field][0])
 
-            mobile = str(ldap_dict.get(LDAP_SETTINGS['attrs']['mobile']))
+            mobile = ldap_dict.get(LDAP_SETTINGS['attrs']['mobile'])
             mail = str(ldap_dict.get(LDAP_SETTINGS['attrs']['mail']))
             name = str(ldap_dict.get(LDAP_SETTINGS['attrs']['full_name'])[0])
 
