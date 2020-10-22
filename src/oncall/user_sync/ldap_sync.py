@@ -130,11 +130,11 @@ def fetch_ldap():
             except KeyError:
                 username_field = "sAMAccountName"
 
-            username = ldap_dict[username_field][0]
+            username = str(ldap_dict[username_field][0])
 
-            mobile = ldap_dict.get(LDAP_SETTINGS['attrs']['mobile'])
-            mail = ldap_dict.get(LDAP_SETTINGS['attrs']['mail'])
-            name = ldap_dict.get(LDAP_SETTINGS['attrs']['full_name'])[0]
+            mobile = str(ldap_dict.get(LDAP_SETTINGS['attrs']['mobile']))
+            mail = str(ldap_dict.get(LDAP_SETTINGS['attrs']['mail']))
+            name = str(ldap_dict.get(LDAP_SETTINGS['attrs']['full_name'])[0])
 
             if mobile:
                 try:
