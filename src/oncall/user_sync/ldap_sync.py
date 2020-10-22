@@ -145,7 +145,7 @@ def fetch_ldap():
                     mobile = None
 
             if mail:
-                mail = mail[0]
+                mail = str(mail[0])
                 slack = mail.split('@')[0]
             else:
                 slack = None
