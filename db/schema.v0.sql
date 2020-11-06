@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS `role` (
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_unique` (`name` ASC));
 
-INSERT INTO `role` (`name`, `display_order`)
+INSERT IGNORE INTO `role` (`name`, `display_order`)
 VALUES ('primary', 1),
        ('secondary', 2),
        ('shadow', 3),
@@ -311,7 +311,7 @@ CREATE TABLE IF NOT EXISTS `contact_mode` (
 -- -----------------------------------------------------
 -- Initialize contact modes
 -- -----------------------------------------------------
-INSERT INTO `contact_mode` (`name`)
+INSERT IGNORE INTO `contact_mode` (`name`)
 VALUES ('email'), ('sms'), ('call'), ('slack'), ('teams_messenger');
 
 -- -----------------------------------------------------
@@ -472,7 +472,7 @@ CREATE TABLE IF NOT EXISTS `schedule_order` (
   INDEX `schedule_order_schedule_id_idx` (`schedule_id`)
 );
 
-INSERT INTO `scheduler` ( `name`, `description`)
+INSERT IGNORE INTO `scheduler` ( `name`, `description`)
 VALUES ('default',
         'Default scheduling algorithm'),
        ('round-robin',
@@ -483,7 +483,7 @@ VALUES ('default',
 -- -----------------------------------------------------
 -- Initialize notification types
 -- -----------------------------------------------------
-INSERT INTO `notification_type` (`name`, `subject`, `body`, `is_reminder`)
+INSERT IGNORE INTO `notification_type` (`name`, `subject`, `body`, `is_reminder`)
 VALUES ('oncall_reminder',
         'Reminder: oncall shift for %(team)s starts in %(time_before)s',
         'Your %(role)s shift for %(team)s starts at %(start_time)s',
