@@ -327,10 +327,10 @@
           {{else}}
             No Slack Channel
           {{/if}}
+        </h4>
+        <h4>
           {{#if slack_channel_notifications}}
             <a href="https://{% endraw %}{{slack_instance}}{% raw %}.slack.com/messages/{{stripHash slack_channel_notifications}}/" target="_blank">{{slack_channel_notifications}}</a>
-          {{else}}
-            No Slack Notifications Channel
           {{/if}}
         </h4>
         {% endraw %} {% endif %} {% raw %}
