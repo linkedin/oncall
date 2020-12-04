@@ -58,7 +58,7 @@ def test_api_v0_get_team(team, role, roster, schedule):
     assert re.status_code == 200
     team = re.json()
     assert isinstance(team, dict)
-    expected_set = {'users', 'admins', 'services', 'rosters', 'name', 'id', 'slack_channel', 'email',
+    expected_set = {'users', 'admins', 'services', 'rosters', 'name', 'id', 'slack_channel', 'slack_channel_notifications', 'email',
         'scheduling_timezone', 'iris_plan', 'iris_enabled', 'override_phone_number'}
     assert expected_set == set(team.keys())
 
@@ -67,7 +67,7 @@ def test_api_v0_get_team(team, role, roster, schedule):
     assert re.status_code == 200
     team = re.json()
     assert isinstance(team, dict)
-    expected_set = {'users', 'admins', 'services', 'name', 'id', 'slack_channel', 'email',
+    expected_set = {'users', 'admins', 'services', 'name', 'id', 'slack_channel', 'slack_channel_notifications', 'email',
                     'scheduling_timezone', 'iris_plan', 'iris_enabled', 'override_phone_number'}
     assert expected_set == set(team.keys())
 
@@ -88,6 +88,8 @@ def test_api_v0_update_team(team):
     new_team_name = "new-moninfra-update"
     email = 'abc@gmail.com'
     slack = '#slack'
+    slack_notifications = '#slack-alerts'
+
     override_num = '1234'
 
     # setup DB state
@@ -101,6 +103,7 @@ def test_api_v0_update_team(team):
     re = requests.put(api_v0('teams/'+team_name), json={'name': new_team_name,
                                                         'email': email,
                                                         'slack_channel': slack,
+                                                        'slack_channel_notifications': slack_notifications,
                                                         'override_phone_number': override_num})
     assert re.status_code == 200
     team.mark_for_cleaning(new_team_name)
@@ -112,6 +115,7 @@ def test_api_v0_update_team(team):
     data = re.json()
     assert data['email'] == email
     assert data['slack_channel'] == slack
+    assert data['slack_channel_notifications'] == slack_notifications
     assert data['override_phone_number'] == override_num
 
 

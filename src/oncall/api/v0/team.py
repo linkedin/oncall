@@ -13,9 +13,9 @@ from ...auth import login_required, check_team_auth
 from ...utils import load_json_body, invalid_char_reg, create_audit
 from ...constants import TEAM_DELETED, TEAM_EDITED
 
-
-cols = set(['name', 'slack_channel', 'email', 'scheduling_timezone', 'iris_plan', 'iris_enabled',
-            'override_phone_number'])
+# Columns which may be modified
+cols = set(['name', 'slack_channel', 'slack_channel_notifications', 'email', 'scheduling_timezone',
+            'iris_plan', 'iris_enabled', 'override_phone_number'])
 
 
 def populate_team_users(cursor, team_dict):
@@ -147,8 +147,9 @@ def on_get(req, resp, team):
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
-    cursor.execute('SELECT `id`, `name`, `email`, `slack_channel`, `scheduling_timezone`, `iris_plan`, `iris_enabled`, `override_phone_number` '
-                   'FROM `team` WHERE `name`=%s AND `active` = %s', (team, active))
+    cursor.execute('''SELECT `id`, `name`, `email`, `slack_channel`, `slack_channel_notifications`,
+                             `scheduling_timezone`, `iris_plan`, `iris_enabled`, `override_phone_number`
+                      FROM `team` WHERE `name`=%s AND `active` = %s''', (team, active))
     results = cursor.fetchall()
     if not results:
         raise HTTPNotFound()

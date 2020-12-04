@@ -27,7 +27,7 @@ def test_audit(team, user, role, roster, event):
     # test team actions
     start = int(time.time())
     team_name_2 = team.create()
-    requests.put(api_v0('teams/'+team_name_2), json={'email': 'foo', 'slack_channel': 'bar'})
+    requests.put(api_v0('teams/'+team_name_2), json={'email': 'foo', 'slack_channel': '#bar', 'slack_channel_notifications': '#bar-alerts'})
     requests.delete(api_v0('teams/%s' % team_name_2))
     end = time.time()
     audit = get_audit_log(start, end)

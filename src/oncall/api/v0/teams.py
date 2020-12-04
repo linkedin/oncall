@@ -108,6 +108,7 @@ def on_post(req, resp):
     - name: the team's name. Teams must have unique names.
     - email: email address for the team.
     - slack_channel: slack channel for the team. Must start with '#'
+    - slack_channel_notifications: slack channel for notifications. Must start with '#'
     - iris_plan: Iris escalation plan that incidents created from the Oncall UI will follow.
 
     If iris plan integration is not activated, this attribute can still be set, but its
@@ -127,6 +128,7 @@ def on_post(req, resp):
             "scheduling_timezone": "US/Pacific",
             "email": "team-foo@example.com",
             "slack_channel": "#team-foo",
+            "slack_channel_notifications": "#team-foo-alerts",
         }
 
     **Example response:**
@@ -160,6 +162,10 @@ def on_post(req, resp):
     if slack and slack[0] != '#':
         raise HTTPBadRequest('invalid slack channel',
                              'slack channel name needs to start with #')
+    slack_notifications = data.get('slack_channel_notifications')
+    if slack_notifications and slack_notifications[0] != '#':
+        raise HTTPBadRequest('invalid slack notifications channel',
+                             'slack channel notifications name needs to start with #')
     email = data.get('email')
     iris_plan = data.get('iris_plan')
     iris_enabled = data.get('iris_enabled', False)
@@ -176,10 +182,10 @@ def on_post(req, resp):
     connection = db.connect()
     cursor = connection.cursor()
     try:
-        cursor.execute('''INSERT INTO `team` (`name`, `slack_channel`, `email`, `scheduling_timezone`, `iris_plan`, `iris_enabled`,
-                                              `override_phone_number`)
-                          VALUES (%s, %s, %s, %s, %s, %s, %s)''',
-                       (team_name, slack, email, scheduling_timezone, iris_plan, iris_enabled, override_number))
+        cursor.execute('''INSERT INTO `team` (`name`, `slack_channel`, `slack_channel_notifications`, `email`, `scheduling_timezone`,
+                                              `iris_plan`, `iris_enabled`, `override_phone_number`)
+                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s)''',
+                       (team_name, slack, slack_notifications, email, scheduling_timezone, iris_plan, iris_enabled, override_number))
 
         team_id = cursor.lastrowid
         query = '''
