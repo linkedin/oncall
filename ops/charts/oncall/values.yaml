@@ -1,0 +1,13 @@
+imageRegistry: "quay.io/iris"
+dockerTag: "latest"
+pullPolicy: "alwaysPull"
+replicaCount: 1
+
+oncallService:
+  externalPort: 80
+  internalPort: 8080
+  dbInitialized: false
+
+mysql:
+  auth:
+    rootPassword: "1234"

@@ -1,0 +1,17 @@
+## For internal access
+
+The Oncall service can be accessed via port {{ .Values.oncallService.externalPort }} on the following DNS names from within your cluster:
+
+    `oncall` or `oncall.{{ .Release.Namespace }}.svc.cluster.local`
+
+
+## For external access
+
+Oncall service is configured to use NodePort type, you can use the following
+command to get the external port for the service:
+
+    kubectl describe services oncall
+
+For external IP, use:
+
+    kubectl cluster-info
