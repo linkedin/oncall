@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: oncall
+  labels:
+    oncall-component: api
+    oncall-component: web
+    oncall-version: {{ .Chart.AppVersion }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+spec:
+  ports:
+    - name: oncall
+      port: {{ .Values.oncallService.externalPort }}
+      targetPort: {{ .Values.oncallService.internalPort }}
+      protocol: TCP
+  selector:
+    app: {{ template "fullname" . }}
+  type: NodePort
