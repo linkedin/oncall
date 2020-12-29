@@ -6,5 +6,5 @@ Usage
 
 ```
 helm3 dep update
-helm3 install oncall . -n test
+helm3 install oncall .
 ```
