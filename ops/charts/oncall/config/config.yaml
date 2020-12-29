@@ -44,28 +44,67 @@ debug: True
 # class, with two required methods: __init__(self, config) and
 # authenticate(self, username, password)
 auth:
-  debug: True
+  debug: {{ .Values.oncallService.auth.debug | toString | title }}
+  {{- if .Values.oncallService.auth.modules.debug }}
   module: 'oncall.auth.modules.debug'  # Auth module where Authenticator is implemented
+  {{- end }}
 
 # Example configuration for LDAP-based auth
-#   module: 'oncall.auth.modules.ldap_example'
-#   module: 'oncall.auth.modules.ldap_import' # for automatically import user at first connexion
-#   ldap_url: 'ldaps://example.com'
-#   ldap_user_suffix: '@example.biz'
-#   ldap_cert_path: '/etc/ldap_cert.pem'
-#   ldap_bind_user: 'cn=binduser,ou=services,dc=company,dc=org'
-#   ldap_bind_password: 'abc123'
-#   ldap_base_dn: 'ou=accounts,dc=company,dc=org'
-#   ldap_search_filter: '(uid=%s)'
+  {{- if .Values.oncallService.auth.modules.ldap_example }}
+  module: 'oncall.auth.modules.ldap_example'
+  {{- end }}
+  {{- if .Values.oncallService.auth.modules.ldap_import }}
+  module: 'oncall.auth.modules.ldap_import' # for automatically import user at first connexion
+  {{- end }}
+  {{- if .Values.oncallService.auth.ldap_url }}
+  ldap_url: {{ .Values.oncallService.auth.ldap_url | squote }}
+  {{- end }}
+  {{- if .Values.oncallService.auth.ldap_user_suffix }}
+  ldap_user_suffix: {{ .Values.oncallService.auth.ldap_user_suffix | squote }}
+  {{- end }}
+  {{- if .Values.oncallService.auth.ldap_cert_path }}
+  ldap_cert_path: {{ .Values.oncallService.auth.ldap_cert_path | squote }}
+  {{- end }}
+  {{- if .Values.oncallService.auth.ldap_bind_user }}
+  ldap_bind_user: {{ .Values.oncallService.auth.ldap_bind_user | squote }}
+  {{- end }}
+  {{- if .Values.oncallService.auth.ldap_bind_password }}
+  ldap_bind_password: {{ .Values.oncallService.auth.ldap_bind_password | squote }}
+  {{- end }}
+  {{- if .Values.oncallService.auth.ldap_base_dn }}
+  ldap_base_dn: {{ .Values.oncallService.auth.ldap_base_dn | squote }}
+  {{- end }}
+  {{- if .Values.oncallService.auth.ldap_search_filter }}
+  ldap_search_filter: {{ .Values.oncallService.auth.ldap_search_filter | squote }}
+  {{- end }}
 # options used by the ldap_import module.
-#   import_user: True
-#   attrs:
-#     username: 'uid'
-#     full_name: 'displayName'
-#     email: 'mail'
-#     mobile: 'mobile'
-#     sms: 'phone'
-#     slack: 'uid'
+  {{- if kindIs "bool" .Values.oncallService.auth.import_user }}
+  import_user: {{ .Values.oncallService.auth.import_user | toString | title }}
+  {{- end }}
+  {{- if .Values.oncallService.auth.attrs }}
+  attrs:
+    {{- if .Values.oncallService.auth.attrs.username }}
+    username: {{ .Values.oncallService.auth.attrs.username | squote }}
+    {{- end }}
+    {{- if .Values.oncallService.auth.attrs.full_name }}
+    full_name: {{ .Values.oncallService.auth.attrs.full_name | squote }}
+    {{- end }}
+    {{- if .Values.oncallService.auth.attrs.email }}
+    email: {{ .Values.oncallService.auth.attrs.email | squote }}
+    {{- end }}
+    {{- if .Values.oncallService.auth.attrs.mobile }}
+    mobile: {{ .Values.oncallService.auth.attrs.mobile | squote }}
+    {{- end }}
+    {{- if .Values.oncallService.auth.attrs.sms }}
+    sms: {{ .Values.oncallService.auth.attrs.sms | squote }}
+    {{- end }}
+    {{- if .Values.oncallService.auth.attrs.slack }}
+    slack: {{ .Values.oncallService.auth.attrs.slack | squote }}
+    {{- end }}
+    {{- if .Values.oncallService.auth.attrs.name }}
+    name: {{ .Values.oncallService.auth.attrs.name | squote }}
+    {{- end }}
+  {{- end }}
 
 ############################
 ### Oncall-notifier settings
@@ -94,7 +133,7 @@ notifications:
 reminder:
   activated: True
   polling_interval: 360  # In seconds, the reminder will poll DB for events every $n seconds
-  default_timezone: 'US/Pacific'  # Dates/times in the reminders are formatted in this timezone
+  default_timezone: {{ .Values.oncallService.timezone | squote }}  # Dates/times in the reminders are formatted in this timezone
 
 # User validator checks that people scheduled for on-call events have defined phone numbers
 user_validator:
@@ -126,7 +165,9 @@ messengers:
 ### Oncall frontend settings
 ############################
 supported_timezones:
-  - 'US/Pacific'
+  {{- if .Values.oncallService.timezone }}
+  - {{ .Values.oncallService.timezone | squote }}
+  {{- end }}
   - 'US/Eastern'
   - 'US/Central'
   - 'US/Mountain'

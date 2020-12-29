@@ -1,4 +1,4 @@
-imageRegistry: "quay.io/iris"
+imageRegistry: "lukdz"
 dockerTag: "latest"
 pullPolicy: "alwaysPull"
 replicaCount: 1
@@ -7,6 +7,13 @@ oncallService:
   externalPort: 80
   internalPort: 8080
   dbInitialized: false
+  auth:
+    debug: True
+    modules:
+      debug: True
+      ldap_example: False
+      ldap_import: False
+  timezone: 'US/Pacific'
 
 mysql:
   auth:
