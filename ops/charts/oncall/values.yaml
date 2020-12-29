@@ -1,4 +1,4 @@
-imageRegistry: "lukdz"
+imageRegistry: "quay.io/iris"
 dockerTag: "latest"
 pullPolicy: "alwaysPull"
 replicaCount: 1
