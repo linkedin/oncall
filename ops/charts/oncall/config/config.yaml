@@ -135,7 +135,6 @@ reminder:
   polling_interval: 360  # In seconds, the reminder will poll DB for events every $n seconds
   default_timezone: {{ .Values.oncallService.timezone | squote }}  # Dates/times in the reminders are formatted in this timezone
 
-
 # User validator checks that people scheduled for on-call events have defined phone numbers
 user_validator:
   activated: True
