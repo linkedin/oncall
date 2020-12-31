@@ -1,5 +1,6 @@
-imageRegistry: "quay.io/iris"
-dockerTag: "latest"
+image:
+  repository: "quay.io/iris"
+  tag: "latest"
 pullPolicy: "alwaysPull"
 replicaCount: 1
 
@@ -15,6 +16,16 @@ oncallService:
       ldap_import: False
   timezone: 'US/Pacific'
 
+ingress:
+  enabled: False
+  class: nginx
+  certManager: True
+  hostname: "test.com"
+  tls: True
+
 mysql:
   auth:
     rootPassword: "1234"
+  primary:
+    persistence:
+      size: 1Gi

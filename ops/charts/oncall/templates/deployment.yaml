@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: oncall
-          image: {{ .Values.imageRegistry }}/oncall:{{.Values.dockerTag}}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
           ports:
             - containerPort: {{ .Values.oncallService.internalPort }}

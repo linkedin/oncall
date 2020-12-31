@@ -1,0 +1,25 @@
+apiVersion: v1
+entries:
+  oncall:
+  - apiVersion: v1
+    appVersion: 0.0.14
+    created: "2020-12-21T13:19:39.262468318+01:00"
+    dependencies:
+    - name: mysql
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.0.0
+    description: Calendar tool designed for scheduling and managing on-call shifts
+    digest: b6ad4aaf43c471f91c70c76cf88e5ede9918e15347dac91c6122c5a2c61d7314
+    home: https://oncall.tools
+    icon: https://raw.githubusercontent.com/linkedin/oncall/master/src/oncall/ui/static/images/favicon.png
+    keywords:
+    - calendar
+    - schedule
+    - shifts management
+    name: oncall
+    sources:
+    - https://github.com/linkedin/oncall
+    urls:
+    - https://raw.githubusercontent.com/lukdz/oncall/master/ops/charts/oncall-0.0.1.tgz
+    version: 0.0.1
+generated: "2020-12-21T13:19:39.258106391+01:00"
