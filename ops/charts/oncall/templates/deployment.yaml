@@ -21,26 +21,31 @@ spec:
     spec:
       containers:
         - name: oncall
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
           ports:
-            - containerPort: {{ .Values.oncallService.internalPort }}
+            - containerPort: {{ .Values.port.internal }}
           env:
-            {{- if not .Values.oncallService.dbInitialized }}
+            {{- if not .Values.dbInitialized }}
             - name: DOCKER_DB_BOOTSTRAP
               value: '1'
             {{- end }}
           volumeMounts:
             - name: oncall-volume
-              mountPath: /home/oncall/config
+              mountPath: /home/oncall/config/config.yaml
+              subPath: config.yaml
               readOnly: true
           readinessProbe:
             httpGet:
               path: /healthcheck
-              port: 8080
-            initialDelaySeconds: 5
+              port: {{ .Values.port.internal }}
+            initialDelaySeconds: 60
             periodSeconds: 10
+      initContainers:
+        - name: init-oncall
+          image: busybox:latest
+          command: ['sh', '-c', "until nslookup {{ include "mysql.fullname" . }}; do echo waiting for mysql; sleep 2; done; sleep 20"]
       volumes:
         - name: oncall-volume
           configMap:
-            name: oncall-config
+            name: {{ include "fullname" . }}

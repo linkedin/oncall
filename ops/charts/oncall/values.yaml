@@ -4,24 +4,40 @@ image:
 pullPolicy: "alwaysPull"
 replicaCount: 1
 
-oncallService:
-  externalPort: 80
-  internalPort: 8080
-  dbInitialized: False
+port:
+  external: 80
+  internal: 8080
+
+dbInitialized: false
+
+config:
   auth:
-    debug: True
-    modules:
-      debug: True
-      ldap_example: False
-      ldap_import: False
+    debug: true
+    module: debug
+    # ldap:
+    #   ldap_url: 'ldaps://example.com'
+    #   ldap_user_suffix: '@example.biz'
+    #   ldap_cert_path: '/etc/ldap_cert.pem'
+    #   ldap_bind_user: 'cn=binduser,ou=services,dc=company,dc=org'
+    #   ldap_bind_password: 'abc123'
+    #   ldap_base_dn: 'ou=accounts,dc=company,dc=org'
+    #   ldap_search_filter: '(uid=%s)'
+    #   import_user: True
+    #   attrs:
+    #     username: 'uid'
+    #     full_name: 'displayName'
+    #     email: 'mail'
+    #     mobile: 'mobile'
+    #     sms: 'phone'
+    #     slack: 'uid'
   timezone: 'US/Pacific'
 
 ingress:
-  enabled: False
+  enabled: false
   class: nginx
-  certManager: True
-  hostname: "test.com"
-  tls: True
+  certManager: true
+  hostname: "oncall.local"
+  tls: true
 
 mysql:
   auth:

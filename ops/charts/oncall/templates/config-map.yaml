@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: oncall-config
+  name: {{ include "fullname" . }}
 data:
   config.yaml: |-
-{{ tpl (.Files.Get "config/config.yaml") . | nindent 4 }}
+    {{ tpl (.Files.Get "config/config.yaml") . | nindent 4 }}
