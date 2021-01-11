@@ -1,6 +1,8 @@
+apiVersion: v2
 name: oncall
-version: 0.0.1
+version: 0.0.2
 description: Calendar tool designed for scheduling and managing on-call shifts
+type: application
 keywords:
   - calendar
   - schedule
@@ -10,4 +12,8 @@ sources:
   - https://github.com/linkedin/oncall
 engine: gotpl
 icon: https://raw.githubusercontent.com/linkedin/oncall/master/src/oncall/ui/static/images/favicon.png
-appVersion: 0.0.14
+appVersion: 1.2.4
+dependencies:
+  - name: mysql
+    version: 8.0.0
+    repository: https://charts.bitnami.com/bitnami

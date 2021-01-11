@@ -16,7 +16,7 @@ spec:
         paths:
         - backend:
             serviceName: {{ template "name" . }}
-            servicePort: {{ .Values.oncallService.externalPort }}
+            servicePort: {{ .Values.port.external }}
           path: /
     {{- end }}
   {{- if .Values.ingress.tls }}

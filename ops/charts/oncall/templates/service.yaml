@@ -10,9 +10,9 @@ metadata:
 spec:
   ports:
     - name: {{ template "name" . }}
-      port: {{ .Values.oncallService.externalPort }}
-      targetPort: {{ .Values.oncallService.internalPort }}
+      port: {{ .Values.port.external }}
+      targetPort: {{ .Values.port.internal }}
       protocol: TCP
   selector:
     app: {{ template "fullname" . }}
-  type: NodePort
+  type: ClusterIP
