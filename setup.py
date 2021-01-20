@@ -47,7 +47,8 @@ setuptools.setup(
         'irisclient',
         'slackclient==1.3.1',
         'icalendar',
-        'pymsteams'
+        'pymsteams',
+        'idna==2.10'
     ],
     extras_require={
         'ldap': ['python-ldap'],
