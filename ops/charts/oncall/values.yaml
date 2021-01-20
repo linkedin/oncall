@@ -1,5 +1,5 @@
 image:
-  repository: "quay.io/iris"
+  repository: "quay.io/diegocepedaw"
   tag: "latest"
 pullPolicy: "alwaysPull"
 replicaCount: 1
