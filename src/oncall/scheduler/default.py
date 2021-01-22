@@ -135,7 +135,7 @@ class Scheduler(object):
             logger.debug('Found new guy')
         return {row['id'] for row in cursor}
 
-    def create_events(self, team_id, schedule_id, user_id, events, role_id, cursor,  table_name='event', skip_match=True):
+    def create_events(self, team_id, schedule_id, user_id, events, role_id, cursor, table_name='event', skip_match=True):
         if len(events) == 0:
             return
         # Skip creating this epoch of events if matching events exist
