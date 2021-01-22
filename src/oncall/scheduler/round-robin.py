@@ -50,7 +50,7 @@ class Scheduler(default.Scheduler):
         last_idx = roster.index(last_user)
         return roster[(last_idx + 1) % len(roster)]
 
-    def create_events(self, team_id, schedule_id, user_id, events, role_id, cursor, skip_match=True, table_name='event'):
+    def create_events(self, team_id, schedule_id, user_id, events, role_id, cursor, table_name='event', skip_match=True):
         if len(events) == 1:
             [event] = events
             event_args = (team_id, schedule_id, event['start'], event['end'], user_id, role_id)
