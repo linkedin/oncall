@@ -85,8 +85,8 @@ CREATE TABLE IF NOT EXISTS `team_user` (
   CONSTRAINT `team_user_user_id_fk`
     FOREIGN KEY (`user_id`)
     REFERENCES `user` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 -- -----------------------------------------------------
 -- Table `team_admin`
@@ -105,8 +105,8 @@ CREATE TABLE IF NOT EXISTS `team_admin` (
   CONSTRAINT `team_admin_user_id_fk`
     FOREIGN KEY (`user_id`)
     REFERENCES `user` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 -- -----------------------------------------------------
 -- Table `roster`
@@ -176,11 +176,11 @@ CREATE TABLE IF NOT EXISTS `schedule` (
     FOREIGN KEY (`roster_id`)
     REFERENCES `roster` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION,
+    ON UPDATE CASCADE,
   CONSTRAINT `schedule_role_id_fk`
     FOREIGN KEY (`role_id`)
     REFERENCES `role` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `schedule_team_id_fk`
     FOREIGN KEY (`team_id`)
@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   CONSTRAINT `schedule_scheduler_id_fk`
     FOREIGN KEY (`scheduler_id`)
     REFERENCES `scheduler` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `schedule_last_user_id_fk`
     FOREIGN KEY (`last_scheduled_user_id`)
@@ -240,12 +240,12 @@ CREATE TABLE IF NOT EXISTS `event` (
   CONSTRAINT `event_user_id_fk`
     FOREIGN KEY (`user_id`)
     REFERENCES `user` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `event_role_id_fk`
     FOREIGN KEY (`role_id`)
     REFERENCES `role` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `event_team_id_fk`
     FOREIGN KEY (`team_id`)
@@ -278,8 +278,8 @@ CREATE TABLE IF NOT EXISTS `team_service` (
   CONSTRAINT `team_service_service_id_fk`
     FOREIGN KEY (`service_id`)
     REFERENCES `service` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);
 
 -- -----------------------------------------------------
 -- Table `roster_user`
@@ -294,8 +294,8 @@ CREATE TABLE IF NOT EXISTS `roster_user` (
   CONSTRAINT `roster_user_user_id_fk`
     FOREIGN KEY (`user_id`)
     REFERENCES `user` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `roster_user_roster_id_fk`
     FOREIGN KEY (`roster_id`)
     REFERENCES `roster` (`id`)
