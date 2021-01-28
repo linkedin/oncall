@@ -7,6 +7,7 @@
 import sys
 import time
 import importlib
+import os
 from collections import defaultdict
 
 from oncall import db, utils
@@ -15,13 +16,15 @@ from oncall.api.v0.schedules import get_schedules
 import logging
 
 logger = logging.getLogger()
-handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(name)-6s %(levelname)-8s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
-
-logging.getLogger('requests').setLevel(logging.WARN)
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
+log_file = os.environ.get('SCHEDULER_LOG_FILE')
+if log_file:
+    ch = logging.handlers.RotatingFileHandler(log_file, mode='a', maxBytes=10485760, backupCount=10)
+else:
+    ch = logging.StreamHandler(sys.stdout)
+ch.setFormatter(formatter)
+logger.setLevel(logging.INFO)
+logger.addHandler(ch)
 
 
 def load_scheduler(scheduler_name):
