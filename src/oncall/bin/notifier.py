@@ -4,6 +4,7 @@ import sys
 import yaml
 import logging
 import time
+import os
 from importlib import import_module
 from ujson import loads as json_loads
 from gevent import queue, spawn, sleep
@@ -15,19 +16,15 @@ from oncall.notifier import reminder, user_validator
 # logging
 logger = logging.getLogger()
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.DEBUG)
+log_file = os.environ.get('NOTIFIER_LOG_FILE')
+if log_file:
+    ch = logging.handlers.RotatingFileHandler(log_file, mode='a', maxBytes=10485760, backupCount=10)
+else:
+    ch = logging.StreamHandler(sys.stdout)
 ch.setFormatter(formatter)
 logger.setLevel(logging.INFO)
+logger.addHandler(ch)
 
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-root.addHandler(ch)
 
 # queue for messages entering the system
 send_queue = queue.Queue()
