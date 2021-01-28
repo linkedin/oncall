@@ -9,7 +9,7 @@ class HealthCheck(object):
 
     def __init__(self, config):
         if config.get('debug') or config.get('auth').get('debug'):
-            self.dummy_status = 'DEBUG'
+            self.dummy_status = 'GOOD'
         else:
             self.dummy_status = None
             path = config.get('healthcheck_path')
