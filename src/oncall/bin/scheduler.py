@@ -8,12 +8,12 @@ import sys
 import time
 import importlib
 import os
+import logging
+import logging.handlers
 from collections import defaultdict
 
 from oncall import db, utils
 from oncall.api.v0.schedules import get_schedules
-
-import logging
 
 logger = logging.getLogger()
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')

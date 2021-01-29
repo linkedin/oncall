@@ -5,6 +5,7 @@ from gevent import monkey, spawn
 monkey.patch_all()  # NOQA
 
 import logging
+import logging.handlers
 import os
 import sys
 import importlib
