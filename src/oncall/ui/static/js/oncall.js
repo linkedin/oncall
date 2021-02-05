@@ -579,11 +579,11 @@ var oncall = {
               },
               footer: function(resp){
                 if (teamsCt > typeaheadLimit) {
-                  return '<div class="tt-see-all"><a href="/query/' + resp.query + '/teams" data-navigo> See all ' + teamsCt + ' results for teams »</a></div>';
+                  return '<div class="tt-see-all"><a href="/query/' + oncall.sanitize(resp.query) + '/teams" data-navigo> See all ' + teamsCt + ' results for teams »</a></div>';
                 }
               },
               empty: function(resp){
-                return '<h4> No results found for "' + resp.query + '" </h4>';
+                return '<h4> No results found for "' + oncall.sanitize(resp.query) + '" </h4>';
               }
             }
           },
@@ -604,7 +604,7 @@ var oncall = {
               },
               footer: function(resp){
                 if (servicesCt > typeaheadLimit) {
-                  return '<div class="tt-see-all"><a href="/query/' + resp.query + '/services" data-navigo> See all ' + servicesCt + ' results for services »</a></div>';
+                  return '<div class="tt-see-all"><a href="/query/' + oncall.sanitize(resp.query) + '/services" data-navigo> See all ' + servicesCt + ' results for services »</a></div>';
                 }
               }
             }
@@ -626,7 +626,7 @@ var oncall = {
               },
               footer: function(resp){
                 if (usersCt > typeaheadLimit) {
-                  return '<div class="tt-see-all"><a href="/query/' + resp.query + '/users" data-navigo> See all ' + usersCt + ' results for users »</a></div>';
+                  return '<div class="tt-see-all"><a href="/query/' + oncall.sanitize(resp.query) + '/users" data-navigo> See all ' + usersCt + ' results for users »</a></div>';
                 }
               }
             }
@@ -3484,6 +3484,19 @@ var oncall = {
         });
       });
     }
+  },
+  sanitize: function (string) {
+    // based on recommendations from OWASP https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;',
+      "/": '&#x2F;',
+    };
+    const reg = /[&<>"'/]/ig;
+    return string.replace(reg, (match) => (map[match]));
   }
 };
 
