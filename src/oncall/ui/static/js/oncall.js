@@ -579,7 +579,7 @@ var oncall = {
               },
               footer: function(resp){
                 if (teamsCt > typeaheadLimit) {
-                  return '<div class="tt-see-all"><a href="/query/' + Handlebars.escapeExpression(resp.query) + '/teams" data-navigo> See all ' + teamsCt + ' results for teams »</a></div>';
+                  return '<div class="tt-see-all"><a href="/query/' + Handlebars.escapeExpression(encodeURIComponent(resp.query)) + '/teams" data-navigo> See all ' + teamsCt + ' results for teams »</a></div>';
                 }
               },
               empty: function(resp){
@@ -604,7 +604,7 @@ var oncall = {
               },
               footer: function(resp){
                 if (servicesCt > typeaheadLimit) {
-                  return '<div class="tt-see-all"><a href="/query/' + Handlebars.escapeExpression(resp.query) + '/services" data-navigo> See all ' + servicesCt + ' results for services »</a></div>';
+                  return '<div class="tt-see-all"><a href="/query/' + Handlebars.escapeExpression(encodeURIComponent(resp.query)) + '/services" data-navigo> See all ' + servicesCt + ' results for services »</a></div>';
                 }
               }
             }
@@ -626,7 +626,7 @@ var oncall = {
               },
               footer: function(resp){
                 if (usersCt > typeaheadLimit) {
-                  return '<div class="tt-see-all"><a href="/query/' + Handlebars.escapeExpression(resp.query) + '/users" data-navigo> See all ' + usersCt + ' results for users »</a></div>';
+                  return '<div class="tt-see-all"><a href="/query/' + Handlebars.escapeExpression(encodeURIComponent(resp.query)) + '/users" data-navigo> See all ' + usersCt + ' results for users »</a></div>';
                 }
               }
             }
