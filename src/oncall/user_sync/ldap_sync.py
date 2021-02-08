@@ -130,11 +130,11 @@ def fetch_ldap():
             except KeyError:
                 username_field = "sAMAccountName"
 
-            username = ldap_dict[username_field][0]
+            username = ldap_dict[username_field][0].decode("utf-8")
 
-            mobile = ldap_dict.get(LDAP_SETTINGS['attrs']['mobile'])
-            mail = ldap_dict.get(LDAP_SETTINGS['attrs']['mail'])
-            name = ldap_dict.get(LDAP_SETTINGS['attrs']['full_name'])[0]
+            mobile = ldap_dict.get(LDAP_SETTINGS['attrs']['mobile']).decode("utf-8")
+            mail = ldap_dict.get(LDAP_SETTINGS['attrs']['mail']).decode("utf-8")
+            name = ldap_dict.get(LDAP_SETTINGS['attrs']['full_name'])[0].decode("utf-8")
 
             if mobile:
                 try:
@@ -145,7 +145,7 @@ def fetch_ldap():
                     mobile = None
 
             if mail:
-                mail = mail[0]
+                mail = mail[0].decode("utf-8")
                 slack = mail.split('@')[0]
             else:
                 slack = None

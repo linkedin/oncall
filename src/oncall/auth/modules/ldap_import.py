@@ -61,11 +61,11 @@ class Authenticator:
                 for key, val in self.attrs.items():
                     if ldap_attrs.get(val):
                         if type(ldap_attrs.get(val)) == list:
-                            ldap_contacts[key] = ldap_attrs.get(val)[0]
+                            ldap_contacts[key] = ldap_attrs.get(val)[0].decode("utf-8")
                         else:
-                            ldap_contacts[key] = ldap_attrs.get(val)
+                            ldap_contacts[key] = ldap_attrs.get(val).decode("utf-8")
                     else:
-                        ldap_contacts[key] = val
+                        ldap_contacts[key] = val.decode("utf-8")
 
             connection.simple_bind_s(auth_user, password)
 
