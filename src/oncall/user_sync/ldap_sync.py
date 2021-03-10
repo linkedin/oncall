@@ -44,7 +44,7 @@ LDAP_SETTINGS = {}
 
 
 def normalize_phone_number(num):
-    return format_number(parse(num.decode('utf-8'), 'US'), PhoneNumberFormat.INTERNATIONAL)
+    return format_number(parse(num, 'US'), PhoneNumberFormat.INTERNATIONAL)
 
 
 def get_predefined_users(config):
@@ -131,14 +131,20 @@ def fetch_ldap():
                 username_field = "sAMAccountName"
 
             username = ldap_dict[username_field][0]
-
+            if isinstance(username, bytes):
+                username = username.decode("utf-8")
+            name = ldap_dict.get(LDAP_SETTINGS['attrs']['full_name'])[0]
+            if isinstance(name, bytes):
+                name = name.decode("utf-8")
             mobile = ldap_dict.get(LDAP_SETTINGS['attrs']['mobile'])
             mail = ldap_dict.get(LDAP_SETTINGS['attrs']['mail'])
-            name = ldap_dict.get(LDAP_SETTINGS['attrs']['full_name'])[0]
 
             if mobile:
                 try:
-                    mobile = normalize_phone_number(mobile[0])
+                    mobile = mobile[0]
+                    if isinstance(mobile, bytes):
+                        mobile = mobile.decode("utf-8")
+                    mobile = normalize_phone_number(mobile)
                 except NumberParseException:
                     mobile = None
                 except UnicodeEncodeError:
@@ -146,6 +152,8 @@ def fetch_ldap():
 
             if mail:
                 mail = mail[0]
+                if isinstance(mail, bytes):
+                    mail = mail.decode("utf-8")
                 slack = mail.split('@')[0]
             else:
                 slack = None
