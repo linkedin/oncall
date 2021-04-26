@@ -236,6 +236,16 @@ class Scheduler(object):
             generated.append({'start': start, 'end': end})
         return generated
 
+    def get_period_in_days(self, schedule):
+        '''
+        Find schedule rotation period in days
+        '''
+        events = schedule['events']
+        first_event = min(events, key=operator.itemgetter('start'))
+        end = max(e['start'] + e['duration'] for e in events)
+        period = end - first_event['start']
+        return ((period + SECONDS_IN_A_DAY - 1) // SECONDS_IN_A_DAY)
+
     def get_period_len(self, schedule):
         '''
         Find schedule rotation period in weeks, rounded up
@@ -247,7 +257,7 @@ class Scheduler(object):
         return ((period + SECONDS_IN_A_WEEK - 1) // SECONDS_IN_A_WEEK)
 
     def calculate_future_events(self, schedule, cursor, start_epoch=None):
-        period = self.get_period_len(schedule)
+        period = self.get_period_in_days(schedule)
 
         # DEFINITION:
         # epoch: Sunday at 00:00:00 in the schedule's local timezone. This is our point of reference when
@@ -267,7 +277,7 @@ class Scheduler(object):
                 # epoch and work from there)
                 last_epoch_dt = datetime.fromtimestamp(last_epoch_timestamp, utc)
                 localized_last_epoch = last_epoch_dt.astimezone(timezone(schedule['timezone']))
-                next_epoch = self.get_closest_epoch(localized_last_epoch) + timedelta(days=7 * period)
+                next_epoch = self.get_closest_epoch(localized_last_epoch) + timedelta(days=period)
         else:
             next_epoch = start_epoch
 
@@ -277,11 +287,11 @@ class Scheduler(object):
         # Start scheduling from the next epoch
         while cutoff_date > next_epoch:
             epoch_events = self.generate_events(schedule, schedule['events'], next_epoch)
-            next_epoch += timedelta(days=7 * period)
+            next_epoch += timedelta(days=period)
             if epoch_events:
                 future_events.append(epoch_events)
         # Return future events and the last epoch events were scheduled for.
-        return future_events, self.utc_from_naive_date(next_epoch - timedelta(days=7 * period), schedule)
+        return future_events, self.utc_from_naive_date(next_epoch - timedelta(days=period), schedule)
 
     def find_next_user_id(self, schedule, future_events, cursor, table_name='event'):
         team_id = schedule['team_id']
@@ -377,14 +387,18 @@ class Scheduler(object):
         role_id = schedule['role_id']
         team_id = schedule['team_id']
         first_event_start = min(ev['start'] for ev in schedule['events'])
-        period = self.get_period_len(schedule)
+        period = self.get_period_in_days(schedule)
         handoff = start_epoch + timedelta(seconds=first_event_start)
         handoff = timezone(schedule['timezone']).localize(handoff)
 
         # Start scheduling from the next occurrence of the hand-off time.
         if start_dt > handoff:
-            start_epoch += timedelta(weeks=period)
-            handoff += timedelta(weeks=period)
+            if period < 7: # Need to add min 1 week so we can find the next occurance of the day
+                start_epoch += timedelta(weeks=1)
+                handoff += timedelta(weeks=1)
+            else:
+                start_epoch += timedelta(days=period)
+                handoff += timedelta(days=period)
         if handoff < utc.localize(datetime.utcnow()):
             cursor.execute("DROP TEMPORARY TABLE IF EXISTS `temp_event`")
             connection.commit()

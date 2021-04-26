@@ -1803,6 +1803,7 @@ var oncall = {
               var item = data.rosters[i];
               for (var k = 0; k < item.schedules.length; k++) {
                 var schedule = item.schedules[k];
+                schedule.is_daily_rota = schedule.events.length > 0 && schedule.events[0].duration * 1000 === msPerDay;
                 schedule.is_12_hr = !schedule.advanced_mode && schedule.events.length > 1;
                 for (var j = 0, eventItem; j < schedule.events.length; j++) {
                   eventItem = schedule.events[j];

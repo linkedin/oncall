@@ -969,23 +969,31 @@
       <li>
         <label class="light label-col">Rotation:</label>
         <ul class="data-col schedule-rotation">
-          {{#if is_12_hr}}
-            {{#isEqual events.length 7}}
-              {{timeSince events.[0].start 'toString'}} - Weekly (12 hr)
+          {{#if is_daily_rota}}
+            {{#if is_12_hr}}
+              {{timeSince events.[0].start 'toString'}} - Daily (12 hr)
             {{else}}
-              {{timeSince events.[0].start 'toString'}} - Bi-Weekly (12 hr)
-            {{/isEqual}}
+              {{timeSince events.[0].start 'toString'}} - Daily
+            {{/if}}
           {{else}}
-            {{#if advanced_mode}}
-              {{#each events}}
-                {{timeSince start 'toString'}} - {{timeSince end 'toString'}}<br />
-              {{/each}}
-            {{else}}
-              {{#isEqual events.[0].duration 604800000}}
-                {{timeSince events.[0].start 'toString'}} - Weekly
+            {{#if is_12_hr}}
+              {{#isEqual events.length 7}}
+                {{timeSince events.[0].start 'toString'}} - Weekly (12 hr)
               {{else}}
-                {{timeSince events.[0].start 'toString'}} - Bi-Weekly
+                {{timeSince events.[0].start 'toString'}} - Bi-Weekly (12 hr)
               {{/isEqual}}
+            {{else}}
+              {{#if advanced_mode}}
+                {{#each events}}
+                  {{timeSince start 'toString'}} - {{timeSince end 'toString'}}<br />
+                {{/each}}
+              {{else}}
+                {{#isEqual events.[0].duration 604800000}}
+                  {{timeSince events.[0].start 'toString'}} - Weekly
+                {{else}}
+                  {{timeSince events.[0].start 'toString'}} - Bi-Weekly
+                {{/isEqual}}
+              {{/if}}
             {{/if}}
           {{/if}}
         </ul>
@@ -1158,6 +1166,7 @@
         <label>Rotate:</label>
         <br>
         <select name="time" class="form-control rotation-end-duration">
+          <option value="1" {{#if totalEvents}} {{isSelected totalEvents 1}} {{else}} {{isSelected duration 1}} {{/if}}>Daily</option>
           <option value="7" {{#if totalEvents}} {{isSelected totalEvents 7}} {{else}} {{isSelected duration 7}} {{/if}}>Weekly</option>
           <option value="14" {{#if totalEvents}} {{isSelected totalEvents 14}} {{else}} {{isSelected duration 14}} {{/if}}>Bi-Weekly</option>
         </select>
