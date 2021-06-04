@@ -51,12 +51,13 @@ def check_user_auth(user, req):
         JOIN `team_user` ON `team_admin`.`team_id` = `team_user`.`team_id`
         JOIN `user` ON `user`.`id` = `team_user`.`user_id`
         JOIN `user` AS `admin` ON `admin`.`id` = `team_admin`.`user_id`
-        WHERE `admin`.`name` = %s'''
-    cursor.execute(get_allowed_query, challenger)
-    allowed = (user,) in cursor
+        WHERE `admin`.`name` = %s
+        AND `user`.`name` = %s'''
+    cursor.execute(get_allowed_query, (challenger, user))
+    user_in_query = cursor.rowcount
     cursor.close()
     connection.close()
-    if allowed or is_god(challenger):
+    if user_in_query != 0 or is_god(challenger):
         return
     raise HTTPForbidden('Unauthorized', 'Action not allowed for "%s"' % challenger)
 
@@ -74,12 +75,13 @@ def check_team_auth(team, req):
                            FROM `team_admin`
                            JOIN `team` ON `team_admin`.`team_id` = `team`.`id`
                            JOIN `user` ON `team_admin`.`user_id` = `user`.`id`
-                           WHERE `user`.`name` = %s'''
-    cursor.execute(get_allowed_query, challenger)
-    allowed = (team,) in cursor
+                           WHERE `user`.`name` = %s
+                           AND `team`.`name` = %s'''
+    cursor.execute(get_allowed_query, (challenger, team))
+    team_in_query = cursor.rowcount
     cursor.close()
     connection.close()
-    if allowed or is_god(challenger):
+    if team_in_query != 0 or is_god(challenger):
         return
     raise HTTPForbidden(
         'Unauthorized',

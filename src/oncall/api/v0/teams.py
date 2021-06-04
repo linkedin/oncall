@@ -151,7 +151,7 @@ def on_post(req, resp):
         raise HTTPBadRequest('', 'name attribute missing from request')
     if not data.get('scheduling_timezone'):
         raise HTTPBadRequest('', 'scheduling_timezone attribute missing from request')
-    team_name = unquote(data['name'])
+    team_name = unquote(data['name']).strip()
     invalid_char = invalid_char_reg.search(team_name)
     if invalid_char:
         raise HTTPBadRequest('invalid team name',
