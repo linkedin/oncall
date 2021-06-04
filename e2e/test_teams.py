@@ -19,6 +19,16 @@ def test_api_v0_create_team(team):
     # Add to team fixture to ensure cleanup
     team.mark_for_cleaning(team_name)
 
+@prefix('test_v0_create_team_with_space')
+def test_api_v0_create_team_with_space(team):
+    team_name = " v0_create_team "
+    requests.delete(api_v0('teams/'+team_name))
+    re = requests.post(api_v0('teams'), json={"name": team_name, 'scheduling_timezone': 'utc'})
+    teams = requests.get(api_v0('teams')).json()
+    assert "v0_create_team" in teams
+    assert " v0_create_team " not in teams
+    # Add to team fixture to ensure cleanup
+    team.mark_for_cleaning(team_name)
 
 @prefix('test_v0_invalid_team')
 def test_api_v0_create_invalid_team(team):
