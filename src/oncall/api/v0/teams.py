@@ -197,7 +197,7 @@ def on_post(req, resp):
             VALUES (%s, (SELECT `id` FROM `user` WHERE `name` = %s))'''
         cursor.execute(query, (team_id, req.context['user']))
         subscribe_notifications(team_name, req.context['user'], cursor)
-        create_audit({'team_id': team_id}, data['name'], TEAM_CREATED, req, cursor)
+        create_audit({'team_id': team_id}, team_name, TEAM_CREATED, req, cursor)
         connection.commit()
     except db.IntegrityError:
         raise HTTPError('422 Unprocessable Entity',
