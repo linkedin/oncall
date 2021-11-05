@@ -17,7 +17,7 @@ def load_sqldump(config, sqlfile, one_db=True):
     print('Importing %s...' % sqlfile)
     with open(sqlfile) as h:
         cmd = ['/usr/bin/mysql', '-h', config['host'], '-u',
-               config['user'], '-p' + config['password']]
+               config['user'], '-p' + config['password'],'-P' + str(config['port'])]
         if one_db:
             cmd += ['-o', config['database']]
         proc = subprocess.Popen(cmd, stdin=h)
