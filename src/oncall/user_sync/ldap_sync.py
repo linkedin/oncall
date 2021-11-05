@@ -438,6 +438,6 @@ def main(config):
 
 if __name__ == '__main__':
     config_path = sys.argv[1]
-    with open(config_path, 'r') as config_file:
+    with open(config_path, 'r', encoding='utf-8') as config_file:
         config = yaml.safe_load(config_file)
     main(config)
