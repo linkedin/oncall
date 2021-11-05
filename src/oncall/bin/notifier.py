@@ -34,7 +34,7 @@ default_timezone = None
 
 
 def load_config_file(config_path):
-    with open(config_path) as h:
+    with open(config_path, 'r', encoding='utf-8') as h:
         config = yaml.safe_load(h)
 
     if 'init_config_hook' in config:
