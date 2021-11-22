@@ -2,11 +2,11 @@
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES
-    (1,'root',1,'God User',NULL,NULL,1),
-    (2,'manager',1,'Team Admin',NULL,NULL,0),
-    (3,'jdoe',1,'Juan Doş',NULL,NULL,0),
-    (4,'asmith',1,'Alice Smith',NULL,NULL,0);
+INSERT INTO `user` (`id`,`name`,`hashed_password`,`active`,`full_name`,`time_zone`,`photo_url`,`god`) VALUES
+    (1,'root',NULL,1,'God User',NULL,NULL,1),
+    (2,'manager',NULL,1,'Team Admin',NULL,NULL,0),
+    (3,'jdoe',NULL,1,'Juan Doş',NULL,NULL,0),
+    (4,'asmith',NULL,1,'Alice Smith',NULL,NULL,0);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
