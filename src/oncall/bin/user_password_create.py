@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-from gevent import monkey, spawn
-monkey.patch_all()  # NOQA
-
 import argparse
 import bcrypt
 import getpass
@@ -11,7 +8,6 @@ import logging
 import logging.handlers
 import os
 import sys
-import importlib
 from oncall import utils, db
 from oncall.auth.modules.db_auth import Authenticator
 
