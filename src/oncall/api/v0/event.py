@@ -136,15 +136,11 @@ def on_put(req, resp, event_id):
             new_event[col] = data.get(col, event_data[col])
         now = time.time()
         if event_data['start'] < now - constants.GRACE_PERIOD or data['start'] < now - constants.GRACE_PERIOD:
-            # Make an exception for editing event end times
-            if not (all(event_data[key] == new_event[key] for key in ('role', 'start', 'user')) and
-                    data['end'] > now):
-                # Allow admins to edit in the past. If unauthorized for this action, return 400
-                try:
-                    check_team_auth(event_data['team'], req)
-                except HTTPUnauthorized:
-                    raise HTTPBadRequest('Invalid event update',
-                                         'Editing events in the past not allowed')
+            # Allow admins to edit in the past. If unauthorized for this action, return 400
+            try:
+                check_team_auth(event_data['team'], req)
+            except HTTPUnauthorized:
+                raise HTTPBadRequest('Invalid event update', 'Editing events in the past not allowed')
 
         check_calendar_auth(event_data['team'], req)
         if not user_in_team_by_name(cursor, new_event['user'], event_data['team']):
