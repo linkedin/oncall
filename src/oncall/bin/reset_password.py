@@ -77,9 +77,9 @@ def main():
     cursor = connection.cursor()
 
     cursor.execute("UPDATE `user` SET hashed_password = %s WHERE name = %s", (
-                       hashed_password,
-                       args.name,
-                   ))
+        hashed_password,
+        args.name,
+    ))
     connection.commit()
     cursor.close()
     connection.close()
