@@ -38,7 +38,7 @@ class HealthCheck(object):
                 with open(self.path) as f:
                     status = f.readline().strip()
             except:
-                logger.error('could not find healthcheck file')
+                logger.error('could not open healthcheck file')
                 raise HTTPNotFound()
         resp.content_type = 'text/plain'
         resp.body = status
