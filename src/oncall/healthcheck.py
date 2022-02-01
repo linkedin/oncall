@@ -5,7 +5,7 @@ from falcon import HTTPNotFound, HTTPInternalServerError
 from . import db
 
 import logging
-logger = logging.getLogger('oncall.app')
+logger = logging.getLogger(__name__)
 
 
 class HealthCheck(object):
@@ -31,13 +31,13 @@ class HealthCheck(object):
                 cursor.execute("SELECT VERSION();")
                 cursor.close()
                 connection.close()
-            except:
+            except Exception:
                 logger.exception('failed to query DB for healthcheck')
                 raise HTTPInternalServerError()
             try:
                 with open(self.path) as f:
                     status = f.readline().strip()
-            except:
+            except IOError:
                 logger.error('could not open healthcheck file')
                 raise HTTPNotFound()
         resp.content_type = 'text/plain'
