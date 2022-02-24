@@ -230,5 +230,6 @@ require_auth: False
 #     username: 'sAMAccountName'
 #     full_name: 'displayName'
 #     mail: 'mail'
+#     pushover: 'pushover'
 #     mobile: 'mobile'
 #   image_url: 'https://image.example.com/api/%s/picture'

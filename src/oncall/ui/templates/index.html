@@ -517,6 +517,7 @@
           {{/isEqual}}
         </li>
         <li> Slack: <a>{{getUserInfo this @root.users 'contacts.slack'}}</a> </li>
+        <li> Pushover: <a>{{getUserInfo this @root.users 'contacts.pushover'}}</a> </li>
         <li> E-Mail: <a target="_blank" href="mailto:{{getUserInfo this @root.users 'contacts.email'}}"> {{getUserInfo this @root.users 'contacts.email'}} </a> </li>
       </ul>
     </div>
@@ -570,6 +571,7 @@
               <li> Call: {{#if user_contacts.call}} <a href="tel:{{user_contacts.call}}"> {{user_contacts.call}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
               <li> SMS: {{#if user_contacts.sms}} <a href="tel:{{user_contacts.sms}}"> {{user_contacts.sms}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
               <li> Slack: <a>{{user_contacts.slack}}</a> </li>
+              <li> Pushover: <a>{{user_contacts.pushover}}</a> </li>
               <li> E-Mail: <a target="_blank" href="mailto:{{user_contacts.email}}"> {{user_contacts.email}} </a> </li>
             </ul>
             <ul class="border-top card-content">
@@ -1334,6 +1336,7 @@
         <li> <span class="light"> Call </span> {{#if user.contacts.call}} <a href="tel:{{user.contacts.call}}" target="_blank"> {{user.contacts.call}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
         <li> <span class="light"> SMS </span> {{#if user.contacts.sms}} <a href="tel:{{user.contacts.sms}}" target="_blank"> {{user.contacts.sms}} </a> {{else}} <span class="error-text">No number found!</span> {{/if}} </li>
         <li> <span class="light"> Slack </span> <a> {{user.contacts.slack}} </a> </li>
+        <li> <span class="light"> Pushover </span> <a> {{user.contacts.pushover}} </a> </li>
         <span class="close remove-card-item" data-admin-action="true" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.info.removeCardItem" data-modal-title="Remove {{user.full_name}}" data-modal-content="Delete {{user.full_name}} from roster?">
           <i class="svg-icon svg-icon-trash">
             <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
@@ -1373,6 +1376,7 @@
           {{/isEqual}}
         </li>
         <li> <span class="light"> Slack </span> <a> {{getUserInfo this @root.users 'contacts.slack'}} </a></li>
+        <li> <span class="light"> Pushover </span> <a> {{getUserInfo this @root.users 'contacts.pushover'}} </a></li>
         <span class="close remove-card-item" data-admin-action="true" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.info.removeCardItem" data-modal-title="Remove {{getUserInfo this @root.users 'full_name'}}" data-modal-content="Delete {{getUserInfo this @root.users 'full_name'}} from roster?">
           <i class="svg-icon svg-icon-trash">
             <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 8 8">
