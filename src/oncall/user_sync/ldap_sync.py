@@ -238,6 +238,12 @@ def update_user(username, ldap_contacts, engine):
             stats['user_photos_updated'] += 1
         for mode in modes:
             if mode in ldap_contacts and ldap_contacts[mode]:
+                if isinstance(ldap_contacts[mode], list):
+                    ldap_contacts[mode] = ldap_contacts[mode][0]
+                try:
+                    ldap_contacts[mode] = ldap_contacts[mode].decode()
+                except (UnicodeDecodeError, AttributeError):
+                    pass
                 if mode in db_contacts:
                     if ldap_contacts[mode] != db_contacts[mode]:
                         logger.debug('\tupdating %s (%s -> %s)' % (mode, db_contacts[mode], ldap_contacts[mode]))
@@ -372,6 +378,12 @@ def sync(config, engine):
                 stats['user_photos_updated'] += 1
             for mode in modes:
                 if mode in ldap_contacts and ldap_contacts[mode]:
+                    if isinstance(ldap_contacts[mode], list):
+                        ldap_contacts[mode] = ldap_contacts[mode][0]
+                    try:
+                        ldap_contacts[mode] = ldap_contacts[mode].decode()
+                    except (UnicodeDecodeError, AttributeError):
+                        pass
                     if mode in db_contacts:
                         if ldap_contacts[mode] != db_contacts[mode]:
                             logger.debug('\tupdating %s', mode)
