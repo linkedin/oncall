@@ -4,9 +4,47 @@
 from urllib.parse import unquote
 
 from falcon import HTTPNotFound
+from ujson import dumps as json_dumps
 
 from ...auth import login_required, check_team_auth
 from ... import db
+
+
+def on_get(req, resp):
+    """
+    Get list of team to user mappings
+
+    **Example request**:
+
+    .. sourcecode:: http
+
+        GET /api/v0/team_users  HTTP/1.1
+        Host: example.com
+
+    **Example response**:
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+
+        [
+            {
+                "team": "team1",
+                "user" : "jdoe"
+            }
+        ]
+    """
+    query = '''SELECT `team`.`name` as team_name, `user`.`name` as user_name FROM `team_user`
+                      JOIN `user` ON `team_user`.`user_id`=`user`.`id`
+                      JOIN `team` ON `team_user`.`team_id`=`team`.`id`'''
+    connection = db.connect()
+    cursor = connection.cursor()
+    cursor.execute(query)
+    data = [{'team': r[0], 'user': r[1]} for r in cursor]
+    cursor.close()
+    connection.close()
+    resp.body = json_dumps(data)
 
 
 @login_required

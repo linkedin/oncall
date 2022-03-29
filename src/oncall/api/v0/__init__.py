@@ -16,6 +16,7 @@ def init(application, config):
     application.add_route('/api/v0/teams/{team}/admins/{user}', team_admin)
 
     from . import team_users, team_user
+    application.add_route('/api/v0/team_users', team_user)
     application.add_route('/api/v0/teams/{team}/users', team_users)
     application.add_route('/api/v0/teams/{team}/users/{user}', team_user)
 
@@ -45,6 +46,7 @@ def init(application, config):
     application.add_route('/api/v0/services/{service}/oncall/{role}', service_oncall)
 
     from . import team_services, team_service, service_teams
+    application.add_route('/api/v0/team_services', team_service)
     application.add_route('/api/v0/teams/{team}/services', team_services)
     application.add_route('/api/v0/teams/{team}/services/{service}', team_service)
     application.add_route('/api/v0/services/{service}/teams', service_teams)

@@ -195,6 +195,14 @@ def test_api_v0_team_members(team, user, roster):
     assert isinstance(users, list)
     assert set(users) == set([user_name, test_user])
 
+    # test the user shows up in the team_users endpoint to
+    re = requests.get(api_v0('team_users'))
+    assert re.status_code == 200
+    team_users = re.json()
+    assert isinstance(users, list)
+    users = set(item['user'] for item in team_users if item['team'] == team_name)
+    assert set(users) == set([user_name, test_user])
+
     # test duplicate user creation
     re = requests.post(api_v0('teams/%s/users') % team_name, json={'name': user_name})
     assert re.status_code == 422
