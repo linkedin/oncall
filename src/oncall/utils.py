@@ -77,7 +77,7 @@ def subscribe_notifications(team, user, cursor):
                                                                       `type_id`, `time_before`)
                                   VALUES ((SELECT id FROM user WHERE name = %s),
                                           (SELECT id FROM team WHERE name = %s),
-                                          (SELECT id FROM contact_mode WHERE name = %s),
+                                          (SELECT id FROM contact_mode WHERE name = %s LIMIT 1),
                                           (SELECT id FROM notification_type WHERE name = %s),
                                            %s);''',
                                (user, team, mode, ONCALL_REMINDER, time))

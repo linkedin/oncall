@@ -132,7 +132,7 @@ def metrics_sender():
 
 
 def main():
-    with open(sys.argv[1], 'r') as config_file:
+    with open(sys.argv[1], 'r', encoding='utf-8') as config_file:
         config = yaml.safe_load(config_file)
 
     init_notifier(config)
