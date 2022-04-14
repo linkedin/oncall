@@ -3,14 +3,25 @@ version: '3'
 services:
   oncall-web:
     build: .
+    hostname: oncall
     ports:
       - "8080:8080"
     environment:
       - DOCKER_DB_BOOTSTRAP=1
+      - IRIS_API_HOST=iris
     volumes:
       - ./configs/config.docker.yaml:/home/oncall/config/config.yaml
-
+    networks:
+      - iris
+  
   oncall-mysql:
+    hostname: oncall-mysql
     image: mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=1234
+    networks:
+      - iris
+
+networks:
+  iris:
+    name: iris
