@@ -12,6 +12,7 @@ COPY src /home/oncall/source/src
 COPY setup.py /home/oncall/source/setup.py
 COPY MANIFEST.in /home/oncall/source/MANIFEST.in
 COPY README.md /home/oncall/source/README.md
+COPY LICENSE /home/oncall/source/LICENSE
 
 WORKDIR /home/oncall
 
@@ -20,7 +21,6 @@ RUN chown -R oncall:oncall /home/oncall/source /var/log/nginx /var/lib/nginx \
     && sudo -Hu oncall python3 -m venv /home/oncall/env \
     && sudo -Hu oncall /bin/bash -c 'source /home/oncall/env/bin/activate && cd /home/oncall/source && pip install wheel && pip install .'
 
-COPY . /home/oncall
 COPY ops/config/systemd /etc/systemd/system
 COPY ops/daemons /home/oncall/daemons
 COPY ops/daemons/uwsgi-docker.yaml /home/oncall/daemons/uwsgi.yaml
