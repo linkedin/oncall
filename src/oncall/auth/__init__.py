@@ -34,6 +34,27 @@ def is_god(challenger):
 def check_ical_key_admin(challenger):
     return is_god(challenger)
 
+def check_user_auth_event(eventId, req):
+    """
+     Check if the event Id is on a team where user is admin
+    """
+    if 'app' in req.context:
+        return
+    challenger = req.context['user']
+    connection = db.connect()
+    cursor = connection.cursor()
+    get_allowed_query = '''SELECT DISTINCT(event.id )
+       from event JOIN team on team.id = event.team_id
+       JOIN team_admin on team.id = team_admin.team_id
+       JOIN user on team_admin.user_id = user.id
+       WHERE event.id = %s and user.name = %s'''
+    cursor.execute(get_allowed_query, (eventId, challenger))
+    user_in_query = cursor.rowcount
+    cursor.close()
+    connection.close()
+    if user_in_query != 0 or is_god(challenger):
+        return
+    raise HTTPForbidden('Unauthorized', 'Action not allowed for "%s"' % challenger) 
 
 def check_user_auth(user, req):
     """
