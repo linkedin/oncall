@@ -39,6 +39,7 @@ GRACE_PERIOD = None
 
 SUPPORTED_TIMEZONES = None
 
+AUTH_USER_CAL_MOD = None
 
 def init(config):
     global DEFAULT_ROLES
@@ -46,8 +47,10 @@ def init(config):
     global DEFAULT_TIMES
     global SUPPORTED_TIMEZONES
     global GRACE_PERIOD
+    global AUTH_USER_CAL_MOD
     DEFAULT_ROLES = config['notifications']['default_roles']
     DEFAULT_MODES = config['notifications']['default_modes']
     DEFAULT_TIMES = config['notifications']['default_times']
     SUPPORTED_TIMEZONES = config['supported_timezones']
     GRACE_PERIOD = config.get('grace_period', 86400)
+    AUTH_USER_CAL_MOD = config.get('auth_user_cal_mod')
