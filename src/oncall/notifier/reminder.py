@@ -48,8 +48,12 @@ def reminder(config):
     cursor.execute('SELECT `last_window_end` FROM `notifier_state`')
     if cursor.rowcount != 1:
         window_start = int(time.time() - interval)
-        logger.warning('Corrupted/missing notifier state; unable to determine last window. Guessing %s',
+        logger.warning('Corrupted/missing notifier state; unable to determine last window. Guessing %s. Creating state in database',
                        window_start)
+        # create a clean state in the datebase
+        cursor.execute('DELETE FROM `notifier_state`')
+        cursor.execute('INSERT INTO `notifier_state` (`last_window_end`) VALUES (%s) ', window_start)
+        connection.commit()
     else:
         window_start = cursor.fetchone()[0]
 
