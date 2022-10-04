@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def normalize_phone_number(num):
-    return format_number(parse(num.decode('utf-8'), 'US'), PhoneNumberFormat.INTERNATIONAL)
+    return format_number(parse(num, 'US'), PhoneNumberFormat.INTERNATIONAL)
 
 
 def fetch_oncall_usernames(connection):
@@ -68,7 +68,7 @@ def sync_action(slack_client):
     slack_users = {}
 
     for m in slack_members:
-        if m['name'] == 'slackbot' or m['deleted']:
+        if m['name'] == 'slackbot' or m['deleted'] or m['is_bot']:
             continue
         user_profile = m['profile']
         slack_users[m['name']] = {
@@ -77,7 +77,7 @@ def sync_action(slack_client):
             'photo_url': user_profile['image_512'],
             'email': user_profile['email'],
         }
-        if 'phone' in user_profile:
+        if 'phone' in user_profile and user_profile['phone']:
             slack_users[m['name']]['phone'] = normalize_phone_number(user_profile['phone'])
 
     connection = db.connect()
