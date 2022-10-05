@@ -74,7 +74,7 @@ def reminder(config):
             WHERE `e`.`id` IS NULL AND `user`.`active` = 1
     '''
 
-    while(1):
+    while (1):
         logger.info('Reminder polling loop started')
         window_end = int(time.time())
 
