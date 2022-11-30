@@ -71,8 +71,8 @@ Services
 ````````
 
 You can link services to your team here. One service can only be linked to one
-team. This is currently backfilled from go/owners. Linking a service here will
-show your team as the result when users search for the service.
+team. Linking a service here will show your team as the result when users search
+for the service.
 
 .. TODO: link service screenshot
 

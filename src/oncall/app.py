@@ -4,6 +4,7 @@ from urllib.parse import unquote_plus
 from importlib import import_module
 
 import falcon
+import os
 import re
 from beaker.middleware import SessionMiddleware
 from falcon_cors import CORS
@@ -130,7 +131,7 @@ def init(config):
              "default-src 'self' %s 'unsafe-eval' ; "
              "font-src 'self' data: blob; img-src data: uri https: http:; "
              "style-src 'unsafe-inline' https: http:;" %
-             config.get('iris_plan_integration', {}).get('api_host', '')))
+             os.environ.get("IRIS_API_HOST", config.get('iris_plan_integration', {}).get('api_host', ''))))
         logging.basicConfig(level=logging.INFO)
         logger.info('%s', security_headers)
     else:

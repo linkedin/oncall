@@ -51,6 +51,13 @@ def test_teams_services_mappings(team, service):
                        json={'name': service_name})
     assert re.status_code == 201
 
+    # test get all team,service pairs
+    re = requests.get(api_v0('team_services'))
+    assert re.status_code == 200
+    team_services = re.json()
+    assert isinstance(team_services, list)
+    assert (team_name, service_name) in set((item['team'], item['service']) for item in team_services)
+
     # test get service list for a team
     re = requests.get(api_v0('teams/%s/services' % team_name))
     assert re.status_code == 200
