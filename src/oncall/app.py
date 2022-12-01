@@ -76,6 +76,7 @@ def init_falcon_api(config):
     application = falcon.API(middleware=middlewares)
     application.req_options.auto_parse_form_urlencoded = False
     application.set_error_serializer(json_error_serializer)
+    application.req_options.strip_url_path_trailing_slash = True
     from .auth import init as init_auth
     init_auth(application, config['auth'])
 
