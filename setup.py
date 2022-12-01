@@ -45,6 +45,7 @@ setuptools.setup(
         'cryptography==2.3',
         'python-ldap',
         'pytz',
+        'irisclient',
         'slackclient==1.3.1',
         'icalendar',
         'pymsteams',
