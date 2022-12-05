@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: cimg/python:3.10.8-browsers
-      - image: mysql/mysql-server:5.7.33
+      - image: mysql/mysql-server:8.0
         environment:
           - MYSQL_ROOT_PASSWORD=1234
           - MYSQL_ROOT_HOST=%
@@ -14,7 +14,7 @@ jobs:
           name: Install dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install libsasl2-dev python3-dev libldap2-dev libssl-dev mysql-server
+            sudo apt-get install libsasl2-dev python3-dev libldap2-dev libssl-dev mysql-client
       - run:
           name: Prepare virtualenv
           command: |
