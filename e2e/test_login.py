@@ -59,12 +59,12 @@ class TestLogin(TestCase):
             ReqBodyMiddleware(),
         ])
         api.req_options.auto_parse_form_urlencoded = False
-        self.api = api
-        self.api.add_route('/login', login)
-        self.api.add_route('/logout', logout)
-        self.api.add_route('/dummy/{user}', self.UserDummy())
-        self.api.add_route('/dummy2/{team}', self.TeamDummy())
-        self.api = SessionMiddleware(self.api, self.session_opts)
+        self.app = api
+        self.app.add_route('/login', login)
+        self.app.add_route('/logout', logout)
+        self.app.add_route('/dummy/{user}', self.UserDummy())
+        self.app.add_route('/dummy2/{team}', self.TeamDummy())
+        self.app = SessionMiddleware(self.app, self.session_opts)
 
         self.user_name = 'test_login_user'
         self.admin_name = 'test_login_admin'
@@ -110,7 +110,7 @@ class TestLogin(TestCase):
         # Test good login, auth check on self
         re = self.simulate_post('/login', body='username=%s&password=abc' % self.user_name)
         assert re.status_code == 200
-        cookies = re.headers['set-cookie']
+        cookies = re.headers.get('set-cookie')
         token = str(re.json['csrf_token'])
         re = self.simulate_get('/dummy/'+self.user_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
         assert re.status_code == 200
@@ -118,7 +118,7 @@ class TestLogin(TestCase):
         # Test good login, auth check on manager
         re = self.simulate_post('/login', body='username=%s&password=abc' % self.admin_name)
         assert re.status_code == 200
-        cookies = re.headers['set-cookie']
+        cookies = re.headers.get('set-cookie')
         token = str(re.json['csrf_token'])
         re = self.simulate_get('/dummy/'+self.user_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
         assert re.status_code == 200
@@ -127,14 +127,14 @@ class TestLogin(TestCase):
         # Test good login, auth check on manager
         re = self.simulate_post('/login', body='username=%s&password=abc' % self.admin_name)
         assert re.status_code == 200
-        cookies = re.headers['set-cookie']
+        cookies = re.headers.get('set-cookie')
         token = str(re.json['csrf_token'])
         re = self.simulate_get('/dummy2/'+self.team_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
         assert re.status_code == 200
 
     def test_logout(self):
         re = self.simulate_post('/login', body='username=%s&password=abc' % self.user_name)
-        cookies = re.headers['set-cookie']
+        cookies = re.headers.get('set-cookie')
         assert re.status_code == 200
         token = str(re.json['csrf_token'])
         try:
@@ -151,6 +151,6 @@ class TestLogin(TestCase):
         # Test good login, auth check on manager
         re = self.simulate_post('/login', body='username=%s&password=abc' % self.admin_name)
         assert re.status_code == 200
-        cookies = re.headers['set-cookie']
+        cookies = re.headers.get('set-cookie')
         re = self.simulate_get('/dummy2/'+self.team_name, headers={'X-CSRF-TOKEN': 'foo', 'Cookie': cookies})
         assert re.status_code == 401
