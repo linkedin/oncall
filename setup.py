@@ -28,9 +28,10 @@ setuptools.setup(
     include_package_data=True,
     install_requires=[
         'falcon==3.1.1',
+        'falcon-cors',
         'greenlet==2.0.1',
-        'asn1crypto==1.0.0',
         'gevent==22.10.2',
+        'asn1crypto==1.0.0',
         'ujson',
         'markupsafe==2.0.1',
         'sqlalchemy',
