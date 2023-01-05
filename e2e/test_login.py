@@ -55,7 +55,7 @@ class TestLogin(TestCase):
     def setUp(self):
         super(TestLogin, self).setUp()
         login.auth_manager = self.DummyAuthenticator()
-        api = falcon.API(middleware=[
+        api = falcon.App(middleware=[
             ReqBodyMiddleware(),
         ])
         api.req_options.auto_parse_form_urlencoded = False
