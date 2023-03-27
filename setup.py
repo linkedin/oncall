@@ -34,7 +34,7 @@ setuptools.setup(
         'asn1crypto==1.0.0',
         'ujson',
         'markupsafe==2.0.1',
-        'sqlalchemy',
+        'sqlalchemy<2.0.0',
         'PyYAML',
         'PyMYSQL',
         'phonenumbers',
