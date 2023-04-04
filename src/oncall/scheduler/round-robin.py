@@ -1,4 +1,5 @@
-from oncall.utils import gen_link_id
+from oncall.utils import gen_link_id, create_notification
+from ..constants import EVENT_CREATED
 from . import default
 import logging
 
@@ -62,6 +63,19 @@ class Scheduler(default.Scheduler):
                     %%s, %%s, %%s, %%s, %%s, %%s
                 )''' % table_name
             cursor.execute(query, event_args)
+            cursor.execute('SELECT `name` FROM `user` WHERE `id` = %s', user_id)
+            name = cursor.fetchone()
+            context = {
+                'team': team_id,
+                'role': role_id,
+                'full_name': name
+            }
+            create_notification(context, team_id,
+                                [role_id],
+                                EVENT_CREATED,
+                                [user_id],
+                                cursor,
+                                start_time=event['start'])
         else:
             link_id = gen_link_id()
             for event in events:
@@ -74,6 +88,19 @@ class Scheduler(default.Scheduler):
                         %%s, %%s, %%s, %%s, %%s, %%s, %%s
                     )''' % table_name
                 cursor.execute(query, event_args)
+                cursor.execute('SELECT `name` FROM `user` WHERE `id` = %s', user_id)
+                name = cursor.fetchone()
+                context = {
+                    'team': team_id,
+                    'role': role_id,
+                    'full_name': name
+                }
+                create_notification(context, team_id,
+                                    [role_id],
+                                    EVENT_CREATED,
+                                    [user_id],
+                                    cursor,
+                                    start_time=event['start'])
         cursor.execute('UPDATE `schedule` SET `last_scheduled_user_id` = %s WHERE `id` = %s', (user_id, schedule_id))
 
     def populate(self, schedule, start_time, dbinfo, table_name='event'):

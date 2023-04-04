@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from pytz import timezone, utc
-from oncall.utils import gen_link_id
+from oncall.utils import gen_link_id, create_notification
+from ..constants import EVENT_CREATED
 from falcon import HTTPBadRequest
 from ujson import dumps as json_dumps
 import time
@@ -163,6 +164,19 @@ class Scheduler(object):
                     %%s, %%s, %%s, %%s, %%s, %%s
                 )''' % table_name
             cursor.execute(query, event_args)
+            cursor.execute('SELECT `name` FROM `user` WHERE `id` = %s', user_id)
+            name = cursor.fetchone()
+            context = {
+                'team': team_id,
+                'role': role_id,
+                'full_name': name
+            }
+            create_notification(context, team_id,
+                                [role_id],
+                                EVENT_CREATED,
+                                [user_id],
+                                cursor,
+                                start_time=event['start'])
         else:
             link_id = gen_link_id()
             for event in events:
@@ -175,6 +189,19 @@ class Scheduler(object):
                         %%s, %%s, %%s, %%s, %%s, %%s, %%s
                     )''' % table_name
                 cursor.execute(query, event_args)
+                cursor.execute('SELECT `name` FROM `user` WHERE `id` = %s', user_id)
+                name = cursor.fetchone()
+                context = {
+                    'team': team_id,
+                    'role': role_id,
+                    'full_name': name
+                }
+                create_notification(context, team_id,
+                                    [role_id],
+                                    EVENT_CREATED,
+                                    [user_id],
+                                    cursor,
+                                    start_time=event['start'])
 
     def set_last_epoch(self, schedule_id, last_epoch, cursor):
         cursor.execute('UPDATE `schedule` SET `last_epoch_scheduled` = %s WHERE `id` = %s',
