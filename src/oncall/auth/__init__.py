@@ -154,10 +154,17 @@ def authenticate_application(auth_token, req):
             cursor.close()
             connection.close()
             window = int(time.time()) // 5
+            long_window = int(time.time()) // 30
             if is_client_digest_valid(client_digest, api_key, window, method, path, body):
                 req.context['app'] = app_name
                 return
             elif is_client_digest_valid(client_digest, api_key, window - 1, method, path, body):
+                req.context['app'] = app_name
+                return
+            elif is_client_digest_valid(client_digest, api_key, long_window, method, path, body):
+                req.context['app'] = app_name
+                return
+            elif is_client_digest_valid(client_digest, api_key, long_window - 1, method, path, body):
                 req.context['app'] = app_name
                 return
             else:

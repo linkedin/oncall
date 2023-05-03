@@ -129,6 +129,7 @@ def on_post(req, resp):
             "email": "team-foo@example.com",
             "slack_channel": "#team-foo",
             "slack_channel_notifications": "#team-foo-alerts",
+            "admin": "user_foo"
         }
 
     **Example response:**
@@ -142,9 +143,6 @@ def on_post(req, resp):
     :statuscode 400: Error in creating team. Possible errors: API key auth not allowed, invalid attributes, missing required attributes
     :statuscode 422: Duplicate team name
     '''
-    if 'user' not in req.context:
-        # ban API auth because we don't know who to set as team admin
-        raise HTTPBadRequest('invalid login', 'API key auth is not allowed for team creation')
 
     data = load_json_body(req)
     if not data.get('name'):
@@ -181,6 +179,16 @@ def on_post(req, resp):
 
     connection = db.connect()
     cursor = connection.cursor()
+    # if team creation request is coming from api use the username from the admin field in lieu of the user context var
+    if 'user' not in req.context:
+        if not data.get('admin'):
+            raise HTTPBadRequest('invalid admin', 'API requests must specify a team admin username in the admin field')
+        user = data.get('admin')
+        cursor.execute('''SELECT `id` FROM `user` WHERE `name` = %s LIMIT 1''', (user, ))
+        if cursor.rowcount == 0:
+            raise HTTPBadRequest('invalid admin', 'admin username %s was not found in db' % user)
+        req.context['user'] = user
+
     try:
         cursor.execute('''INSERT INTO `team` (`name`, `slack_channel`, `slack_channel_notifications`, `email`, `scheduling_timezone`,
                                               `iris_plan`, `iris_enabled`, `override_phone_number`)
