@@ -215,10 +215,10 @@ def on_put(req, resp, team):
         if plan_resp.status_code != 200 or plan_resp.json() == []:
             raise HTTPBadRequest('invalid iris escalation plan', 'no iris plan named %s exists' % iris_plan)
     if 'iris_enabled' in data:
-        if not type(data['iris_enabled'])==bool:
+        if not type(data['iris_enabled']) == bool:
             raise HTTPBadRequest('invalid payload', 'iris_enabled must be boolean')
     if 'api_managed_roster' in data:
-        if not type(data['api_managed_roster'])==bool:
+        if not type(data['api_managed_roster']) == bool:
             raise HTTPBadRequest('invalid payload', 'api_managed_roster must be boolean')
     if 'scheduling_timezone' in data:
         if data['scheduling_timezone'] not in SUPPORTED_TIMEZONES:
