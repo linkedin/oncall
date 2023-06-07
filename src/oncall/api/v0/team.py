@@ -11,11 +11,11 @@ from .users import get_user_data
 from .rosters import get_roster_by_team_id
 from ...auth import login_required, check_team_auth
 from ...utils import load_json_body, invalid_char_reg, create_audit
-from ...constants import TEAM_DELETED, TEAM_EDITED
+from ...constants import TEAM_DELETED, TEAM_EDITED, SUPPORTED_TIMEZONES
 
 # Columns which may be modified
 cols = set(['name', 'slack_channel', 'slack_channel_notifications', 'email', 'scheduling_timezone',
-            'iris_plan', 'iris_enabled', 'override_phone_number'])
+            'iris_plan', 'iris_enabled', 'override_phone_number', 'api_managed_roster'])
 
 
 def populate_team_users(cursor, team_dict):
@@ -148,7 +148,7 @@ def on_get(req, resp, team):
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
     cursor.execute('''SELECT `id`, `name`, `email`, `slack_channel`, `slack_channel_notifications`,
-                             `scheduling_timezone`, `iris_plan`, `iris_enabled`, `override_phone_number`
+                             `scheduling_timezone`, `iris_plan`, `iris_enabled`, `override_phone_number`, `api_managed_roster`
                       FROM `team` WHERE `name`=%s AND `active` = %s''', (team, active))
     results = cursor.fetchall()
     if not results:
@@ -172,7 +172,8 @@ def on_get(req, resp, team):
 @login_required
 def on_put(req, resp, team):
     '''
-    Edit a team's information. Allows edit of: name, slack_channel, email, scheduling_timezone, iris_plan.
+    Edit a team's information. Allows edit of: 'name', 'slack_channel', 'slack_channel_notifications', 'email', 'scheduling_timezone',
+    'iris_plan', 'iris_enabled', 'override_phone_number', 'api_managed_roster'
 
     **Example request:**
 
@@ -213,9 +214,18 @@ def on_put(req, resp, team):
         plan_resp = iris.client.get(iris.client.url + 'plans?name=%s&active=1' % iris_plan)
         if plan_resp.status_code != 200 or plan_resp.json() == []:
             raise HTTPBadRequest('invalid iris escalation plan', 'no iris plan named %s exists' % iris_plan)
+    if 'iris_enabled' in data:
+        if not type(data['iris_enabled']) == bool:
+            raise HTTPBadRequest('invalid payload', 'iris_enabled must be boolean')
+    if 'api_managed_roster' in data:
+        if not type(data['api_managed_roster']) == bool:
+            raise HTTPBadRequest('invalid payload', 'api_managed_roster must be boolean')
+    if 'scheduling_timezone' in data:
+        if data['scheduling_timezone'] not in SUPPORTED_TIMEZONES:
+            raise HTTPBadRequest('invalid payload', 'requested scheduling_timezone is not supported. Supported timezones: %s' % str(SUPPORTED_TIMEZONES))
 
     set_clause = ', '.join(['`{0}`=%s'.format(d) for d in data_cols if d in cols])
-    query_params = tuple(data[d] for d in data_cols) + (team,)
+    query_params = tuple(data[d] for d in data_cols if d in cols) + (team,)
     try:
         update_query = 'UPDATE `team` SET {0} WHERE name=%s'.format(set_clause)
         cursor.execute(update_query, query_params)

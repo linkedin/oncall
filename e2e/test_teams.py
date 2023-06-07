@@ -70,7 +70,7 @@ def test_api_v0_get_team(team, role, roster, schedule):
     team = re.json()
     assert isinstance(team, dict)
     expected_set = {'users', 'admins', 'services', 'rosters', 'name', 'id', 'slack_channel', 'slack_channel_notifications', 'email',
-        'scheduling_timezone', 'iris_plan', 'iris_enabled', 'override_phone_number'}
+        'scheduling_timezone', 'iris_plan', 'iris_enabled', 'override_phone_number', 'api_managed_roster'}
     assert expected_set == set(team.keys())
 
     # it should also support filter by fields
@@ -79,7 +79,7 @@ def test_api_v0_get_team(team, role, roster, schedule):
     team = re.json()
     assert isinstance(team, dict)
     expected_set = {'users', 'admins', 'services', 'name', 'id', 'slack_channel', 'slack_channel_notifications', 'email',
-                    'scheduling_timezone', 'iris_plan', 'iris_enabled', 'override_phone_number'}
+                    'scheduling_timezone', 'iris_plan', 'iris_enabled', 'override_phone_number', 'api_managed_roster'}
     assert expected_set == set(team.keys())
 
 
@@ -113,6 +113,7 @@ def test_api_v0_update_team(team):
     # edit team name/email/slack
     re = requests.put(api_v0('teams/'+team_name), json={'name': new_team_name,
                                                         'email': email,
+                                                        'api_managed_roster': True,
                                                         'slack_channel': slack,
                                                         'slack_channel_notifications': slack_notifications,
                                                         'override_phone_number': override_num})
@@ -128,6 +129,7 @@ def test_api_v0_update_team(team):
     assert data['slack_channel'] == slack
     assert data['slack_channel_notifications'] == slack_notifications
     assert data['override_phone_number'] == override_num
+    assert data['api_managed_roster'] == 1
 
 
 @prefix('test_v0_team_admin')

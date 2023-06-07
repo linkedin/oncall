@@ -333,6 +333,11 @@
             <a href="https://{% endraw %}{{slack_instance}}{% raw %}.slack.com/messages/{{stripHash slack_channel_notifications}}/" target="_blank">{{slack_channel_notifications}}</a>
           {{/if}}
         </h4>
+        <h4>
+          {{#if api_managed_roster}}
+            Managed team - this team is managed via API
+          {{/if}}
+        </h4>
         {% endraw %} {% endif %} {% raw %}
       </div>
       <div class="pull-right">

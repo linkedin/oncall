@@ -1364,7 +1364,8 @@ var oncall = {
           data.isAdmin = true;
         } else {
           for (var i in data.admins) {
-            if (data.admins[i].name === oncall.data.user) {
+            // if team api managed and user is not superadmin then disable editing of team info
+            if (data.admins[i].name === oncall.data.user && !data.api_managed_roster) {
               data.isAdmin = true;
             }
           }
