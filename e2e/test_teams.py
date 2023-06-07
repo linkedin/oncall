@@ -129,7 +129,7 @@ def test_api_v0_update_team(team):
     assert data['slack_channel'] == slack
     assert data['slack_channel_notifications'] == slack_notifications
     assert data['override_phone_number'] == override_num
-    assert data['api_managed_roster'] is True
+    assert data['api_managed_roster'] == 1
 
 
 @prefix('test_v0_team_admin')
