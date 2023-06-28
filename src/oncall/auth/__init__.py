@@ -7,6 +7,7 @@ import hmac
 import hashlib
 import base64
 import importlib
+from urllib.parse import quote
 from falcon import HTTPUnauthorized, HTTPForbidden, Request
 from .. import db
 
@@ -127,7 +128,7 @@ def check_calendar_auth_by_id(team_id, req):
 
 
 def is_client_digest_valid(client_digest, api_key, window, method, path, body):
-    text = '%s %s %s %s' % (window, method, path, body)
+    text = '%s %s %s %s' % (window, method, quote(path), body)
     HMAC = hmac.new(api_key, text.encode('utf-8'), hashlib.sha512)
     digest = base64.urlsafe_b64encode(HMAC.digest())
     if hmac.compare_digest(bytes(client_digest, 'utf-8'), digest):
