@@ -128,7 +128,13 @@ def check_calendar_auth_by_id(team_id, req):
 
 
 def is_client_digest_valid(client_digest, api_key, window, method, path, body):
+    # calulate HMAC hash with quoted and unquoted path for legacy client backwards compatibility
     text = '%s %s %s %s' % (window, method, quote(path), body)
+    HMAC = hmac.new(api_key, text.encode('utf-8'), hashlib.sha512)
+    digest = base64.urlsafe_b64encode(HMAC.digest())
+    if hmac.compare_digest(bytes(client_digest, 'utf-8'), digest):
+        return True
+    text = '%s %s %s %s' % (window, method, path, body)
     HMAC = hmac.new(api_key, text.encode('utf-8'), hashlib.sha512)
     digest = base64.urlsafe_b64encode(HMAC.digest())
     if hmac.compare_digest(bytes(client_digest, 'utf-8'), digest):
