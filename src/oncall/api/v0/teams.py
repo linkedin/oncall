@@ -26,6 +26,7 @@ constraints = {
     'email__endswith': '`team`.`email` LIKE CONCAT("%%", %s)',
 }
 
+
 def get_team_ids(cursor, team_names):
     if not team_names:
         return []
