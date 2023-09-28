@@ -3,7 +3,7 @@ server:
   port: 8080
 debug: True
 oncall_host: http://localhost:8080
-metrics: dummy
+metrics: prometheus
 db:
   conn:
     kwargs:
@@ -27,6 +27,11 @@ auth:
 notifier:
   skipsend: True
 healthcheck_path: /tmp/status
+
+prometheus:
+  oncall-notifier:
+    server_port: 8081
+
 messengers:
   - type: dummy
     application: oncall

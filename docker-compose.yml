@@ -6,6 +6,7 @@ services:
     hostname: oncall
     ports:
       - "8080:8080"
+      - "8081:8081"
     environment:
       - DOCKER_DB_BOOTSTRAP=1
       - IRIS_API_HOST=iris
@@ -22,6 +23,16 @@ services:
     networks:
       - iris
 
+  prometheus:
+    image: bitnami/prometheus:latest
+    ports:
+      - "9090:9090"
+    depends_on:
+      - oncall-web
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - iris
+
 networks:
   iris:
-    name: iris

@@ -48,7 +48,8 @@ setuptools.setup(
         'slackclient==1.3.1',
         'icalendar',
         'pymsteams',
-        'idna==2.10'
+        'idna==2.10',
+        'prometheus_client',
     ],
     extras_require={
         'ldap': ['python-ldap'],

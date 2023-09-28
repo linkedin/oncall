@@ -5,7 +5,7 @@ server:
   host: 0.0.0.0
   port: 8080
 oncall_host: http://localhost:8080
-metrics: dummy
+metrics: prometheus
 db:
   conn:
     kwargs:
@@ -21,6 +21,10 @@ db:
   kwargs:
     pool_recycle: 3600
 healthcheck_path: /tmp/status
+
+prometheus:
+  oncall-notifier:
+    server_port: 8081
 
 # Keys for encrypting/signing session cookies.
 # Change to random long values in production.
