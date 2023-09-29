@@ -12,6 +12,7 @@ services:
       - IRIS_API_HOST=iris
     volumes:
       - ./configs/config.docker.yaml:/home/oncall/config/config.yaml
+      - node:/home/oncall/node-exporter/textfile-collector:rw
     networks:
       - iris
   
@@ -30,9 +31,37 @@ services:
     depends_on:
       - oncall-web
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - iris
+
+  node-exporter:
+    image: bitnami/node-exporter:latest
+    ports:
+      - "9100:9100"
+    depends_on:
+      - prometheus
+    command:
+      - --no-collector.conntrack
+      - --no-collector.dmi
+      - --no-collector.fibrechannel
+      - --no-collector.hwmon
+      - --no-collector.infiniband
+      - --no-collector.nfs
+      - --no-collector.nfsd
+      - --no-collector.nvme
+      - --no-collector.pressure
+      - --no-collector.rapl
+      - --no-collector.tapestats
+      - --no-collector.zfs
+      - --collector.textfile.directory=/home/oncall/node-exporter/textfile-collector
+    volumes:
+      - node:/home/oncall/node-exporter/textfile-collector:rw
+    networks:
+      - iris
+
+volumes:
+  node:
 
 networks:
   iris:

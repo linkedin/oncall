@@ -53,3 +53,8 @@ Check out https://github.com/linkedin/oncall/issues for a list of outstanding
 issues, and tackle any one that catches your interest. Contributions are
 expected to be tested thoroughly and submitted with unit/end-to-end tests; look
 in the e2e directory for our suite of end-to-end tests.
+
+
+### Debug
+
+You can find logs in Docker container in `home/oncall/var/log/uwsgi/error.log`.

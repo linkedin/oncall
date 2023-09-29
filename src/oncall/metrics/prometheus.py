@@ -1,10 +1,11 @@
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
+import os
 
 # Copyright (c) LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
 # See LICENSE in the project root for license information.
 
-from prometheus_client import Gauge, start_http_server
+from prometheus_client import Gauge, start_http_server, CollectorRegistry, write_to_textfile
 import re
 import logging
 
@@ -40,3 +41,29 @@ class prometheus(object):
             logger.info('Setting metrics gauge %s to %s', metric, value)
             self.gauges[metric].set_to_current_time()
             self.gauges[metric].set(value)
+
+        self._send_custom_metrics()
+
+    def _send_custom_metrics(self):
+        registry = CollectorRegistry()
+
+        self.get_files_amount(
+            registry,
+            "/home/oncall/var/log/uwsgi",
+            "uwsgi_logs_amount",
+            "Amount of uwsgi log files."
+        )
+        self.get_files_amount(
+            registry,
+            "/home/oncall/var/log/nginx",
+            "nginx_logs_amount",
+            "Amount of nginx log files."
+        )
+
+        write_to_textfile('/home/oncall/node-exporter/textfile-collector/metrics.prom', registry)
+
+    @staticmethod
+    def get_files_amount(registry, path, metrics_name, metrics_description):
+        g = Gauge(metrics_name, metrics_description, registry=registry)
+        amount = str(len([name for name in os.listdir(path)]))
+        g.set(amount)

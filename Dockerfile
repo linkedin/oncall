@@ -16,7 +16,8 @@ COPY LICENSE /home/oncall/source/LICENSE
 
 WORKDIR /home/oncall
 
-RUN chown -R oncall:oncall /home/oncall/source /var/log/nginx /var/lib/nginx \
+RUN sudo -u oncall mkdir -p /home/oncall/node-exporter/textfile-collector \
+    && chown -R oncall:oncall /home/oncall/source /var/log/nginx /var/lib/nginx /home/oncall/node-exporter/textfile-collector \
     && sudo -Hu oncall mkdir -p /home/oncall/var/log/uwsgi /home/oncall/var/log/nginx /home/oncall/var/run /home/oncall/var/relay \
     && sudo -Hu oncall python3 -m venv /home/oncall/env \
     && sudo -Hu oncall /bin/bash -c 'source /home/oncall/env/bin/activate && cd /home/oncall/source && pip install wheel && pip install .'
