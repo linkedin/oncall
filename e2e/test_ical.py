@@ -63,12 +63,16 @@ def test_user_ical_exclude_team(event, team, user, role):
     cal = re.content
     # Parse icalendar, make sure event info is correct (excluded team's event should not be present)
     ical = icalendar.Calendar.from_ical(re.content)
+    num_events = 0
     for component in ical.walk():
         if component.name == 'VEVENT':
+            num_events += 1
             assert user_name in component.get('description')
             assert team_name_2 not in component.get('summary')
             assert start == calendar.timegm(component.get('dtstart').dt.timetuple())
             assert end == calendar.timegm(component.get('dtend').dt.timetuple())
+    # Make sure that there is only 1 event parsed (excluded team event not included)
+    assert num_events == 1
 
 
 @prefix('test_team_ical')
