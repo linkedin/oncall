@@ -1,0 +1,10 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 15s
+  tcp_connect:
+    prober: tcp
+    timeout: 15s
+  icmp:
+    prober: icmp
+    timeout: 15s

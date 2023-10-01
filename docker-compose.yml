@@ -60,6 +60,19 @@ services:
     networks:
       - iris
 
+  blackbox-exporter:
+    image: bitnami/blackbox-exporter:latest
+    ports:
+      - "9115:9115"
+    depends_on:
+      - prometheus
+    command:
+      - --config.file=/etc/blackbox_exporter/blackbox.yml
+    volumes:
+      - ./configs/blackbox.yml:/etc/blackbox_exporter/blackbox.yml
+    networks:
+      - iris
+
 volumes:
   node:
 
