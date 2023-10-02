@@ -50,13 +50,13 @@ class prometheus(object):
         self.get_files_amount(
             registry,
             "/home/oncall/var/log/uwsgi",
-            "uwsgi_logs_amount",
+            "uwsgi_logs_total",
             "Amount of uwsgi log files."
         )
         self.get_files_amount(
             registry,
             "/home/oncall/var/log/nginx",
-            "nginx_logs_amount",
+            "nginx_logs_total",
             "Amount of nginx log files."
         )
 
