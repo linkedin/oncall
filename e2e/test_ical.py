@@ -36,6 +36,44 @@ def test_user_ical(event, team, user, role):
             assert start == calendar.timegm(component.get('dtstart').dt.timetuple())
             assert end == calendar.timegm(component.get('dtend').dt.timetuple())
 
+@prefix('test_user_ical_exclude_team')
+def test_user_ical_exclude_team(event, team, user, role):
+    team_name = team.create()
+    team_name_2 = team.create()
+    user_name = user.create()
+    role_name = role.create()
+    user.add_to_team(user_name, team_name)
+    user.add_to_team(user_name, team_name_2)
+
+    start = int(time.time()) + 100
+    end = start + 1000
+
+    ev1 = event.create({'start': start,
+                        'end': end,
+                        'user': user_name,
+                        'team': team_name,
+                        'role': role_name})
+    ev2 = event.create({'start': start + 100,
+                        'end': end + 100,
+                        'user': user_name,
+                        'team': team_name_2,
+                        'role': role_name})
+
+    re = requests.get(api_v0('users/%s/ical?excludedTeams=%s' % (user_name, team_name_2)))
+    cal = re.content
+    # Parse icalendar, make sure event info is correct (excluded team's event should not be present)
+    ical = icalendar.Calendar.from_ical(re.content)
+    num_events = 0
+    for component in ical.walk():
+        if component.name == 'VEVENT':
+            num_events += 1
+            assert user_name in component.get('description')
+            assert team_name_2 not in component.get('summary')
+            assert start == calendar.timegm(component.get('dtstart').dt.timetuple())
+            assert end == calendar.timegm(component.get('dtend').dt.timetuple())
+    # Make sure that there is only 1 event parsed (excluded team event not included)
+    assert num_events == 1
+
 
 @prefix('test_team_ical')
 def test_team_ical(event, team, user, role):

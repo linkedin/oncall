@@ -27,6 +27,17 @@ constraints = {
 }
 
 
+def get_team_ids(cursor, team_names):
+    if not team_names:
+        return []
+
+    team_query = 'SELECT DISTINCT `id` FROM `team` WHERE `name` IN ({0})'.format(
+        ','.join(['%s'] * len(team_names)))
+    # we need prepared statements here because team_names come from user input
+    cursor.execute(team_query, team_names)
+    return [row['id'] for row in cursor]
+
+
 def on_get(req, resp):
     '''
     Search for team names. Allows filtering based on a number of parameters, detailed below.
