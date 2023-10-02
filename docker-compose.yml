@@ -31,7 +31,8 @@ services:
     depends_on:
       - oncall-web
     volumes:
-      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/targets.json:/etc/prometheus/targets.json
     networks:
       - iris
 
@@ -69,7 +70,7 @@ services:
     command:
       - --config.file=/etc/blackbox_exporter/blackbox.yml
     volumes:
-      - ./configs/blackbox.yml:/etc/blackbox_exporter/blackbox.yml
+      - ./prometheus/blackbox.yml:/etc/blackbox_exporter/blackbox.yml
     networks:
       - iris
 

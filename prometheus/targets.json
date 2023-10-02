@@ -1,0 +1,26 @@
+[
+  {
+    "labels": {
+      "job": "prometheus"
+    },
+    "targets": [
+      "localhost:9090"
+    ]
+  },
+  {
+    "labels": {
+      "job": "oncall-web"
+    },
+    "targets": [
+      "oncall-web:8081"
+    ]
+  },
+  {
+    "labels": {
+      "job": "node-exporter"
+    },
+    "targets": [
+      "node-exporter:9100"
+    ]
+  }
+]
