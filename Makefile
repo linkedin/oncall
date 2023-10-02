@@ -33,3 +33,6 @@ build:
 
 run: build
 	docker run -p 8080:8080 $(APP_NAME)
+
+compose:
+	docker compose up --build

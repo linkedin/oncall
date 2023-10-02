@@ -8,6 +8,10 @@ how to run and manage Oncall.
 
 Development setup
 -----------------
+
+<details> 
+  <summary>Local machine</summary>
+
 ### Prerequisites
 
   * Debian/Ubuntu - `sudo apt-get install libsasl2-dev python3-dev libldap2-dev libssl-dev python-pip python-setuptools mysql-server mysql-client`
@@ -48,6 +52,31 @@ One of the following commands:
 ```bash
 make test
 ```
+</details>
+
+<details> 
+  <summary>Docker compose</summary>
+
+## Running
+
+```bash
+make compose
+```
+
+or running `docker compose` directly:
+
+```bash
+docker compose up --build
+```
+
+## Limitations
+
+* Doesn't currently provide a mechanism for running tests
+* Requires rebuilding to apply code changes
+* Doesn't tail Python logs to stdout
+
+</details>
+
 
 Check out https://github.com/linkedin/oncall/issues for a list of outstanding
 issues, and tackle any one that catches your interest. Contributions are

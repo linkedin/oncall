@@ -151,6 +151,8 @@ def init(application, config):
     LOGIN_REQUIRED = config.get('require_auth')
     TEAM_MANAGED_MESSAGE = config.get('team_managed_message')
 
+    logger.info(f'{TEAM_MANAGED_MESSAGE=}')
+
     application.add_sink(index, '/')
     application.add_route('/static/bundles/{filename}',
                           StaticResource('/static/bundles'))

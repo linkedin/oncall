@@ -335,7 +335,7 @@
         </h4>
         <h4>
           {{#if api_managed_roster}}
-            {{team_managed_message|safe}}
+            {% endraw %} <div> {{team_managed_message|safe}} </div> {% raw %}
           {{/if}}
         </h4>
         {% endraw %} {% endif %} {% raw %}
