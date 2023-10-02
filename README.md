@@ -9,8 +9,10 @@ how to run and manage Oncall.
 Development setup
 -----------------
 
+### Local machine
+
 <details> 
-  <summary>Local machine</summary>
+  <summary>See instructions for setting up Oncall on your local machine</summary>
 
 ### Prerequisites
 
@@ -54,10 +56,12 @@ make test
 ```
 </details>
 
-<details> 
-  <summary>Docker compose</summary>
+### Docker compose
 
-## Running
+<details> 
+  <summary>See instructions for using <code>docker compose</code></summary>
+
+### Running
 
 ```bash
 make compose
@@ -69,7 +73,7 @@ or running `docker compose` directly:
 docker compose up --build
 ```
 
-## Limitations
+### Limitations
 
 * Doesn't currently provide a mechanism for running tests
 * Requires rebuilding to apply code changes
@@ -77,6 +81,7 @@ docker compose up --build
 
 </details>
 
+## Contributing
 
 Check out https://github.com/linkedin/oncall/issues for a list of outstanding
 issues, and tackle any one that catches your interest. Contributions are
