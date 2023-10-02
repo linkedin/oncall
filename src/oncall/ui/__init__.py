@@ -71,6 +71,7 @@ HEADER_COLOR = None
 IRIS_PLAN_SETTINGS = None
 USERCONTACT_UI_READONLY = None
 LOGIN_REQUIRED = None
+TEAM_MANAGED_MESSAGE = None
 
 
 def index(req, resp):
@@ -91,7 +92,8 @@ def index(req, resp):
             public_calendar_base_url=PUBLIC_CALENDAR_BASE_URL,
             public_calendar_additional_message=PUBLIC_CALENDAR_ADDITIONAL_MESSAGE,
             footer=INDEX_CONTENT_SETTING['footer'],
-            timezones=SUPPORTED_TIMEZONES
+            timezones=SUPPORTED_TIMEZONES,
+            team_managed_message=TEAM_MANAGED_MESSAGE
         )
 
 
@@ -139,6 +141,7 @@ def init(application, config):
     global PUBLIC_CALENDAR_BASE_URL
     global PUBLIC_CALENDAR_ADDITIONAL_MESSAGE
     global LOGIN_REQUIRED
+    global TEAM_MANAGED_MESSAGE
     SLACK_INSTANCE = config.get('slack_instance')
     HEADER_COLOR = config.get('header_color', '#3a3a3a')
     IRIS_PLAN_SETTINGS = config.get('iris_plan_integration')
@@ -146,6 +149,7 @@ def init(application, config):
     PUBLIC_CALENDAR_BASE_URL = config.get('public_calendar_base_url')
     PUBLIC_CALENDAR_ADDITIONAL_MESSAGE = config.get('public_calendar_additional_message')
     LOGIN_REQUIRED = config.get('require_auth')
+    TEAM_MANAGED_MESSAGE = config.get('team_managed_message')
 
     application.add_sink(index, '/')
     application.add_route('/static/bundles/{filename}',

@@ -79,3 +79,4 @@ user_validator:
 
 slack_instance: foobar
 header_color: '#3a3a3a'
+team_managed_message: 'Managed team - this team is managed via API'
