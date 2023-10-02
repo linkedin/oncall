@@ -8,3 +8,6 @@ modules:
   icmp:
     prober: icmp
     timeout: 15s
+    icmp:
+      preferred_ip_protocol: "ip4"
+      ttl: 5

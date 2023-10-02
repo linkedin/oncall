@@ -55,7 +55,7 @@ scrape_configs:
       module: [icmp]
     static_configs:
       - targets:
-          - oncall-web:8081
+          - oncall-web
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
