@@ -154,6 +154,7 @@ header_color: '#3a3a3a'
 public_calendar_base_url: 'http://localhost:8080/api/v0/ical'
 # Additional message you want to put here, could be a link to the FAQ
 public_calendar_additional_message: 'Link to FAQ'
+team_managed_message: 'Managed team - this team is managed via API'
 
 # Integration with Iris, allowing for escalation from Oncall
 iris_plan_integration:
