@@ -6,6 +6,7 @@ services:
     hostname: oncall
     ports:
       - "8080:8080"
+      - "9091:9091"
     environment:
       - DOCKER_DB_BOOTSTRAP=1
       - IRIS_API_HOST=iris
