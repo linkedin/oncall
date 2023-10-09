@@ -25,6 +25,11 @@ healthcheck_path: /tmp/status
 prometheus:
   oncall-notifier:
     server_port: 8081
+custom-exporters:
+  app-name: custom_exporters
+  exporters:
+  - name: custom_exporter
+    server_port: 9101
 
 # Keys for encrypting/signing session cookies.
 # Change to random long values in production.

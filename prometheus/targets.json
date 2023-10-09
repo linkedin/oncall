@@ -22,5 +22,13 @@
     "targets": [
       "node-exporter:9100"
     ]
+  },
+  {
+    "labels": {
+      "job": "custom-exporter"
+    },
+    "targets": [
+      "oncall-web:9101"
+    ]
   }
 ]

@@ -7,6 +7,7 @@ services:
     ports:
       - "8080:8080"
       - "8081:8081"
+      - "9101:9101"
     environment:
       - DOCKER_DB_BOOTSTRAP=1
       - IRIS_API_HOST=iris
