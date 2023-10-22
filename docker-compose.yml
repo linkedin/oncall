@@ -75,6 +75,19 @@ services:
     networks:
       - iris
 
+  elasticsearch:
+    image: elasticsearch:8.8.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    depends_on:
+      - oncall-web
+    networks:
+      - iris
+
 volumes:
   node:
 
