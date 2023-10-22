@@ -1,0 +1,8 @@
+filebeat.inputs:
+- type: log
+  paths:
+    - /var/app/log/*.log
+
+output.logstash:
+  hosts:
+    - "logstash:5000"

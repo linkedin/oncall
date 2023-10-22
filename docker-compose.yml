@@ -14,6 +14,8 @@ services:
     volumes:
       - ./configs/config.docker.yaml:/home/oncall/config/config.yaml
       - node:/home/oncall/node-exporter/textfile-collector:rw
+      - app-logs:/home/oncall/var/log/uwsgi
+      - app-logs:/home/oncall/var/log/nginx
     networks:
       - iris
   
@@ -75,21 +77,60 @@ services:
     networks:
       - iris
 
+  kibana:
+    image: kibana:8.10.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - iris
+
   elasticsearch:
-    image: elasticsearch:8.8.0
+    image: elasticsearch:8.10.2
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
       - "9300:9300"
+    networks:
+      - iris
+
+  logstash:
+    image: logstash:8.10.2
+    ports:
+      - "5000:5000"
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    depends_on:
-      - oncall-web
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./configs/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - iris
+
+  filebeat:
+    image: elastic/filebeat:8.10.2
+    user: root
+    command: -strict.perms=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./configs/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - app-logs:/var/app/log
+    environment:
+      - LOGSTASH_HOST=logstash
+      - LOGSTASH_PORT=5000
     networks:
       - iris
 
 volumes:
   node:
+  app-logs:
+  elasticsearch-data:
+    driver: local
 
 networks:
   iris:
