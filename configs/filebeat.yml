@@ -1,7 +1,7 @@
 filebeat.inputs:
-- type: log
+- type: container
   paths:
-    - /var/app/log/*.log
+    - '/var/lib/docker/containers/*/*.log'
 
 output.logstash:
   hosts:
