@@ -77,6 +77,15 @@ services:
     networks:
       - iris
 
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - iris
+
   elasticsearch:
     image: elasticsearch:8.10.2
     labels:
@@ -151,6 +160,7 @@ services:
 volumes:
   node:
   app-logs:
+  grafana_data:
   elasticsearch-data:
     driver: local
 
