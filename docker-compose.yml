@@ -37,6 +37,15 @@ services:
     networks:
       - iris
 
+  pushgateway:
+    image: bitnami/pushgateway:latest
+    expose:
+      - 9091
+    ports:
+      - "9091:9091"
+    networks:
+      - iris
+
   node-exporter:
     image: bitnami/node-exporter:latest
     ports:
@@ -75,14 +84,14 @@ services:
     networks:
       - iris
 
-#  grafana:
-#    image: grafana/grafana
-#    ports:
-#      - "3000:3000"
-#    volumes:
-#      - grafana_data:/var/lib/grafana
-#    networks:
-#      - iris
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - iris
 
   elasticsearch:
     image: elasticsearch:8.10.2

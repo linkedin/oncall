@@ -30,5 +30,13 @@
     "targets": [
       "oncall-web:9101"
     ]
+  },
+   {
+    "labels": {
+      "job": "pushgateway"
+    },
+    "targets": [
+      "pushgateway:9091"
+    ]
   }
 ]
