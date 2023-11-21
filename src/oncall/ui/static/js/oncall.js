@@ -1358,20 +1358,26 @@ var oncall = {
       },
       checkIfAdmin: function(){
         var data = this.data.teamData;
+        var isInfoAdmin = false;
 
         data.isAdmin = false;
         if (oncall.data.userIsGod === 1) {
           data.isAdmin = true;
+          isInfoAdmin = true;
         } else {
           for (var i in data.admins) {
             // if team api managed and user is not superadmin then disable editing of team info
             if (data.admins[i].name === oncall.data.user && !data.api_managed_roster) {
               data.isAdmin = true;
+              isInfoAdmin = true;
+            } else if (data.admins[i].name === oncall.data.user) {
+              isInfoAdmin = true;
             }
           }
         }
 
         this.data.$page.attr('data-admin', data.isAdmin);
+        this.data.$page.attr('info-admin', isInfoAdmin);
       },
       toggleAddItem: function(){
         var $wrapper = $(this).parents('.add-item-wrapper'),
