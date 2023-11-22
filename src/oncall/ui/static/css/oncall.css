@@ -958,6 +958,18 @@ div[data-admin="false"] .team-info .toggle-rotation {
   pointer-events: none;
 }
 
+div[info-admin="true"] [info-admin-action="true"] {
+  display: initial;
+}
+
+div[info-admin="false"] [info-admin-action="true"] {
+  display: none !important;
+}
+
+div[info-admin="false"] .team-info .toggle-rotation {
+  pointer-events: none;
+}
+
 /* Teams.schedules */
 
 .schedule-container[data-collapsed="true"] .module-schedule-wrapper {
