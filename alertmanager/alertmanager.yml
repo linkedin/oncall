@@ -1,0 +1,20 @@
+global:
+  resolve_timeout: 5m
+  telegram_api_url: "https://api.telegram.org"
+
+receivers:
+  - name: telegram
+    telegram_configs:
+      - chat_id: -1002110835093
+        bot_token: "5782360298:AAE03Ch5QLjIJYnZhdPJP3ACw4sM5kGtrkI"
+        api_url: "https://api.telegram.org"
+        send_resolved: true
+
+route:
+  group_by: ["instance"]
+  receiver: telegram
+  routes:
+    - receiver: telegram
+      continue: true
+      matchers:
+        - severity="critical"
