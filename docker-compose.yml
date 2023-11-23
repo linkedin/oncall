@@ -158,6 +158,7 @@ services:
     command: --config.file=/etc/alertmanager/alertmanager.yml
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - ./alertmanager/alert.tmpl:/etc/alertmanager/templates/alert.tmpl
       - alertmanager-data:/alertmanager/data
     networks:
       - iris

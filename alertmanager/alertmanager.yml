@@ -3,18 +3,51 @@ global:
   telegram_api_url: "https://api.telegram.org"
 
 receivers:
-  - name: telegram
+  - name: 'telegram_critical'
     telegram_configs:
       - chat_id: -1002110835093
         bot_token: "5782360298:AAE03Ch5QLjIJYnZhdPJP3ACw4sM5kGtrkI"
         api_url: "https://api.telegram.org"
-        send_resolved: true
+        send_resolved: false
+        message: '{{ template "alert.tmpl" . }}'
+
+  - name: 'telegram_warning'
+    telegram_configs:
+      - chat_id: -1002110835093
+        bot_token: "5782360298:AAE03Ch5QLjIJYnZhdPJP3ACw4sM5kGtrkI"
+        api_url: "https://api.telegram.org"
+        send_resolved: false
+        message: '{{ template "alert.tmpl" . }}'
+        disable_notifications: true
+
+time_intervals:
+  - name: work-hours
+    time_intervals:
+      - times:
+          - start_time: '09:00'
+            end_time: '18:00'
+        weekdays:
+          - 'Monday'
+          - 'Tuesday'
+          - 'Wednesday'
+          - 'Thursday'
+          - 'Friday'
 
 route:
   group_by: ["instance"]
-  receiver: telegram
+  receiver: 'telegram_critical'
   routes:
-    - receiver: telegram
+    - receiver: 'telegram_critical'
       continue: true
       matchers:
         - severity="critical"
+
+    - receiver: 'telegram_warning'
+      continue: true
+      matchers:
+        - severity="warning"
+      active_time_intervals:
+        - work-hours
+
+templates:
+  - '/etc/alertmanager/templates/alert.tmpl'

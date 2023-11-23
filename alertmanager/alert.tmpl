@@ -1,0 +1,20 @@
+{{ define "alert_list" }}{{ range . }}
+---
+📝 <b>{{ .Labels.alertname }}</b>
+{{- if .Annotations.summary }}{{ .Annotations.summary }}{{ end }}
+{{- if .Annotations.description }}{{ .Annotations.description }}{{ end }}
+🏷 <b>Labels</b>
+{{ range .Labels.SortedPairs }}  {{ .Name }}: <code>{{ .Value }}</code>
+{{ end }}{{ end }}
+{{ end }}
+
+{{ define "alert.tmpl" }}
+{{ if gt (len .Alerts.Firing) 0 }}
+🔥 Alerts Firing 🔥
+{{ template "alert_list" .Alerts.Firing }}
+{{ end }}
+{{ if gt (len .Alerts.Resolved) 0 }}
+✅ Alerts Resolved ✅
+{{ template "alert_list" .Alerts.Resolved }}
+{{ end }}
+{{ end }}
