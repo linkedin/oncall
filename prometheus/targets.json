@@ -25,6 +25,14 @@
   },
   {
     "labels": {
+      "job": "nginx-exporter"
+    },
+    "targets": [
+      "nginx-exporter:9113"
+    ]
+  },
+  {
+    "labels": {
       "job": "custom-exporter"
     },
     "targets": [

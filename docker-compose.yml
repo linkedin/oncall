@@ -4,13 +4,11 @@ services:
   oncall-web:
     build: .
     hostname: oncall
-    ports:
-      - "8080:8080"
-      - "8081:8081"
-      - "9101:9101"
     environment:
       - DOCKER_DB_BOOTSTRAP=1
       - IRIS_API_HOST=iris
+    deploy:
+      replicas: 3
     volumes:
       - ./configs/config.docker.yaml:/home/oncall/config/config.yaml
       - node:/home/oncall/node-exporter/textfile-collector:rw
@@ -22,6 +20,17 @@ services:
     image: mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=1234
+    networks:
+      - iris
+
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - oncall-web
     networks:
       - iris
 
@@ -72,6 +81,17 @@ services:
     networks:
       - iris
 
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.0.0
+    ports:
+      - "9113:9113"
+    command:
+      - --nginx.scrape-uri=http://nginx:8080/stub_status
+    depends_on:
+      - prometheus
+    networks:
+      - iris
+
   blackbox-exporter:
     image: bitnami/blackbox-exporter:latest
     ports:
@@ -94,87 +114,87 @@ services:
     networks:
       - iris
 
-  elasticsearch:
-    image: elasticsearch:8.10.2
-    labels:
-      co.elastic.logs/enabled: "false"
-    environment:
-      - xpack.security.enabled=false
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 32767
-        hard: 32767
-    cap_add:
-      - IPC_LOCK
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    depends_on:
-      - oncall-web
-    networks:
-      - iris
-
-  logstash:
-    image: logstash:8.10.2
-    labels:
-      co.elastic.logs/enabled: "false"
-    ports:
-      - "5000:5000"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    volumes:
-      - ./configs/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - ./configs/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-    depends_on:
-      - filebeat
-    networks:
-      - iris
-
-  filebeat:
-    image: elastic/filebeat:8.10.2
-    user: root
-    command: --strict.perms=false
-    labels:
-      co.elastic.logs/enabled: "false"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker:/var/lib/docker
-      - ./configs/filebeat.yml:/usr/share/filebeat/filebeat.yml
-    networks:
-      - iris
-
-  alertmanager:
-    image: bitnami/alertmanager:latest
-    ports:
-      - "9093:9093"
-    command: --config.file=/etc/alertmanager/alertmanager.yml
-    volumes:
-      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-      - ./alertmanager/alert.tmpl:/etc/alertmanager/templates/alert.tmpl
-      - alertmanager-data:/alertmanager/data
-    networks:
-      - iris
-
-  kibana:
-    image: kibana:8.10.2
-    labels:
-      co.elastic.logs/enabled: "false"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-    networks:
-      - iris
+#  elasticsearch:
+#    image: elasticsearch:8.10.2
+#    labels:
+#      co.elastic.logs/enabled: "false"
+#    environment:
+#      - xpack.security.enabled=false
+#      - discovery.type=single-node
+#      - bootstrap.memory_lock=true
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+#      nofile:
+#        soft: 32767
+#        hard: 32767
+#    cap_add:
+#      - IPC_LOCK
+#    volumes:
+#      - elasticsearch-data:/usr/share/elasticsearch/data
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+#    depends_on:
+#      - oncall-web
+#    networks:
+#      - iris
+#
+#  logstash:
+#    image: logstash:8.10.2
+#    labels:
+#      co.elastic.logs/enabled: "false"
+#    ports:
+#      - "5000:5000"
+#    environment:
+#      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+#    volumes:
+#      - ./configs/logstash.yml:/usr/share/logstash/config/logstash.yml
+#      - ./configs/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+#    depends_on:
+#      - filebeat
+#    networks:
+#      - iris
+#
+#  filebeat:
+#    image: elastic/filebeat:8.10.2
+#    user: root
+#    command: --strict.perms=false
+#    labels:
+#      co.elastic.logs/enabled: "false"
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - /var/lib/docker:/var/lib/docker
+#      - ./configs/filebeat.yml:/usr/share/filebeat/filebeat.yml
+#    networks:
+#      - iris
+#
+#  alertmanager:
+#    image: bitnami/alertmanager:latest
+#    ports:
+#      - "9093:9093"
+#    command: --config.file=/etc/alertmanager/alertmanager.yml
+#    volumes:
+#      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+#      - ./alertmanager/alert.tmpl:/etc/alertmanager/templates/alert.tmpl
+#      - alertmanager-data:/alertmanager/data
+#    networks:
+#      - iris
+#
+#  kibana:
+#    image: kibana:8.10.2
+#    labels:
+#      co.elastic.logs/enabled: "false"
+#    environment:
+#      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+#    ports:
+#      - "5601:5601"
+#    depends_on:
+#      - elasticsearch
+#    networks:
+#      - iris
 
 volumes:
   node:
