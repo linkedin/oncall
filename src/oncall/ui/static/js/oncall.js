@@ -800,6 +800,7 @@ var oncall = {
           $cta = $modal.find('.modal-cta'),
           name = $form.find('#team-name').val().trim(),
           email = $form.find('#team-email').val(),
+          description = $form.find('#team-description').val(),
           slack = $form.find('#team-slack').val(),
           slack_notifications = $form.find('#team-slack-notifications').val(),
           timezone = $form.find('#team-timezone').val(),
@@ -839,6 +840,7 @@ var oncall = {
           $cta = $modal.find('.modal-cta'),
           name = $form.find('#team-name').val(),
           email = $form.find('#team-email').val(),
+          description = $form.find('#team-description').val(),
           slack = $form.find('#team-slack').val(),
           slack_notifications = $form.find('#team-slack-notifications').val(),
           timezone = $form.find('#team-timezone').val(),
@@ -866,6 +868,7 @@ var oncall = {
             blankModel = {
               name: name,
               email: email,
+              description: description,
               slack_channel: slack,
               slack_channel_notifications: slack_notifications,
               scheduling_timezone: timezone,
@@ -3099,6 +3102,7 @@ var oncall = {
           $teamSlack = $modalForm.find('#team-slack'),
           $teamSlackNotifications = $modalForm.find('#team-slack-notifications'),
           $teamTimezone = $modalForm.find('#team-timezone'),
+          $teamDescription = $modalForm.find('#team-description'),
           $teamNumber = $modalForm.find('#team-override-phone'),
           $teamIrisPlan = $modalForm.find('#team-irisplan'),
           $teamIrisEnabled = $modalForm.find('#team-iris-enabled'),
@@ -3114,6 +3118,7 @@ var oncall = {
         $teamEmail.val($btn.attr('data-modal-email'));
         $teamSlack.val($btn.attr('data-modal-slack'));
         $teamSlackNotifications.val($btn.attr('data-modal-slack-notifications'));
+        $teamDescription.val($btn.attr('data-modal-description'));
         $teamNumber.val($btn.attr('data-modal-override-phone'));
         $teamIrisPlan.val($btn.attr('data-modal-irisplan'));
         $teamIrisEnabled.prop('checked', $btn.attr('data-modal-iris-enabled') === '1');

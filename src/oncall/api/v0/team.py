@@ -14,7 +14,7 @@ from ...utils import load_json_body, invalid_char_reg, create_audit
 from ...constants import TEAM_DELETED, TEAM_EDITED, SUPPORTED_TIMEZONES
 
 # Columns which may be modified
-cols = set(['name', 'slack_channel', 'slack_channel_notifications', 'email', 'scheduling_timezone',
+cols = set(['name', 'description', 'slack_channel', 'slack_channel_notifications', 'email', 'scheduling_timezone',
             'iris_plan', 'iris_enabled', 'override_phone_number', 'api_managed_roster'])
 
 
@@ -58,7 +58,7 @@ populate_map = {
 def on_get(req, resp, team):
     '''
     Get team info by name. By default, only finds active teams. Allows selection of
-    fields, including: users, admins, services, and rosters. If no ``fields`` is
+    fields, including: users, admins, services, descriptions, and rosters. If no ``fields`` is
     specified in the query string, it defaults to all fields.
 
     **Example request**
@@ -86,6 +86,7 @@ def on_get(req, resp, team):
             "id": 5501,
             "iris_plan": null,
             "name": "team-foo",
+            "description": "this is an important team!",
             "rosters": {
                 "roster-foo": {
                     "id": 4186,
@@ -148,7 +149,7 @@ def on_get(req, resp, team):
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
     cursor.execute('''SELECT `id`, `name`, `email`, `slack_channel`, `slack_channel_notifications`,
-                             `scheduling_timezone`, `iris_plan`, `iris_enabled`, `override_phone_number`, `api_managed_roster`
+                             `scheduling_timezone`, `iris_plan`, `iris_enabled`, `override_phone_number`, `api_managed_roster`, `description`
                       FROM `team` WHERE `name`=%s AND `active` = %s''', (team, active))
     results = cursor.fetchall()
     if not results:
@@ -172,7 +173,7 @@ def on_get(req, resp, team):
 @login_required
 def on_put(req, resp, team):
     '''
-    Edit a team's information. Allows edit of: 'name', 'slack_channel', 'slack_channel_notifications', 'email', 'scheduling_timezone',
+    Edit a team's information. Allows edit of: 'name', 'description', 'slack_channel', 'slack_channel_notifications', 'email', 'scheduling_timezone',
     'iris_plan', 'iris_enabled', 'override_phone_number', 'api_managed_roster'
 
     **Example request:**

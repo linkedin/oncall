@@ -176,6 +176,7 @@ def on_post(req, resp):
         raise HTTPBadRequest('invalid slack notifications channel',
                              'slack channel notifications name needs to start with #')
     email = data.get('email')
+    description = data.get('description')
     iris_plan = data.get('iris_plan')
     iris_enabled = data.get('iris_enabled', False)
     override_number = data.get('override_phone_number')
@@ -202,9 +203,9 @@ def on_post(req, resp):
 
     try:
         cursor.execute('''INSERT INTO `team` (`name`, `slack_channel`, `slack_channel_notifications`, `email`, `scheduling_timezone`,
-                                              `iris_plan`, `iris_enabled`, `override_phone_number`)
-                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s)''',
-                       (team_name, slack, slack_notifications, email, scheduling_timezone, iris_plan, iris_enabled, override_number))
+                                              `iris_plan`, `iris_enabled`, `override_phone_number`, `description`)
+                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)''',
+                       (team_name, slack, slack_notifications, email, scheduling_timezone, iris_plan, iris_enabled, override_number, description))
 
         team_id = cursor.lastrowid
         query = '''
