@@ -7,6 +7,7 @@ USE `oncall`;
 CREATE TABLE IF NOT EXISTS `team` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
+  `description` TEXT,
   `slack_channel` VARCHAR(255),
   `slack_channel_notifications` VARCHAR(255),
   `email` VARCHAR(255),
