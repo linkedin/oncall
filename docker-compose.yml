@@ -8,7 +8,7 @@ services:
       - DOCKER_DB_BOOTSTRAP=1
       - IRIS_API_HOST=iris
     deploy:
-      replicas: 3
+      replicas: 2
     volumes:
       - ./configs/config.docker.yaml:/home/oncall/config/config.yaml
       - node:/home/oncall/node-exporter/textfile-collector:rw
