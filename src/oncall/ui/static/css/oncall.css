@@ -289,7 +289,7 @@ nav.subnav li.active {
 
 .subheader {
   padding: 20px;
-  height: 110px;
+  min-height: 110px;
   color: #fff;
 }
 
@@ -955,6 +955,18 @@ div[data-admin="false"] [data-admin-action="true"] {
 }
 
 div[data-admin="false"] .team-info .toggle-rotation {
+  pointer-events: none;
+}
+
+div[info-admin="true"] [info-admin-action="true"] {
+  display: initial;
+}
+
+div[info-admin="false"] [info-admin-action="true"] {
+  display: none !important;
+}
+
+div[info-admin="false"] .team-info .toggle-rotation {
   pointer-events: none;
 }
 
