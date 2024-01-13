@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@master
       - name: Get version
         id: get_version
-        run: echo "::set-output name=version::$(grep -Po '\d*\.\d*\.\d*' src/oncall/__init__.py)"
+        run: echo "version=$(grep -Po '\d*\.\d*\.\d*' src/oncall/__init__.py)" >> $GITHUB_OUTPUT
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
