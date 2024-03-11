@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.1.6] - 2024-03-11
+
+### Added
+ - New multi-team scheduler type which allows checking all teams for potential scheduling conficts when scheduling events. The new multi-team schema should be inserted into the `schema` table as shown in db/schema.v0.sql
+### Changed
+
+### Fixed
+
 
 ## [2.0.0] - 2023-06-06
 WARNING: this version adds a change to the MYSQL schema! Make changes to the schema before deploying new 2.0.0 version.
