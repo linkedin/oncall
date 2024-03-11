@@ -121,7 +121,7 @@ def test_v0_populate_multi_team(user, team, roster, role, schedule, event):
                                   {'role': role_name,
                                    'events': [{'start': 0, 'duration': 604800}],
                                    'advanced_mode': 0,
-                                   'auto_populate_threshold': 14},
+                                   'auto_populate_threshold': 14,
                                    'scheduler': {'name': 'multi-team',
                                                  'data': [user_name, user_name_2, user_name_3]}})
     user.add_to_roster(user_name, team_name, roster_name)
