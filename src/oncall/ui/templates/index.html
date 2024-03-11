@@ -1121,6 +1121,7 @@
           <option value="default" {{isSelected 'default' selected_schedule.scheduler.name}}> Default </option>
           <option value="round-robin" {{isSelected 'round-robin' selected_schedule.scheduler.name}}> Round-robin </option>
           <option value="no-skip-matching" {{isSelected 'no-skip-matching' selected_schedule.scheduler.name}}> Default (allow duplicate) </option>
+          <option value="multi-team" {{isSelected 'multi-team' selected_schedule.scheduler.name}}> Default (multi-team aware) </option>
         </select>
         <div class="scheduler-type-container light">
           <!-- scheduler specific data renders here -->
@@ -1227,6 +1228,11 @@
 <!-- allow-duplicate scheduler template -->
 <script id="allow-duplicate-scheduler-template" type="text/x-handlebars-template">
   The Default (allow duplicate) scheduler uses the same algorithm as Default, but allows more than one user to be on-call at the same time for a given role. This lets you have duplicate primary events across several schedule templates.
+</script>
+
+<!-- allow-duplicate scheduler template -->
+<script id="multi-team-template" type="text/x-handlebars-template">
+  The Default (multi-team aware) scheduler uses the same algorithm as Default, but allows more than one user to be on-call at the same time for a given role. Additionally when scheduling it will check for conflicting events across all teams.
 </script>
 
 <!--// **********************
