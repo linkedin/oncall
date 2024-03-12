@@ -480,8 +480,10 @@ VALUES ('default',
         'Default scheduling algorithm'),
        ('round-robin',
         'Round robin in roster order; does not respect vacations/conflicts'),
-  ('no-skip-matching',
-   'Default scheduling algorithm; doesn\'t skips creating events if matching events already exist on the calendar');
+       ('no-skip-matching',
+        'Default scheduling algorithm; doesn\'t skips creating events if matching events already exist on the calendar'),
+       ('multi-team',
+        'Allows multiple role events. Prevents scheduling if there are any conflicting events even across teams.');
 
 -- -----------------------------------------------------
 -- Initialize notification types

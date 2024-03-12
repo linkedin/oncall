@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: cimg/python:3.10.8-browsers
+      - image: cimg/python:3.10.11
       - image: mysql/mysql-server:8.0
         environment:
           - MYSQL_ROOT_PASSWORD=1234
