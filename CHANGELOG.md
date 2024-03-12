@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [2.1.7] - 2024-03-12
+
+### Added
+ - bumped cryptography dependency
+### Changed
+
+### Fixed
+
 ## [2.1.6] - 2024-03-11
 
 ### Added
