@@ -13,8 +13,8 @@ UNLOCK TABLES;
 
 LOCK TABLES `team` WRITE;
 /*!40000 ALTER TABLE `team` DISABLE KEYS */;
-INSERT INTO `team` VALUES (1,'Test Team','#team','#team-alerts','team@example.com','US/Pacific',1,NULL,0,NULL,0);
-INSERT INTO `team` VALUES (2,'Managed Team','#managed-team','#managed-team-alerts','managed-team@example.com','US/Pacific',1,NULL,0,NULL,1);
+INSERT INTO `team` VALUES (1,'Test Team','this is a test team description','#team','#team-alerts','team@example.com','US/Pacific',1,NULL,0,NULL,0);
+INSERT INTO `team` VALUES (2,'Managed Team','', '#managed-team','#managed-team-alerts','managed-team@example.com','US/Pacific',1,NULL,0,NULL,1);
 /*!40000 ALTER TABLE `team` ENABLE KEYS */;
 UNLOCK TABLES;
 
