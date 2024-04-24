@@ -138,6 +138,7 @@ def fetch_ldap():
                 name = name.decode("utf-8")
             mobile = ldap_dict.get(LDAP_SETTINGS['attrs']['mobile'])
             mail = ldap_dict.get(LDAP_SETTINGS['attrs']['mail'])
+            pushover = ldap_dict.get(LDAP_SETTINGS['attrs']['pushover'])
 
             if mobile:
                 try:
@@ -158,7 +159,7 @@ def fetch_ldap():
             else:
                 slack = None
 
-            contacts = {'call': mobile, 'sms': mobile, 'email': mail, 'slack': slack, 'name': name}
+            contacts = {'call': mobile, 'sms': mobile, 'email': mail, 'slack': slack, 'pushover': pushover, 'name': name}
             dn_map[dn] = username
             users[username] = contacts
 
