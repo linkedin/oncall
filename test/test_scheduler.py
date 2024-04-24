@@ -25,6 +25,37 @@ def test_find_new_user_as_least_active_user(mocker):
     user_id = scheduler.find_next_user_id(MOCK_SCHEDULE, [{'start': 0, 'end': 5}], None)
     assert user_id == 123
 
+def test_calculate_future_events_1_24_shifts(mocker):
+    mocker.patch('oncall.scheduler.default.Scheduler.get_schedule_last_epoch').return_value = None
+    mock_dt = datetime.datetime(year=2017, month=2, day=7, hour=10)
+    mocker.patch('time.time').return_value = time.mktime(mock_dt.timetuple())
+    start = DAY + 10 * HOUR + 30 * MIN  # Monday at 10:30 am
+    schedule_foo = {
+        'timezone': 'US/Pacific',
+        'auto_populate_threshold': 7,
+        'events': [{
+            'start': start,  # 24hr daily shift starting Monday at 10:30 am
+            'duration': DAY
+        }]
+    }
+    scheduler = oncall.scheduler.default.Scheduler()
+    future_events, last_epoch = scheduler.calculate_future_events(schedule_foo, None)
+    assert len(future_events) == 10
+
+    mondays = (6, 13)
+    for i, epoch in enumerate(future_events):
+        assert len(epoch) == 1
+        ev = epoch[0]
+        start_dt = utc.localize(datetime.datetime.utcfromtimestamp(ev['start']))
+        start_dt = start_dt.astimezone(timezone('US/Pacific'))
+        assert start_dt.timetuple().tm_year == mock_dt.timetuple().tm_year
+        assert start_dt.timetuple().tm_mon == mock_dt.timetuple().tm_mon
+        assert start_dt.timetuple().tm_mday == 6 + i
+        assert start_dt.timetuple().tm_wday == i % 7
+        assert start_dt.timetuple().tm_hour == 10  # 10:
+        assert start_dt.timetuple().tm_min == 30   # 30 am
+        assert start_dt.timetuple().tm_sec == 00
+        assert ev['end'] - ev['start'] == DAY
 
 def test_calculate_future_events_7_24_shifts(mocker):
     mocker.patch('oncall.scheduler.default.Scheduler.get_schedule_last_epoch').return_value = None
