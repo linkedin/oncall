@@ -26,6 +26,16 @@ def test_api_v0_schedules(team, roster, role):
     role_name = role.create()
     role_name_2 = role.create()
 
+    # test create bad schedule
+    events = [{'start': None, 'duration': -1}]
+    re = requests.post(api_v0('teams/%s/rosters/%s/schedules' % (team_name, roster_name)),
+                       json={
+                           'role': role_name,
+                           'events': events,
+                           'advanced_mode': 1
+    })
+    assert re.status_code == 400
+
     # test create schedule
     events = [{'start': tuesday9am, 'duration': 12 * HOUR},
               {'start': tuesday9pm, 'duration': 12 * HOUR},
