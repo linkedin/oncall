@@ -384,6 +384,10 @@ def on_post(req, resp, team, roster):
         if 'start' not in sev or 'duration' not in sev:
             raise HTTPBadRequest('invalid schedule',
                                  'schedule event requires both start and duration fields')
+        if sev.get('start') is None:
+            raise HTTPBadRequest('invalid schedule', 'schedule event start cannot be null')
+        if sev.get('duration') is None or sev['duration'] <= 0:
+            raise HTTPBadRequest('invalid schedule', 'schedule event duration must be positive')
 
     if 'auto_populate_threshold' not in data:
         # default to autopopulate 3 weeks forward
@@ -413,14 +417,17 @@ def on_post(req, resp, team, roster):
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
     try:
+        scheduler_arg = data.pop('scheduler', None)
         cursor.execute(insert_schedule, data)
+        if scheduler_arg:
+            data['scheduler'] = scheduler_arg
         schedule_id = cursor.lastrowid
         insert_schedule_events(schedule_id, schedule_events, cursor)
 
         if data['scheduler_name'] == 'round-robin':
             params = [(schedule_id, name, idx) for idx, name in enumerate(scheduler_data)]
             cursor.executemany('''INSERT INTO `schedule_order` (`schedule_id`, `user_id`, `priority`)
-                                  VALUES (%s, (SELECT `id` FROM `user` WHERE `name` = %s), %s)''',
+                                VALUES (%s, (SELECT `id` FROM `user` WHERE `name` = %s), %s)''',
                                params)
     except db.IntegrityError as e:
         err_msg = str(e.args[1])
