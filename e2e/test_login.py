@@ -10,25 +10,27 @@ from oncall import db
 from oncall.auth import (
     login, logout, login_required, check_user_auth, check_team_auth
 )
+from oncall.auth.modules.sso_debug import Authenticator as sso_authenticator
+from oncall.auth import init as init_auth
+
+sso_auth_manager = sso_authenticator()
+test_config = {'auth': {'module': 'oncall.auth.modules.debug',
+                        'sso_module': 'oncall.auth.modules.sso_debug'},
+               'db': {'conn': {'kwargs': {'charset': 'utf8',
+                                          'database': 'oncall-api',
+                                          'echo': True,
+                                          'host': '127.0.0.1',
+                                          'scheme': 'mysql+pymysql',
+                                          'user': 'root'},
+                               'str': '%(scheme)s://%(user)s@%(host)s/%(database)s?charset=%(charset)s'},
+                      'kwargs': {'pool_recycle': 3600}},
+               'server': {'host': '0.0.0.0', 'port': 8080},
+               'debug': True,
+               'session': {'encrypt_key': 'abc', 'sign_key': '123'}}
 
 
 class TestLogin(TestCase):
-    config = {'auth': {'ldap_cert_path': 'ldap_cert.pem',
-                       'ldap_url': 'ldaps://lca1-ldap-vip.corp.linkedin.com',
-                       'ldap_user_suffix': '@linkedin.biz',
-                       'module': 'ldap'},
-              'db': {'conn': {'kwargs': {'charset': 'utf8',
-                                         'database': 'oncall-api',
-                                         'echo': True,
-                                         'host': '127.0.0.1',
-                                         'scheme': 'mysql+pymysql',
-                                         'user': 'root'},
-                              'str': '%(scheme)s://%(user)s@%(host)s/%(database)s?charset=%(charset)s'},
-                     'kwargs': {'pool_recycle': 3600}},
-              'server': {'host': '0.0.0.0', 'port': 8080},
-              'debug': True,
-              'session': {'encrypt_key': 'abc', 'sign_key': '123'}}
-
+    config = test_config
     session_opts = {
         'session.type': 'cookie',
         'session.key': 'oncall-auth',
@@ -58,6 +60,7 @@ class TestLogin(TestCase):
         api = falcon.App(middleware=[
             ReqBodyMiddleware(),
         ])
+        init_auth(api, test_config['auth'])
         api.req_options.auto_parse_form_urlencoded = False
         self.app = api
         self.app.add_route('/login', login)
@@ -102,7 +105,7 @@ class TestLogin(TestCase):
 
     def test_user_auth(self):
         # Test no login
-        re = self.simulate_get('/dummy/'+self.user_name)
+        re = self.simulate_get('/dummy/' + self.user_name)
         assert re.status_code == 401
 
         # For tests below, put username/password into query string to
@@ -112,7 +115,7 @@ class TestLogin(TestCase):
         assert re.status_code == 200
         cookies = re.headers.get('set-cookie')
         token = str(re.json['csrf_token'])
-        re = self.simulate_get('/dummy/'+self.user_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
+        re = self.simulate_get('/dummy/' + self.user_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
         assert re.status_code == 200
 
         # Test good login, auth check on manager
@@ -120,8 +123,16 @@ class TestLogin(TestCase):
         assert re.status_code == 200
         cookies = re.headers.get('set-cookie')
         token = str(re.json['csrf_token'])
-        re = self.simulate_get('/dummy/'+self.user_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
+        re = self.simulate_get('/dummy/' + self.user_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
         assert re.status_code == 200
+
+    def test_sso_auth(self):
+        re = self.simulate_get('/dummy/' + self.user_name, headers={'SSO-DEBUG-HEADER': self.user_name})
+        assert re.status_code == 200
+
+        # user is not part of the team or an admin so check_user_auth fails despite login succeeding
+        re = self.simulate_get('/dummy/' + self.user_name, headers={'SSO-DEBUG-HEADER': 'bad_user'})
+        assert re.status_code == 403
 
     def test_team_auth(self):
         # Test good login, auth check on manager
@@ -129,7 +140,7 @@ class TestLogin(TestCase):
         assert re.status_code == 200
         cookies = re.headers.get('set-cookie')
         token = str(re.json['csrf_token'])
-        re = self.simulate_get('/dummy2/'+self.team_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
+        re = self.simulate_get('/dummy2/' + self.team_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
         assert re.status_code == 200
 
     def test_logout(self):
@@ -144,7 +155,7 @@ class TestLogin(TestCase):
             # https://github.com/falconry/falcon/pull/957 is merged
             pass
         assert re.status_code == 200
-        re = self.simulate_get('/dummy/'+self.user_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
+        re = self.simulate_get('/dummy/' + self.user_name, headers={'X-CSRF-TOKEN': token, 'Cookie': cookies})
         assert re.status_code == 401
 
     def test_csrf(self):
@@ -152,5 +163,5 @@ class TestLogin(TestCase):
         re = self.simulate_post('/login', body='username=%s&password=abc' % self.admin_name)
         assert re.status_code == 200
         cookies = re.headers.get('set-cookie')
-        re = self.simulate_get('/dummy2/'+self.team_name, headers={'X-CSRF-TOKEN': 'foo', 'Cookie': cookies})
+        re = self.simulate_get('/dummy2/' + self.team_name, headers={'X-CSRF-TOKEN': 'foo', 'Cookie': cookies})
         assert re.status_code == 401

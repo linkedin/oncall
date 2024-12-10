@@ -13,6 +13,7 @@ from .. import db
 
 logger = logging.getLogger('oncall.auth')
 auth_manager = None
+sso_auth_manager = None
 
 
 def debug_only(function):
@@ -186,6 +187,12 @@ def authenticate_application(auth_token, req):
 
 
 def _authenticate_user(req):
+    global sso_auth_manager
+    # pass the req to the sso_auth_manager so it can check if it has valid SSO headers
+    if sso_auth_manager and sso_auth_manager.authenticate(req):
+        req.context['user'] = sso_auth_manager.authenticate(req)
+        return
+    # fall back to session based login
     session = req.env['beaker.session']
     try:
         req.context['user'] = session['user']
@@ -238,7 +245,12 @@ def init(application, config):
     global check_calendar_auth_by_id
     global debug_only
     global auth_manager
+    global sso_auth_manager
     global authenticate_user
+
+    if config.get('sso_module'):
+        sso_auth = importlib.import_module(config['sso_module'])
+        sso_auth_manager = getattr(sso_auth, 'Authenticator')(config)
 
     if config.get('debug', False):
         def authenticate_user_test_wrapper(req):
