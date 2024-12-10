@@ -46,6 +46,7 @@ debug: True
 auth:
   debug: True
   module: 'oncall.auth.modules.debug'  # Auth module where Authenticator is implemented
+  sso_module: 'oncall.auth.modules.sso_debug'  # Auth module where SSO Authenticator is implemented
 
 # Example configuration for LDAP-based auth
 #   module: 'oncall.auth.modules.ldap_example'

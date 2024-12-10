@@ -8,6 +8,7 @@
 import logging
 import re
 from ..constants import SUPPORTED_TIMEZONES
+from .. import auth
 from os import path, environ
 from falcon import HTTPNotFound
 from datetime import date
@@ -75,7 +76,12 @@ TEAM_MANAGED_MESSAGE = None
 
 
 def index(req, resp):
-    user = req.env.get('beaker.session', {}).get('user')
+    # attempt SSO login first then default to session based login
+    user = None
+    if auth.sso_auth_manager:
+        user = auth.sso_auth_manager.authenticate(req)
+    if not user:
+        user = req.env.get('beaker.session', {}).get('user')
     if user is None and LOGIN_REQUIRED:
         resp.content_type = 'text/html'
         resp.body = jinja2_env.get_template('loginsplash.html').render()
