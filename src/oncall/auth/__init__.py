@@ -189,9 +189,11 @@ def authenticate_application(auth_token, req):
 def _authenticate_user(req):
     global sso_auth_manager
     # pass the req to the sso_auth_manager so it can check if it has valid SSO headers
-    if sso_auth_manager and sso_auth_manager.authenticate(req):
-        req.context['user'] = sso_auth_manager.authenticate(req)
-        return
+    if sso_auth_manager:
+        user = sso_auth_manager.authenticate(req)
+        if user:
+            req.context['user'] = user
+            return
     # fall back to session based login
     session = req.env['beaker.session']
     try:
