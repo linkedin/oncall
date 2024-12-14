@@ -122,6 +122,14 @@ INSERT INTO `user_contact` VALUES
 UNLOCK TABLES;
 
 
+LOCK TABLES `user_manager` WRITE;
+/*!40000 ALTER TABLE `user_manager` DISABLE KEYS */;
+INSERT INTO `user_manager` VALUES
+    (3, 2),
+    (2, 1);
+/*!40000 ALTER TABLE `user_manager` ENABLE KEYS */;
+UNLOCK TABLES;
+
 LOCK TABLES `event` WRITE;
 /*!40000 ALTER TABLE `event` DISABLE KEYS */;
 INSERT INTO `event` (`id`, `team_id`, `role_id`, `schedule_id`, `user_id`, `start`, `end`) VALUES
