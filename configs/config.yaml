@@ -196,6 +196,9 @@ slack_instance: foobar
 # APIs without authentication
 require_auth: False
 
+# Setting to determine whether the autheticated user can modify calendar entries.
+auth_user_cal_mod: False
+
 ###########################
 ### Oncall bonus management
 ###########################
