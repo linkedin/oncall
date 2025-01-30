@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS `deleted_team` (
 CREATE TABLE IF NOT EXISTS `user` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
+  `hashed_password` VARCHAR(255),
   `active` BOOL DEFAULT 1 NOT NULL,
   `full_name` VARCHAR(255),
   `time_zone` VARCHAR(64),
