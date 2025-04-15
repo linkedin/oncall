@@ -18,6 +18,7 @@ db:
       charset: utf8
       echo: True
     str: "%(scheme)s://%(user)s:%(password)s@%(host)s:%(port)s/%(database)s?charset=%(charset)s"
+    use_ssl: False
   kwargs:
     pool_recycle: 3600
 healthcheck_path: /tmp/status
