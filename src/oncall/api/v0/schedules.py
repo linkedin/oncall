@@ -90,7 +90,10 @@ def get_schedules(filter_params, dbinfo=None, fields=None):
     if fields is None:
         fields = list(columns.keys())
     if any(f not in columns for f in fields):
-        raise HTTPBadRequest('Bad fields', 'One or more invalid fields')
+        raise HTTPBadRequest(
+            title='Bad fields',
+            description='One or more invalid fields'
+        )
     if 'roster' in fields:
         from_clause.append('JOIN `roster` ON `roster`.`id` = `schedule`.`roster_id`')
     if 'team' in fields or 'timezone' in fields:
@@ -266,7 +269,7 @@ def on_get(req, resp, team, roster):
     params['roster'] = roster
     data = get_schedules(params, fields=fields)
 
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 required_params = frozenset(['events', 'role', 'advanced_mode'])
@@ -376,18 +379,28 @@ def on_post(req, resp, team, roster):
     check_team_auth(data['team'], req)
     missing_params = required_params - set(data.keys())
     if missing_params:
-        raise HTTPBadRequest('invalid schedule',
-                             'missing required parameters: %s' % ', '.join(missing_params))
+        raise HTTPBadRequest(
+            title='invalid schedule',
+            description='missing required parameters: %s' % ', '.join(missing_params)
+        )
 
     schedule_events = data.pop('events')
     for sev in schedule_events:
         if 'start' not in sev or 'duration' not in sev:
-            raise HTTPBadRequest('invalid schedule',
-                                 'schedule event requires both start and duration fields')
+            raise HTTPBadRequest(
+                title='invalid schedule',
+                description='schedule event requires both start and duration fields'
+            )
         if sev.get('start') is None:
-            raise HTTPBadRequest('invalid schedule', 'schedule event start cannot be null')
+            raise HTTPBadRequest(
+                title='invalid schedule',
+                description='schedule event start cannot be null'
+            )
         if sev.get('duration') is None or sev['duration'] <= 0:
-            raise HTTPBadRequest('invalid schedule', 'schedule event duration must be positive')
+            raise HTTPBadRequest(
+                title='invalid schedule',
+                description='schedule event duration must be positive'
+            )
 
     if 'auto_populate_threshold' not in data:
         # default to autopopulate 3 weeks forward
@@ -402,7 +415,10 @@ def on_post(req, resp, team, roster):
 
     if not data['advanced_mode']:
         if not validate_simple_schedule(schedule_events):
-            raise HTTPBadRequest('invalid schedule', 'invalid advanced mode setting')
+            raise HTTPBadRequest(
+                title='invalid schedule',
+                description='invalid advanced mode setting'
+            )
 
     insert_schedule = '''INSERT INTO `schedule` (`roster_id`,`team_id`,`role_id`,
                                                  `auto_populate_threshold`, `advanced_mode`, `scheduler_id`)
@@ -439,7 +455,11 @@ def on_post(req, resp, team, roster):
             err_msg = 'scheduler not found'
         elif err_msg == 'Column \'team_id\' cannot be null':
             err_msg = 'team "%s" not found' % team
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     else:
         connection.commit()
     finally:
@@ -447,4 +467,4 @@ def on_post(req, resp, team, roster):
         connection.close()
 
     resp.status = HTTP_201
-    resp.body = json_dumps({'id': schedule_id})
+    resp.text = json_dumps({'id': schedule_id})

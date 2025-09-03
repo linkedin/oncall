@@ -154,7 +154,9 @@ def on_get(req, resp):
     req.params.pop('include_subscribed', None)
     cols = ', '.join(fields) if fields else all_columns
     if any(key not in constraints for key in req.params):
-        raise HTTPBadRequest('Bad constraint param')
+        raise HTTPBadRequest(
+            title='Bad constraint param'
+        )
     query = '''SELECT %s FROM `event`
                JOIN `user` ON `user`.`id` = `event`.`user_id`
                JOIN `team` ON `team`.`id` = `event`.`team_id`
@@ -202,7 +204,7 @@ def on_get(req, resp):
     data = cursor.fetchall()
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @login_required
@@ -251,9 +253,15 @@ def on_post(req, resp):
     data = load_json_body(req)
     now = time.time()
     if data['start'] < now - constants.GRACE_PERIOD:
-        raise HTTPBadRequest('Invalid event', 'Creating events in the past not allowed')
+        raise HTTPBadRequest(
+            title='Invalid event',
+            description='Creating events in the past not allowed'
+        )
     if data['start'] >= data['end']:
-        raise HTTPBadRequest('Invalid event', 'Event must start before it ends')
+        raise HTTPBadRequest(
+            title='Invalid event',
+            description='Event must start before it ends'
+        )
     check_calendar_auth(data['team'], req)
 
     columns = ['`start`', '`end`', '`user_id`', '`team_id`', '`role_id`']
@@ -274,7 +282,10 @@ def on_post(req, resp):
     cursor = connection.cursor(db.DictCursor)
 
     if not user_in_team_by_name(cursor, data['user'], data['team']):
-        raise HTTPBadRequest('Invalid event', 'User must be part of the team')
+        raise HTTPBadRequest(
+            title='Invalid event',
+            description='User must be part of the team'
+        )
 
     try:
         query = 'INSERT INTO `event` (%s) VALUES (%s)' % (','.join(columns), ','.join(values))
@@ -309,10 +320,14 @@ def on_post(req, resp):
             err_msg = 'user "%s" not found' % data['user']
         elif err_msg == 'Column \'team_id\' cannot be null':
             err_msg = 'team "%s" not found' % data['team']
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     finally:
         cursor.close()
         connection.close()
 
     resp.status = HTTP_201
-    resp.body = json_dumps(event_id)
+    resp.text = json_dumps(event_id)

@@ -102,11 +102,15 @@ def on_put(req, resp, notification_id):
         only_if_involved = data.get('only_if_involved', current_setting['only_if_involved'])
 
         if is_reminder and only_if_involved is not None:
-            raise HTTPBadRequest('invalid setting update',
-                                 'reminder setting must define only time_before')
+            raise HTTPBadRequest(
+                title='invalid setting update',
+                description='reminder setting must define only time_before'
+            )
         elif not is_reminder and time_before is not None:
-            raise HTTPBadRequest('invalid setting update',
-                                 'notification setting must define only only_if_involved')
+            raise HTTPBadRequest(
+                title='invalid setting update',
+                description='notification setting must define only only_if_involved'
+            )
 
         if cols:
             cursor.execute('SELECT `user`.`name` FROM `notification_setting` '

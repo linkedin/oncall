@@ -18,10 +18,17 @@ def on_post(req, resp):
     user = login_info.get('username')
     password = login_info.get('password')
     if user is None or password is None:
-        raise HTTPBadRequest('Invalid login attempt', 'Missing user/password')
+        raise HTTPBadRequest(
+            title='Invalid login attempt',
+            description='Missing user/password'
+        )
 
     if not auth_manager.authenticate(user, password):
-        raise HTTPUnauthorized('Authentication failure', 'bad login credentials', '')
+        raise HTTPUnauthorized(
+            title='Authentication failure',
+            description='bad login credentials',
+            challenges=[]
+        )
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
@@ -39,11 +46,14 @@ def on_post(req, resp):
         cursor.execute('INSERT INTO `session` (`id`, `csrf_token`) VALUES (%s, %s)',
                        (req.env['beaker.session']['_id'], csrf_token))
     except db.IntegrityError:
-        raise HTTPBadRequest('Invalid login attempt', 'User already logged in')
+        raise HTTPBadRequest(
+            title='Invalid login attempt',
+            description='User already logged in'
+        )
     connection.commit()
     cursor.close()
     connection.close()
 
     # TODO: purge out of date csrf token
     data[0]['csrf_token'] = csrf_token
-    resp.body = dumps(data[0])
+    resp.text = dumps(data[0])

@@ -23,7 +23,7 @@ security_headers = [
 
 
 def json_error_serializer(req, resp, exception):
-    resp.body = exception.to_json()
+    resp.text = exception.to_json()
     resp.content_type = 'application/json'
 
 

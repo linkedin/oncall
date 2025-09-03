@@ -23,7 +23,7 @@ def on_get(req, resp, team):
     data = [row for row in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @login_required
@@ -33,9 +33,15 @@ def on_post(req, resp, team):
     sub_name = data.get('subscription')
     role_name = data.get('role')
     if not sub_name or not role_name:
-        raise HTTPBadRequest('Invalid subscription', 'Missing subscription name or role name')
+        raise HTTPBadRequest(
+            title='Invalid subscription',
+            description='Missing subscription name or role name'
+        )
     if sub_name == team:
-        raise HTTPBadRequest('Invalid subscription', 'Subscription team must be different from subscribing team')
+        raise HTTPBadRequest(
+            title='Invalid subscription',
+            description='Subscription team must be different from subscribing team'
+        )
     connection = db.connect()
     cursor = connection.cursor()
     try:
@@ -56,7 +62,11 @@ def on_post(req, resp, team):
             err_msg = 'Subscription already exists'
         else:
             logger.exception('Unknown integrity error in team_subscriptions')
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     else:
         connection.commit()
     finally:

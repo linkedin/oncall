@@ -49,7 +49,7 @@ def on_get(req, resp, team, roster):
     data = [r[0] for r in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @login_required
@@ -103,7 +103,10 @@ def on_post(req, resp, team, roster):
     user_name = data.get('name')
     in_rotation = int(data.get('in_rotation', True))
     if not user_name:
-        raise HTTPBadRequest('incomplete data', 'missing field "name"')
+        raise HTTPBadRequest(
+            title='incomplete data',
+            description='missing field "name"'
+        )
     check_team_auth(team, req)
 
     connection = db.connect()
@@ -113,7 +116,11 @@ def on_post(req, resp, team, roster):
                       (SELECT `id` FROM `user` WHERE `name`=%s)''', (team, user_name))
     results = [r[0] for r in cursor]
     if len(results) < 2:
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', 'invalid team or user')
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description='invalid team or user'
+        )
 
     # TODO: validate roster
     (team_id, user_id) = results
@@ -154,12 +161,14 @@ def on_post(req, resp, team, roster):
                      ROSTER_USER_ADDED, req, cursor)
         connection.commit()
     except db.IntegrityError:
-        raise HTTPError('422 Unprocessable Entity',
-                        'IntegrityError',
-                        'user "%(name)s" is already in the roster' % data)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description='user "%(name)s" is already in the roster' % data
+        )
     finally:
         cursor.close()
         connection.close()
 
     resp.status = HTTP_201
-    resp.body = json_dumps(get_user_data(None, {'name': user_name})[0])
+    resp.text = json_dumps(get_user_data(None, {'name': user_name})[0])

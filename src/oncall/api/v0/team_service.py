@@ -44,7 +44,7 @@ def on_get(req, resp):
     data = [{'team': r[0], 'service': r[1]} for r in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @login_required

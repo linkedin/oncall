@@ -72,7 +72,7 @@ def on_get(req, resp, service, role=None):
     team_ids = [row['team_id'] for row in data]
     team_override_numbers = {row['name']: row['override_phone_number'] for row in data}
     if not team_ids:
-        resp.body = json_dumps([])
+        resp.text = json_dumps([])
         cursor.close()
         connection.close()
         return
@@ -103,4 +103,4 @@ def on_get(req, resp, service, role=None):
 
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)

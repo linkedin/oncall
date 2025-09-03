@@ -27,7 +27,7 @@ setuptools.setup(
     packages=setuptools.find_packages('src'),
     include_package_data=True,
     install_requires=[
-        'falcon==3.1.1',
+        'falcon',
         'falcon-cors',
         'greenlet==2.0.1',
         'gevent==22.10.2',

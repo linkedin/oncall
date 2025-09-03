@@ -13,15 +13,15 @@ def on_get(req, resp, key):
     challenger = req.context['user']
     if not (check_ical_key_requester(key, challenger) or check_ical_key_admin(challenger)):
         raise HTTPForbidden(
-            'Unauthorized',
-            'Action not allowed: "%s" is not an admin of ical_key' % (challenger, ),
+            title='Unauthorized',
+            description='Action not allowed: "%s" is not an admin of ical_key' % (challenger, ),
         )
 
     results = get_ical_key_detail(key)
     if not results:
         raise HTTPNotFound()
 
-    resp.body = json_dumps(results)
+    resp.text = json_dumps(results)
     resp.set_header('Content-Type', 'application/json')
 
 
@@ -30,8 +30,8 @@ def on_delete(req, resp, key):
     challenger = req.context['user']
     if not (check_ical_key_requester(key, challenger) or check_ical_key_admin(challenger)):
         raise HTTPForbidden(
-            'Unauthorized',
-            'Action not allowed: "%s" is not an admin of ical_key' % (challenger, ),
+            title='Unauthorized',
+            description='Action not allowed: "%s" is not an admin of ical_key' % (challenger, ),
         )
 
     invalidate_ical_key(key)

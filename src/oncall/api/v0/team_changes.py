@@ -15,4 +15,4 @@ def on_get(req, resp, team):
     data = cursor.fetchall()
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)

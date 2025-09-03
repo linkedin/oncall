@@ -52,8 +52,10 @@ def on_delete(req, resp, link_id):
         event_start = min(data, key=itemgetter('start'))['start']
         check_calendar_auth(ev['team'], req)
         if event_start < time.time() - constants.GRACE_PERIOD:
-            raise HTTPBadRequest('Invalid event update',
-                                 'Deleting events in the past not allowed')
+            raise HTTPBadRequest(
+                title='Invalid event update',
+                description='Deleting events in the past not allowed'
+            )
         cursor.execute('DELETE FROM `event` WHERE `link_id`=%s', link_id)
 
         context = {'team': ev['team'], 'full_name': ev['full_name'], 'role': ev['role']}
@@ -90,7 +92,10 @@ def on_put(req, resp, link_id):
     try:
         update_cols = ', '.join(update_columns[col] for col in data)
     except KeyError:
-        raise HTTPBadRequest('Invalid event update', 'Invalid column')
+        raise HTTPBadRequest(
+            title='Invalid event update',
+            description='Invalid column'
+        )
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
 
@@ -119,12 +124,17 @@ def on_put(req, resp, link_id):
         event_summary['start'] = min(event_data, key=itemgetter('start'))['start']
         user = data.get('user', event_summary['user'])
         if not user_in_team_by_name(cursor, user, event_summary['team']):
-            raise HTTPBadRequest('Invalid event update', 'Event user must be part of the team')
+            raise HTTPBadRequest(
+                title='Invalid event update',
+                description='Event user must be part of the team'
+            )
 
         now = time.time()
         if event_summary['start'] < now - constants.GRACE_PERIOD:
-            raise HTTPBadRequest('Invalid event update',
-                                 'Editing events in the past not allowed')
+            raise HTTPBadRequest(
+                title='Invalid event update',
+                description='Editing events in the past not allowed'
+            )
         check_calendar_auth(event_summary['team'], req)
 
         update = 'UPDATE `event` SET %s WHERE link_id = %%(link_id)s' % update_cols

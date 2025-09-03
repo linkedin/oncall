@@ -75,7 +75,7 @@ def on_delete(req, resp, team, roster, user):
     cursor.close()
     connection.close()
     resp.status = HTTP_200
-    resp.body = '[]'
+    resp.text = '[]'
 
 
 @login_required
@@ -110,7 +110,10 @@ def on_put(req, resp, team, roster, user):
 
     in_rotation = data.get('in_rotation')
     if in_rotation is None:
-        raise HTTPBadRequest('incomplete data', 'missing field "in_rotation"')
+        raise HTTPBadRequest(
+            title='incomplete data',
+            description='missing field "in_rotation"'
+        )
     in_rotation = int(in_rotation)
     connection = db.connect()
     cursor = connection.cursor()
@@ -130,4 +133,4 @@ def on_put(req, resp, team, roster, user):
     cursor.close()
     connection.close()
     resp.status = HTTP_200
-    resp.body = '[]'
+    resp.text = '[]'

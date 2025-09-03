@@ -44,7 +44,7 @@ def on_get(req, resp, team):
     data = [r[0] for r in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @login_required
@@ -91,9 +91,11 @@ def on_post(req, resp, team):
                           WHERE `service`.`name` = %s''', service)
         claimed_team = [r[0] for r in cursor]
         if claimed_team:
-            raise HTTPError('422 Unprocessable Entity',
-                            'IntegrityError',
-                            'service "%s" already claimed by team "%s"' % (service, claimed_team[0]))
+            raise HTTPError(
+                '422 Unprocessable Entity',
+                title='IntegrityError',
+                description='service "%s" already claimed by team "%s"' % (service, claimed_team[0])
+            )
 
         cursor.execute('''INSERT INTO `team_service` (`team_id`, `service_id`)
                           VALUES (
@@ -110,7 +112,11 @@ def on_post(req, resp, team):
             err_msg = 'team "%s" not found' % team
         elif 'Duplicate entry' in err_msg:
             err_msg = 'service name "%s" is already associated with team %s' % (service, team)
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     finally:
         cursor.close()
         connection.close()

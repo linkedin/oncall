@@ -120,7 +120,10 @@ def load_json_body(req):
     try:
         return json_loads(req.context['body'])
     except ValueError as e:
-        raise HTTPBadRequest('invalid JSON', 'failed to decode json: %s' % str(e))
+        raise HTTPBadRequest(
+            title='invalid JSON',
+            description='failed to decode json: %s' % str(e)
+        )
 
 
 def import_custom_module(default_root, module):

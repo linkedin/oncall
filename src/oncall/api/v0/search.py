@@ -118,4 +118,4 @@ def on_get(req, resp):
 
     cursor.close()
     connection.close()
-    resp.body = dumps(data)
+    resp.text = dumps(data)

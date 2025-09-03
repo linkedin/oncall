@@ -39,7 +39,7 @@ def on_get(req, resp, user_name):
     teams = [r[0] for r in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(teams)
+    resp.text = json_dumps(teams)
 
 
 @login_required
@@ -65,7 +65,10 @@ def on_post(req, resp, user_name):
     data = load_json_body(req)
     team = data.get('team')
     if team is None:
-        raise HTTPBadRequest('Invalid team pin', 'Missing team parameter')
+        raise HTTPBadRequest(
+            title='Invalid team pin',
+            description='Missing team parameter'
+        )
     connection = db.connect()
     cursor = connection.cursor()
     try:
@@ -77,7 +80,10 @@ def on_post(req, resp, user_name):
     except db.IntegrityError as e:
         # Duplicate key
         if e.args[0] == 1062:
-            raise HTTPBadRequest('Invalid team pin', 'Team already pinned for this user')
+            raise HTTPBadRequest(
+                title='Invalid team pin',
+                description='Team already pinned for this user'
+            )
         # Team/user is null
         elif e.args[0] == 1048:
             err_msg = str(e.args[1])
@@ -85,7 +91,11 @@ def on_post(req, resp, user_name):
                 err_msg = 'user "%s" not found' % user_name
             elif err_msg == 'Column \'team_id\' cannot be null':
                 err_msg = 'team "%s" not found' % team
-            raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+            raise HTTPError(
+                '422 Unprocessable Entity',
+                title='IntegrityError',
+                description=err_msg
+            )
     finally:
         cursor.close()
         connection.close()

@@ -88,7 +88,7 @@ def on_get(req, resp, user_name):
 
     cursor.close()
     connection.close()
-    resp.body = json_dumps(list(data.values()))
+    resp.text = json_dumps(list(data.values()))
 
 
 @login_required
@@ -162,8 +162,10 @@ def on_post(req, resp, user_name):
     params = set(data.keys())
     missing_params = required_params - params
     if missing_params:
-        raise HTTPBadRequest('invalid notification setting',
-                             'missing required parameters: %s' % ', '.join(missing_params))
+        raise HTTPBadRequest(
+            title='invalid notification setting',
+            description='missing required parameters: %s' % ', '.join(missing_params)
+        )
     connection = db.connect()
     cursor = connection.cursor()
     cursor.execute('SELECT is_reminder FROM notification_type WHERE name = %s', data['type'])
@@ -173,20 +175,28 @@ def on_post(req, resp, user_name):
     #                    reminder notifications must define time_before
     #                    other notifications must define only_if_involved
     if cursor.rowcount != 1:
-        raise HTTPBadRequest('invalid notification setting',
-                             'notification type %s does not exist' % data['type'])
+        raise HTTPBadRequest(
+            title='invalid notification setting',
+            description='notification type %s does not exist' % data['type']
+        )
     is_reminder = cursor.fetchone()[0]
     extra_cols = params & other_params
     if len(extra_cols) != 1:
-        raise HTTPBadRequest('invalid notification setting',
-                             'settings must define exactly one of %s' % other_params)
+        raise HTTPBadRequest(
+            title='invalid notification setting',
+            description='settings must define exactly one of %s' % other_params
+        )
     extra_col = next(iter(extra_cols))
     if is_reminder and extra_col != 'time_before':
-        raise HTTPBadRequest('invalid notification setting',
-                             'reminder setting must define time_before')
+        raise HTTPBadRequest(
+            title='invalid notification setting',
+            description='reminder setting must define time_before'
+        )
     elif not is_reminder and extra_col != 'only_if_involved':
-        raise HTTPBadRequest('invalid notification setting',
-                             'notification setting must define only_if_involved')
+        raise HTTPBadRequest(
+            title='invalid notification setting',
+            description='notification setting must define only_if_involved'
+        )
 
     roles = data.pop('roles')
     data['user'] = user_name
@@ -200,7 +210,10 @@ def on_post(req, resp, user_name):
 
     cursor.execute(query, data)
     if cursor.rowcount != 1:
-        raise HTTPBadRequest('invalid request', 'unable to create notification with provided settings')
+        raise HTTPBadRequest(
+            title='invalid request',
+            description='unable to create notification with provided settings'
+        )
     setting_id = cursor.lastrowid
 
     query_vals = ', '.join(['(%d, (SELECT `id` FROM `role` WHERE `name` = %%s))' % setting_id] * len(roles))
@@ -208,9 +221,12 @@ def on_post(req, resp, user_name):
     try:
         cursor.execute('INSERT INTO `setting_role`(`setting_id`, `role_id`) VALUES ' + query_vals, roles)
     except db.IntegrityError:
-        raise HTTPBadRequest('invalid request', 'unable to create notification: invalid roles')
+        raise HTTPBadRequest(
+            title='invalid request',
+            description='unable to create notification: invalid roles'
+        )
     connection.commit()
     cursor.close()
     connection.close()
-    resp.body = json_dumps({'id': setting_id})
+    resp.text = json_dumps({'id': setting_id})
     resp.status = HTTP_201

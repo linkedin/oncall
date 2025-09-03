@@ -100,7 +100,7 @@ def on_get(req, resp):
     data = cursor.fetchall()
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @debug_only
@@ -116,7 +116,11 @@ def on_post(req, resp):
         err_msg = str(e.args[1])
         if 'Duplicate entry' in err_msg:
             err_msg = 'role "%s" already existed' % new_role
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     finally:
         cursor.close()
         connection.close()

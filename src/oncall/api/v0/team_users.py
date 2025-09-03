@@ -52,7 +52,7 @@ def on_get(req, resp, team):
     data = [r[0] for r in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @login_required
@@ -65,7 +65,11 @@ def on_post(req, resp, team):
 
     user_name = data.get('name')
     if not user_name:
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', 'name missing for user')
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description='name missing for user'
+        )
 
     connection = db.connect()
     cursor = connection.cursor()
@@ -85,10 +89,14 @@ def on_post(req, resp, team):
             err_msg = 'team %s not found' % team
         elif 'Duplicate entry' in err_msg:
             err_msg = 'user name "%s" is already in team %s' % (user_name, team)
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     finally:
         cursor.close()
         connection.close()
 
     resp.status = HTTP_201
-    resp.body = json_dumps(get_user_data(None, {'name': user_name})[0])
+    resp.text = json_dumps(get_user_data(None, {'name': user_name})[0])

@@ -48,8 +48,10 @@ def on_post(req, resp):
     try:
         ev_0, ev_1 = data['events']
     except ValueError:
-        raise HTTPBadRequest('Invalid event swap request',
-                             'Must provide 2 events')
+        raise HTTPBadRequest(
+            title='Invalid event swap request',
+            description='Must provide 2 events'
+        )
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
@@ -58,8 +60,10 @@ def on_post(req, resp):
         events = [None, None]
         for i, ev in enumerate([ev_0, ev_1]):
             if not ev.get('id'):
-                raise HTTPBadRequest('Invalid event swap request',
-                                     'Invalid event id: %s' % ev.get('id'))
+                raise HTTPBadRequest(
+                    title='Invalid event swap request',
+                    description='Invalid event id: %s' % ev.get('id')
+                )
             if ev.get('linked'):
                 cursor.execute('SELECT `id`, `start`, `end`, `team_id`, `user_id`, `role_id`, '
                                '`link_id` FROM `event` WHERE `link_id` = %s',
@@ -77,14 +81,21 @@ def on_post(req, resp):
         # Validation checks
         now = time.time()
         if any([ev['start'] < now - constants.GRACE_PERIOD for ev in events]):
-            raise HTTPBadRequest('Invalid event swap request',
-                                 'Cannot edit events in the past')
+            raise HTTPBadRequest(
+                title='Invalid event swap request',
+                description='Cannot edit events in the past'
+            )
         if len(set(ev['team_id'] for ev in events)) > 1:
-            raise HTTPBadRequest('Event swap not allowed',
-                                 'Swapped events must come from the same team')
+            raise HTTPBadRequest(
+                title='Event swap not allowed',
+                description='Swapped events must come from the same team'
+            )
         for ev_list in [events_0, events_1]:
             if len(set([ev['user_id'] for ev in ev_list])) != 1:
-                raise HTTPBadRequest('', 'all linked events must have the same user')
+                raise HTTPBadRequest(
+                    title='',
+                    description='all linked events must have the same user'
+                )
 
         check_calendar_auth_by_id(events[0]['team_id'], req)
 

@@ -28,15 +28,15 @@ def on_get(req, resp, user_name):
     challenger = req.context['user']
     if challenger != user_name:
         raise HTTPForbidden(
-            'Unauthorized',
-            'Action not allowed: "%s" is not allowed to view ical_key of "%s"' % (challenger, user_name)
+            title='Unauthorized',
+            description='Action not allowed: "%s" is not allowed to view ical_key of "%s"' % (challenger, user_name)
         )
 
     key = get_ical_key(challenger, user_name, 'user')
     if key is None:
         raise HTTPNotFound()
 
-    resp.body = key
+    resp.text = key
     resp.set_header('Content-Type', 'text/plain')
 
 
@@ -54,15 +54,15 @@ def on_post(req, resp, user_name):
     challenger = req.context['user']
     if challenger != user_name:
         raise HTTPForbidden(
-            'Unauthorized',
-            'Action not allowed: "%s" is not allowed to update ical_key of "%s"' % (challenger, user_name)
+            title='Unauthorized',
+            description='Action not allowed: "%s" is not allowed to update ical_key of "%s"' % (challenger, user_name)
         )
 
     key = generate_ical_key()
     update_ical_key(challenger, user_name, 'user', key)
 
     resp.status = HTTP_201
-    resp.body = key
+    resp.text = key
     resp.set_header('Content-Type', 'text/plain')
 
 
@@ -78,8 +78,8 @@ def on_delete(req, resp, user_name):
     challenger = req.context['user']
     if challenger != user_name:
         raise HTTPForbidden(
-            'Unauthorized',
-            'Action not allowed: "%s" is not allowed to delete ical_key of "%s"' % (challenger, user_name)
+            title='Unauthorized',
+            description='Action not allowed: "%s" is not allowed to delete ical_key of "%s"' % (challenger, user_name)
         )
 
     delete_ical_key(challenger, user_name, 'user')

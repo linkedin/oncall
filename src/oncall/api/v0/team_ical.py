@@ -84,5 +84,5 @@ def on_get(req, resp, team):
         include_sub = True
 
     events = get_team_events(team, start, roles=roles, include_subscribed=include_sub)
-    resp.body = ical.events_to_ical(events, team, contact)
+    resp.text = ical.events_to_ical(events, team, contact)
     resp.set_header('Content-Type', 'text/calendar')

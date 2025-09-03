@@ -15,4 +15,4 @@ def on_get(req, resp):
     data = [row[0] for row in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)

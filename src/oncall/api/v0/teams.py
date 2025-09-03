@@ -104,7 +104,7 @@ def on_get(req, resp):
         data = [r[0] for r in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @login_required
@@ -157,24 +157,36 @@ def on_post(req, resp):
 
     data = load_json_body(req)
     if not data.get('name'):
-        raise HTTPBadRequest('', 'name attribute missing from request')
+        raise HTTPBadRequest(
+            title='',
+            description='name attribute missing from request'
+        )
     if not data.get('scheduling_timezone'):
-        raise HTTPBadRequest('', 'scheduling_timezone attribute missing from request')
+        raise HTTPBadRequest(
+            title='',
+            description='scheduling_timezone attribute missing from request'
+        )
     team_name = unquote(data['name']).strip()
     invalid_char = invalid_char_reg.search(team_name)
     if invalid_char:
-        raise HTTPBadRequest('invalid team name',
-                             'team name contains invalid character "%s"' % invalid_char.group())
+        raise HTTPBadRequest(
+            title='invalid team name',
+            description='team name contains invalid character "%s"' % invalid_char.group()
+        )
 
     scheduling_timezone = unquote(data['scheduling_timezone'])
     slack = data.get('slack_channel')
     if slack and slack[0] != '#':
-        raise HTTPBadRequest('invalid slack channel',
-                             'slack channel name needs to start with #')
+        raise HTTPBadRequest(
+            title='invalid slack channel',
+            description='slack channel name needs to start with #'
+        )
     slack_notifications = data.get('slack_channel_notifications')
     if slack_notifications and slack_notifications[0] != '#':
-        raise HTTPBadRequest('invalid slack notifications channel',
-                             'slack channel notifications name needs to start with #')
+        raise HTTPBadRequest(
+            title='invalid slack notifications channel',
+            description='slack channel notifications name needs to start with #'
+        )
     email = data.get('email')
     description = data.get('description')
     iris_plan = data.get('iris_plan')
@@ -187,18 +199,27 @@ def on_post(req, resp):
     if iris_plan is not None and iris.client is not None:
         plan_resp = iris.client.get(iris.client.url + 'plans?name=%s&active=1' % iris_plan)
         if plan_resp.status_code != 200 or plan_resp.json() == []:
-            raise HTTPBadRequest('invalid iris escalation plan', 'no iris plan named %s exists' % iris_plan)
+            raise HTTPBadRequest(
+                title='invalid iris escalation plan',
+                description='no iris plan named %s exists' % iris_plan
+            )
 
     connection = db.connect()
     cursor = connection.cursor()
     # if team creation request is coming from api use the username from the admin field in lieu of the user context var
     if 'user' not in req.context:
         if not data.get('admin'):
-            raise HTTPBadRequest('invalid admin', 'API requests must specify a team admin username in the admin field')
+            raise HTTPBadRequest(
+                title='invalid admin',
+                description='API requests must specify a team admin username in the admin field'
+            )
         user = data.get('admin')
         cursor.execute('''SELECT `id` FROM `user` WHERE `name` = %s LIMIT 1''', (user, ))
         if cursor.rowcount == 0:
-            raise HTTPBadRequest('invalid admin', 'admin username %s was not found in db' % user)
+            raise HTTPBadRequest(
+                title='invalid admin',
+                description='admin username %s was not found in db' % user
+            )
         req.context['user'] = user
 
     try:
@@ -220,9 +241,11 @@ def on_post(req, resp):
         create_audit({'team_id': team_id}, team_name, TEAM_CREATED, req, cursor)
         connection.commit()
     except db.IntegrityError:
-        raise HTTPError('422 Unprocessable Entity',
-                        'IntegrityError',
-                        'team name "%s" already exists' % team_name)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description='team name "%s" already exists' % team_name
+        )
     finally:
         cursor.close()
         connection.close()

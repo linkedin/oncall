@@ -46,7 +46,7 @@ def on_get(req, resp, team):
     data = [r[0] for r in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @login_required
@@ -96,7 +96,9 @@ def on_post(req, resp, team):
 
     user_name = data.get('name')
     if not user_name:
-        raise HTTPBadRequest('name attribute missing from request')
+        raise HTTPBadRequest(
+            title='name attribute missing from request'
+        )
 
     connection = db.connect()
     cursor = connection.cursor()
@@ -106,7 +108,11 @@ def on_post(req, resp, team):
                       (SELECT `id` FROM `user` WHERE `name`=%s)''', (team, user_name))
     results = [r[0] for r in cursor]
     if len(results) < 2:
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', 'invalid team or user')
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description='invalid team or user'
+        )
     (team_id, user_id) = results
 
     try:
@@ -127,10 +133,14 @@ def on_post(req, resp, team):
             err_msg = 'user %s not found' % data['name']
         else:
             err_msg = 'user name "%s" is already an admin of team %s' % (data['name'], team)
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     finally:
         cursor.close()
         connection.close()
 
     resp.status = HTTP_201
-    resp.body = json_dumps(get_user_data(None, {'name': user_name})[0])
+    resp.text = json_dumps(get_user_data(None, {'name': user_name})[0])

@@ -72,7 +72,7 @@ def on_get(req, resp, user_name):
     data = get_user_data(req.get_param_as_list('fields'), req.params)
     if not data:
         raise HTTPNotFound()
-    resp.body = json_dumps(data[0])
+    resp.text = json_dumps(data[0])
 
 
 @login_required
@@ -165,7 +165,10 @@ def on_put(req, resp, user_name):
         if cursor.rowcount != 1:
             cursor.close()
             connection.close()
-            raise HTTPBadRequest('No User Found', 'no user exists with given name')
+            raise HTTPBadRequest(
+                title='No User Found',
+                description='no user exists with given name'
+            )
 
     if set_contacts:
         contacts = []

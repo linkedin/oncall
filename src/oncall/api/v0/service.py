@@ -43,7 +43,7 @@ def on_get(req, resp, service):
     [service] = results
     cursor.close()
     connection.close()
-    resp.body = dumps(service)
+    resp.text = dumps(service)
 
 
 @debug_only

@@ -61,7 +61,10 @@ def get_user_data(fields, filter_params, dbinfo=None):
             contacts = True
 
         if any(f not in columns for f in fields):
-            raise HTTPBadRequest('Bad fields', 'One or more invalid fields')
+            raise HTTPBadRequest(
+                title='Bad fields',
+                description='One or more invalid fields'
+            )
 
         fields = map(columns.__getitem__, fields)
         cols = ', '.join(fields)
@@ -166,7 +169,7 @@ def on_get(req, resp):
         ]
 
     """
-    resp.body = json_dumps(get_user_data(req.get_param_as_list('fields'), req.params))
+    resp.text = json_dumps(get_user_data(req.get_param_as_list('fields'), req.params))
 
 
 @auth.debug_only
@@ -181,9 +184,11 @@ def on_post(req, resp):
         cursor.execute('INSERT INTO `user` (`name`) VALUES (%(name)s)', data)
         connection.commit()
     except db.IntegrityError:
-        raise HTTPError('422 Unprocessable Entity',
-                        'IntegrityError',
-                        'user name "%(name)s" already exists' % data)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description='user name "%(name)s" already exists' % data
+        )
     finally:
         cursor.close()
         connection.close()

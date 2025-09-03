@@ -42,4 +42,4 @@ def on_get(req, resp, user_name):
     data = [r[0] for r in cursor]
     cursor.close()
     connection.close()
-    resp.body = dumps(data)
+    resp.text = dumps(data)

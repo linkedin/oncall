@@ -76,7 +76,7 @@ def on_get(req, resp, schedule_id):
             }
     """
 
-    resp.body = json_dumps(get_schedules({'id': schedule_id}, fields=req.get_param_as_list('fields'))[0])
+    resp.text = json_dumps(get_schedules({'id': schedule_id}, fields=req.get_param_as_list('fields'))[0])
 
 
 @login_required
@@ -119,7 +119,10 @@ def on_put(req, resp, schedule_id):
         data['scheduler'] = scheduler['name']
     data = dict((k, data[k]) for k in data if k in columns)
     if 'roster' in data and 'team' not in data:
-        raise HTTPBadRequest('Invalid edit', 'team must be specified with roster')
+        raise HTTPBadRequest(
+            title='Invalid edit',
+            description='team must be specified with roster'
+        )
     cols = ', '.join(columns[col] for col in data)
 
     update = 'UPDATE `schedule` SET ' + cols + ' WHERE `id`=%d' % int(schedule_id)
@@ -142,7 +145,10 @@ def on_put(req, resp, schedule_id):
         advanced_mode = cursor.fetchone()[0]
     # if advanced mode is 0 and the events cannot exist as a simple schedule, raise an error
     if not advanced_mode and not simple:
-        raise HTTPBadRequest('Invalid edit', 'schedule cannot be represented in simple mode')
+        raise HTTPBadRequest(
+            title='Invalid edit',
+            description='schedule cannot be represented in simple mode'
+        )
 
     if cols:
         cursor.execute(update, data)

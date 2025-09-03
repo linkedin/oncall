@@ -87,7 +87,7 @@ def on_get(req, resp, team, roster):
 
     cursor.close()
     connection.close()
-    resp.body = json_dumps({'users': users, 'schedules': schedules})
+    resp.text = json_dumps({'users': users, 'schedules': schedules})
 
 
 @login_required
@@ -116,7 +116,10 @@ def on_put(req, resp, team, roster):
     check_team_auth(team, req)
 
     if not (name or roster_order):
-        raise HTTPBadRequest('invalid roster update', 'missing roster name or order')
+        raise HTTPBadRequest(
+            title='invalid roster update',
+            description='missing roster name or order'
+        )
 
     connection = db.connect()
     cursor = connection.cursor()
@@ -130,9 +133,15 @@ def on_put(req, resp, team, roster):
                            (roster, team))
             roster_users = {row[0] for row in cursor}
             if not all([x in roster_users for x in roster_order]):
-                raise HTTPBadRequest('Invalid roster order', 'All users in provided order must be part of the roster')
+                raise HTTPBadRequest(
+                    title='Invalid roster order',
+                    description='All users in provided order must be part of the roster'
+                )
             if not len(roster_order) == len(roster_users):
-                raise HTTPBadRequest('Invalid roster order', 'Roster order must include all roster members')
+                raise HTTPBadRequest(
+                    title='Invalid roster order',
+                    description='Roster order must include all roster members'
+                )
 
             cursor.executemany('''UPDATE roster_user SET roster_priority = %s
                                   WHERE roster_id = (SELECT id FROM roster WHERE name = %s
@@ -144,8 +153,10 @@ def on_put(req, resp, team, roster):
         if name and name != roster:
             invalid_char = invalid_char_reg.search(name)
             if invalid_char:
-                raise HTTPBadRequest('invalid roster name',
-                                     'roster name contains invalid character "%s"' % invalid_char.group())
+                raise HTTPBadRequest(
+                    title='invalid roster name',
+                    description='roster name contains invalid character "%s"' % invalid_char.group()
+                )
             cursor.execute(
                 '''UPDATE `roster` SET `name`=%s
                    WHERE `team_id`=(SELECT `id` FROM `team` WHERE `name`=%s)
@@ -157,7 +168,11 @@ def on_put(req, resp, team, roster):
         err_msg = str(e.args[1])
         if 'Duplicate entry' in err_msg:
             err_msg = "roster '%s' already existed for team '%s'" % (name, team)
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     finally:
         cursor.close()
         connection.close()

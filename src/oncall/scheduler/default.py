@@ -415,7 +415,10 @@ class Scheduler(object):
         if handoff < utc.localize(datetime.utcnow()):
             cursor.execute("DROP TEMPORARY TABLE IF EXISTS `temp_event`")
             connection.commit()
-            raise HTTPBadRequest('Invalid populate/preview request', 'cannot populate/preview starting in the past')
+            raise HTTPBadRequest(
+                title='Invalid populate/preview request',
+                description='cannot populate/preview starting in the past'
+            )
 
         future_events, last_epoch = self.calculate_future_events(schedule, cursor, start_epoch)
         self.set_last_epoch(schedule['id'], last_epoch, cursor)

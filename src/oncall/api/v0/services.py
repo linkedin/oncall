@@ -79,7 +79,7 @@ def on_get(req, resp):
     data = [r[0] for r in cursor]
     cursor.close()
     connection.close()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @debug_only
@@ -92,9 +92,11 @@ def on_post(req, resp):
         cursor.execute('INSERT INTO `service` (`name`) VALUES (%(name)s)', data)
         connection.commit()
     except db.IntegrityError:
-        raise HTTPError('422 Unprocessable Entity',
-                        'IntegrityError',
-                        'service name "%(name)s" already exists' % data)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description='service name "%(name)s" already exists' % data
+        )
     finally:
         cursor.close()
         connection.close()

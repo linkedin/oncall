@@ -53,20 +53,28 @@ def on_post(req, resp, team):
         if cursor.rowcount == 0:
             cursor.close()
             connection.close()
-            raise HTTPBadRequest('Iris escalation failed', 'No escalation plan specified '
-                                                           'and team has no custom escalation plan defined')
+            raise HTTPBadRequest(
+                title='Iris escalation failed',
+                description='No escalation plan specified and team has no custom escalation plan defined'
+            )
         plan_name = cursor.fetchone()[0]
         cursor.close()
         connection.close()
     else:
-        raise HTTPBadRequest('Iris escalation failed', 'Invalid escalation plan')
+        raise HTTPBadRequest(
+            title='Iris escalation failed',
+            description='Invalid escalation plan'
+        )
 
     requester = req.context.get('user')
     if not requester:
         requester = req.context['app']
     data['requester'] = requester
     if 'description' not in data or data['description'] == '':
-        raise HTTPBadRequest('Iris escalation failed', 'Escalation cannot have an empty description')
+        raise HTTPBadRequest(
+            title='Iris escalation failed',
+            description='Escalation cannot have an empty description'
+        )
     try:
         if dynamic:
             plan_name = plan_settings['name']
@@ -82,6 +90,9 @@ def on_post(req, resp, team):
         else:
             incident_id = iris.client.incident(plan_name, context=data)
     except (ValueError, ConnectionError, HTTPError) as e:
-        raise HTTPBadRequest('Iris escalation failed', 'Iris client error: %s' % e)
+        raise HTTPBadRequest(
+            title='Iris escalation failed',
+            description='Iris client error: %s' % e
+        )
 
-    resp.body = str(incident_id)
+    resp.text = str(incident_id)

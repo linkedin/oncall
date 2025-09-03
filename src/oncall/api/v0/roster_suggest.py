@@ -15,13 +15,17 @@ def on_get(req, resp, team, roster, role):
     try:
         cursor.execute('SELECT id FROM role WHERE name = %s', role)
         if cursor.rowcount == 0:
-            raise HTTPBadRequest('Invalid role')
+            raise HTTPBadRequest(
+                title='Invalid role'
+            )
         role_id = cursor.fetchone()[0]
 
         cursor.execute('''SELECT `team`.`id`, `roster`.`id` FROM `team` JOIN `roster` ON `roster`.`team_id` = `team`.`id`
                           WHERE `roster`.`name` = %s and `team`.`name` = %s''', (roster, team))
         if cursor.rowcount == 0:
-            raise HTTPBadRequest('Invalid roster')
+            raise HTTPBadRequest(
+                title='Invalid roster'
+            )
         team_id, roster_id = cursor.fetchone()
 
         cursor.execute('SELECT COUNT(*) FROM roster_user WHERE roster_id = %s', roster_id)
@@ -78,4 +82,4 @@ def on_get(req, resp, team, roster, role):
     finally:
         cursor.close()
         connection.close()
-    resp.body = json_dumps({'user': candidate, 'data': ret})
+    resp.text = json_dumps({'user': candidate, 'data': ret})

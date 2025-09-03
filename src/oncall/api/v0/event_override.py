@@ -86,7 +86,9 @@ def on_post(req, resp):
         cursor.execute('SELECT `id` FROM `user` WHERE `name` = %s', user)
         user_id = cursor.fetchone()
         if not (events and user_id):
-            raise HTTPBadRequest('Invalid name or list of events')
+            raise HTTPBadRequest(
+                title='Invalid name or list of events'
+            )
         else:
             user_id = user_id['id']
             team_id = events[0]['team_id']
@@ -94,19 +96,34 @@ def on_post(req, resp):
         check_calendar_auth_by_id(team_id, req)
         # Check that events are not in the past
         if start < now - constants.GRACE_PERIOD:
-            raise HTTPBadRequest('Invalid override request', 'Cannot edit events in the past')
+            raise HTTPBadRequest(
+                title='Invalid override request',
+                description='Cannot edit events in the past'
+            )
         # Check that events are from the same team
         if any([ev['team_id'] != team_id for ev in events]):
-            raise HTTPBadRequest('Invalid override request', 'Events must be from the same team')
+            raise HTTPBadRequest(
+                title='Invalid override request',
+                description='Events must be from the same team'
+            )
         # Check override user's membership in the team
         if not user_in_team(cursor, user_id, team_id):
-            raise HTTPBadRequest('Invalid override request', 'Substituting user must be part of the team')
+            raise HTTPBadRequest(
+                title='Invalid override request',
+                description='Substituting user must be part of the team'
+            )
         # Check events have the same role
         if len(set([ev['role_id'] for ev in events])) > 1:
-            raise HTTPBadRequest('Invalid override request', 'events must have the same role')
+            raise HTTPBadRequest(
+                title='Invalid override request',
+                description='events must have the same role'
+            )
         # Check events have same user
         if len(set([ev['user_id'] for ev in events])) > 1:
-            raise HTTPBadRequest('Invalid override request', 'events must have the same role')
+            raise HTTPBadRequest(
+                title='Invalid override request',
+                description='events must have the same role'
+            )
 
         edit_start = []
         edit_end = []
@@ -121,7 +138,10 @@ def on_post(req, resp):
         for idx, e in enumerate(events):
             # Check for consecutive events
             if idx != 0 and e['start'] != events[idx - 1]['end']:
-                raise HTTPBadRequest('Invalid override request', 'events must be consecutive')
+                raise HTTPBadRequest(
+                    title='Invalid override request',
+                    description='events must be consecutive'
+                )
 
             # Sort events into lists according to how they need to be edited
             if start <= e['start'] and end >= e['end']:
@@ -133,7 +153,10 @@ def on_post(req, resp):
             elif start > e['start'] and end < e['end']:
                 split.append(e)
             else:
-                raise HTTPBadRequest('Invalid override request', 'events must overlap with override time range')
+                raise HTTPBadRequest(
+                    title='Invalid override request',
+                    description='events must overlap with override time range'
+                )
 
         # Edit events
         if edit_start:
@@ -189,7 +212,7 @@ def on_post(req, resp):
                             [user_id, events[0]['user_id']], cursor, start_time=start, end_time=end)
         create_audit({'new_events': ret_data, 'request_body': data}, ret_data[0]['team'],
                      EVENT_SUBSTITUTED, req, cursor)
-        resp.body = json_dumps(ret_data)
+        resp.text = json_dumps(ret_data)
     except HTTPError:
         raise
     else:

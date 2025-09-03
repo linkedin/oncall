@@ -18,7 +18,10 @@ sso_auth_manager = None
 
 def debug_only(function):
     def wrapper(*args, **kwargs):
-        raise HTTPForbidden('', 'Admin only action')
+        raise HTTPForbidden(
+            title='',
+            description='Admin only action'
+        )
     return wrapper
 
 
@@ -60,7 +63,10 @@ def check_user_auth(user, req):
     connection.close()
     if user_in_query != 0 or is_god(challenger):
         return
-    raise HTTPForbidden('Unauthorized', 'Action not allowed for "%s"' % challenger)
+    raise HTTPForbidden(
+        title='Unauthorized',
+        description='Action not allowed for "%s"' % challenger
+    )
 
 
 def check_team_auth(team, req):
@@ -85,8 +91,9 @@ def check_team_auth(team, req):
     if team_in_query != 0 or is_god(challenger):
         return
     raise HTTPForbidden(
-        'Unauthorized',
-        'Action not allowed: "%s" is not an admin for "%s"' % (challenger, team))
+        title='Unauthorized',
+        description='Action not allowed: "%s" is not an admin for "%s"' % (challenger, team)
+    )
 
 
 def check_calendar_auth(team, req, user=None):
@@ -105,7 +112,10 @@ def check_calendar_auth(team, req, user=None):
     connection.close()
     if user_in_team != 0 or is_god(challenger):
         return
-    raise HTTPForbidden('Unauthorized', 'Action not allowed: "%s" is not part of "%s"' % (challenger, team))
+    raise HTTPForbidden(
+        title='Unauthorized',
+        description='Action not allowed: "%s" is not part of "%s"' % (challenger, team)
+    )
 
 
 def check_calendar_auth_by_id(team_id, req):
@@ -125,7 +135,10 @@ def check_calendar_auth_by_id(team_id, req):
     connection.close()
     if user_in_team != 0 or is_god(challenger):
         return
-    raise HTTPForbidden('Unauthorized', 'Action not allowed: "%s" is not a team member' % (challenger))
+    raise HTTPForbidden(
+        title='Unauthorized',
+        description='Action not allowed: "%s" is not a team member' % (challenger)
+    )
 
 
 def is_client_digest_valid(client_digest, api_key, window, method, path, body):
@@ -145,7 +158,11 @@ def is_client_digest_valid(client_digest, api_key, window, method, path, body):
 
 def authenticate_application(auth_token, req):
     if not auth_token.startswith('hmac '):
-        raise HTTPUnauthorized('Authentication failure', 'Invalid digest format', '')
+        raise HTTPUnauthorized(
+            title='Authentication failure',
+            description='Invalid digest format',
+            challenges=[]
+        )
     method = req.method
     path = req.env['PATH_INFO']
     qs = req.env['QUERY_STRING']
@@ -176,14 +193,26 @@ def authenticate_application(auth_token, req):
                 req.context['app'] = app_name
                 return
             else:
-                raise HTTPUnauthorized('Authentication failure', 'Wrong digest', '')
+                raise HTTPUnauthorized(
+                    title='Authentication failure',
+                    description='Wrong digest',
+                    challenges=[]
+                )
         else:
             cursor.close()
             connection.close()
-            raise HTTPUnauthorized('Authentication failure', 'Application not found', '')
+            raise HTTPUnauthorized(
+                title='Authentication failure',
+                description='Application not found',
+                challenges=[]
+            )
 
     except (ValueError, KeyError):
-        raise HTTPUnauthorized('Authentication failure', 'Wrong digest', '')
+        raise HTTPUnauthorized(
+            title='Authentication failure',
+            description='Wrong digest',
+            challenges=[]
+        )
 
 
 def _authenticate_user(req):
@@ -206,18 +235,30 @@ def _authenticate_user(req):
         if cursor.rowcount != 1:
             cursor.close()
             connection.close()
-            raise HTTPUnauthorized('Invalid Session', 'CSRF token missing', '')
+            raise HTTPUnauthorized(
+                title='Invalid Session',
+                description='CSRF token missing',
+                challenges=[]
+            )
 
         token = cursor.fetchone()[0]
         if req.get_header('X-CSRF-TOKEN') != token:
             cursor.close()
             connection.close()
-            raise HTTPUnauthorized('Invalid Session', 'CSRF validation failed', '')
+            raise HTTPUnauthorized(
+                title='Invalid Session',
+                description='CSRF validation failed',
+                challenges=[]
+            )
 
         cursor.close()
         connection.close()
     except KeyError:
-        raise HTTPUnauthorized('Unauthorized', 'User must be logged in', '')
+        raise HTTPUnauthorized(
+            title='Unauthorized',
+            description='User must be logged in',
+            challenges=[]
+        )
 
 
 authenticate_user = _authenticate_user

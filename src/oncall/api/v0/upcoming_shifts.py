@@ -84,4 +84,4 @@ def on_get(req, resp, user_name):
     formatted = sorted(formatted, key=operator.itemgetter('start'))
     if limit is not None:
         formatted = formatted[:limit]
-    resp.body = json_dumps(formatted)
+    resp.text = json_dumps(formatted)

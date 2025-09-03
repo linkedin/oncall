@@ -16,15 +16,15 @@ def on_get(req, resp, requester):
     challenger = req.context['user']
     if not (challenger == requester or check_ical_key_admin(challenger)):
         raise HTTPForbidden(
-            'Unauthorized',
-            'Action not allowed: "%s" is not allowed to view ical_keys of "%s"' % (challenger, requester),
+            title='Unauthorized',
+            description='Action not allowed: "%s" is not allowed to view ical_keys of "%s"' % (challenger, requester),
         )
 
     results = get_ical_key_detail_by_requester(requester)
     if not results:
         raise HTTPNotFound()
 
-    resp.body = json_dumps(results)
+    resp.text = json_dumps(results)
     resp.set_header('Content-Type', 'application/json')
 
 
@@ -33,8 +33,8 @@ def on_delete(req, resp, requester):
     challenger = req.context['user']
     if not (challenger == requester or check_ical_key_admin(challenger)):
         raise HTTPForbidden(
-            'Unauthorized',
-            'Action not allowed: "%s" is not allowed to delete ical_keys of "%s"' % (challenger, requester),
+            title='Unauthorized',
+            description='Action not allowed: "%s" is not allowed to delete ical_keys of "%s"' % (challenger, requester),
         )
 
     invalidate_ical_key_by_requester(requester)

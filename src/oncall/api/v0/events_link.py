@@ -66,16 +66,23 @@ def on_post(req, resp):
     """
     events = load_json_body(req)
     if not isinstance(events, list):
-        raise HTTPBadRequest('Invalid argument',
-                             'events argument needs to be a list')
+        raise HTTPBadRequest(
+            title='Invalid argument',
+            description='events argument needs to be a list'
+        )
     if not events:
-        raise HTTPBadRequest('Invalid argument', 'events list cannot be empty')
+        raise HTTPBadRequest(
+            title='Invalid argument',
+            description='events list cannot be empty'
+        )
 
     now = time.time()
     team = events[0].get('team')
     if not team:
-        raise HTTPBadRequest('Invalid argument',
-                             'event missing team attribute')
+        raise HTTPBadRequest(
+            title='Invalid argument',
+            description='event missing team attribute'
+        )
     check_calendar_auth(team, req)
 
     event_values = []
@@ -90,8 +97,10 @@ def on_post(req, resp):
         cursor.execute('SELECT `id` FROM `team` WHERE `name`=%s', team)
         team_id = cursor.fetchone()
         if not team_id:
-            raise HTTPBadRequest('Invalid event',
-                                 'Invalid team name: %s' % team)
+            raise HTTPBadRequest(
+                title='Invalid event',
+                description='Invalid team name: %s' % team
+            )
 
         values = [
             '%s',
@@ -105,19 +114,31 @@ def on_post(req, resp):
 
         for ev in events:
             if ev['start'] < now - constants.GRACE_PERIOD:
-                raise HTTPBadRequest('Invalid event',
-                                     'Creating events in the past not allowed')
+                raise HTTPBadRequest(
+                    title='Invalid event',
+                    description='Creating events in the past not allowed'
+                )
             if ev['start'] >= ev['end']:
-                raise HTTPBadRequest('Invalid event',
-                                     'Event must start before it ends')
+                raise HTTPBadRequest(
+                    title='Invalid event',
+                    description='Event must start before it ends'
+                )
             ev_team = ev.get('team')
             if not ev_team:
-                raise HTTPBadRequest('Invalid event', 'Missing team for event')
+                raise HTTPBadRequest(
+                    title='Invalid event',
+                    description='Missing team for event'
+                )
             if team != ev_team:
-                raise HTTPBadRequest('Invalid event', 'Events can only be submitted to one team')
+                raise HTTPBadRequest(
+                    title='Invalid event',
+                    description='Events can only be submitted to one team'
+                )
             if not user_in_team_by_name(cursor, ev['user'], team):
-                raise HTTPBadRequest('Invalid event',
-                                     'User %s must be part of the team %s' % (ev['user'], team))
+                raise HTTPBadRequest(
+                    title='Invalid event',
+                    description='User %s must be part of the team %s' % (ev['user'], team)
+                )
             event_values.append((ev['start'], ev['end'], ev['user'], team_id, ev['role'], link_id, ev.get('note')))
 
         insert_query = 'INSERT INTO `event` (%s) VALUES (%s)' % (','.join(columns), ','.join(values))
@@ -133,10 +154,14 @@ def on_post(req, resp):
             err_msg = 'user not found'
         elif err_msg == 'Column \'team_id\' cannot be null':
             err_msg = 'team "%s" not found' % team
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     finally:
         cursor.close()
         connection.close()
 
     resp.status = HTTP_201
-    resp.body = json_dumps({'link_id': link_id, 'event_ids': ev_ids})
+    resp.text = json_dumps({'link_id': link_id, 'event_ids': ev_ids})

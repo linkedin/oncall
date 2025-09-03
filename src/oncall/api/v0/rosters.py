@@ -124,16 +124,18 @@ def on_get(req, resp, team):
 
     cursor.execute('SELECT `id` FROM `team` WHERE `name`=%s', team)
     if cursor.rowcount != 1:
-        raise HTTPError('422 Unprocessable Entity',
-                        'IntegrityError',
-                        'team "%s" not found' % team)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description='team "%s" not found' % team
+        )
 
     team_id = cursor.fetchone()['id']
     rosters = get_roster_by_team_id(cursor, team_id, req.params)
 
     cursor.close()
     connection.close()
-    resp.body = json_dumps(rosters)
+    resp.text = json_dumps(rosters)
 
 
 @login_required
@@ -168,11 +170,15 @@ def on_post(req, resp, team):
 
     roster_name = data.get('name')
     if not roster_name:
-        raise HTTPBadRequest('name attribute missing from request', '')
+        raise HTTPBadRequest(
+            title='name attribute missing from request',
+            description=''
+        )
     invalid_char = invalid_char_reg.search(roster_name)
     if invalid_char:
-        raise HTTPBadRequest('invalid roster name',
-                             'roster name contains invalid character "%s"' % invalid_char.group())
+        raise HTTPBadRequest(
+            title='invalid roster name',
+            description='roster name contains invalid character "%s"' % invalid_char.group())
 
     check_team_auth(team, req)
 
@@ -183,9 +189,11 @@ def on_post(req, resp, team):
                           VALUES (%s, (SELECT `id` FROM `team` WHERE `name`=%s))''',
                        (roster_name, team))
     except db.IntegrityError:
-        raise HTTPError('422 Unprocessable Entity',
-                        'IntegrityError',
-                        'roster name "%s" already exists for team %s' % (roster_name, team))
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description='roster name "%s" already exists for team %s' % (roster_name, team)
+        )
     create_audit({'roster_id': cursor.lastrowid, 'request_body': data}, team, ROSTER_CREATED, req, cursor)
     connection.commit()
     cursor.close()

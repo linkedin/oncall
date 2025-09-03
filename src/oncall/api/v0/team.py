@@ -167,7 +167,7 @@ def on_get(req, resp, team):
 
     cursor.close()
     connection.close()
-    resp.body = json_dumps(team_info)
+    resp.text = json_dumps(team_info)
 
 
 @login_required
@@ -205,25 +205,42 @@ def on_put(req, resp, team):
     if 'name' in data:
         invalid_char = invalid_char_reg.search(data['name'])
         if invalid_char:
-            raise HTTPBadRequest('invalid team name',
-                                 'team name contains invalid character "%s"' % invalid_char.group())
+            raise HTTPBadRequest(
+                title='invalid team name',
+                description='team name contains invalid character "%s"' % invalid_char.group()
+            )
         elif data['name'] == '':
-            raise HTTPBadRequest('invalid team name', 'empty team name')
+            raise HTTPBadRequest(
+                title='invalid team name',
+                description='empty team name'
+            )
 
     if 'iris_plan' in data and data['iris_plan']:
         iris_plan = data['iris_plan']
         plan_resp = iris.client.get(iris.client.url + 'plans?name=%s&active=1' % iris_plan)
         if plan_resp.status_code != 200 or plan_resp.json() == []:
-            raise HTTPBadRequest('invalid iris escalation plan', 'no iris plan named %s exists' % iris_plan)
+            raise HTTPBadRequest(
+                title='invalid iris escalation plan',
+                description='no iris plan named %s exists' % iris_plan
+            )
     if 'iris_enabled' in data:
-        if not type(data['iris_enabled']) == bool:
-            raise HTTPBadRequest('invalid payload', 'iris_enabled must be boolean')
+        if not isinstance(data['iris_enabled'], bool):
+            raise HTTPBadRequest(
+                title='invalid payload',
+                description='iris_enabled must be boolean'
+            )
     if 'api_managed_roster' in data:
-        if not type(data['api_managed_roster']) == bool:
-            raise HTTPBadRequest('invalid payload', 'api_managed_roster must be boolean')
+        if not isinstance(data['api_managed_roster'], bool):
+            raise HTTPBadRequest(
+                title='invalid payload',
+                description='api_managed_roster must be boolean'
+            )
     if 'scheduling_timezone' in data:
         if data['scheduling_timezone'] not in SUPPORTED_TIMEZONES:
-            raise HTTPBadRequest('invalid payload', 'requested scheduling_timezone is not supported. Supported timezones: %s' % str(SUPPORTED_TIMEZONES))
+            raise HTTPBadRequest(
+                title='invalid payload',
+                description='requested scheduling_timezone is not supported. Supported timezones: %s' % str(SUPPORTED_TIMEZONES)
+            )
 
     set_clause = ', '.join(['`{0}`=%s'.format(d) for d in data_cols if d in cols])
     query_params = tuple(data[d] for d in data_cols if d in cols) + (team,)
@@ -236,7 +253,11 @@ def on_put(req, resp, team):
         err_msg = str(e.args[1])
         if 'Duplicate entry' in err_msg:
             err_msg = "A team named '%s' already exists" % (data['name'])
-        raise HTTPError('422 Unprocessable Entity', 'IntegrityError', err_msg)
+        raise HTTPError(
+            '422 Unprocessable Entity',
+            title='IntegrityError',
+            description=err_msg
+        )
     finally:
         cursor.close()
         connection.close()

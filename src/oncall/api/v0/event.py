@@ -73,7 +73,7 @@ def on_get(req, resp, event_id):
     connection.close()
     if num_found == 0:
         raise HTTPNotFound()
-    resp.body = json_dumps(data)
+    resp.text = json_dumps(data)
 
 
 @login_required
@@ -101,12 +101,18 @@ def on_put(req, resp, event_id):
     data = load_json_body(req)
 
     if 'end' in data and 'start' in data and data['start'] >= data['end']:
-        raise HTTPBadRequest('Invalid event update', 'Event must start before it ends')
+        raise HTTPBadRequest(
+            title='Invalid event update',
+            description='Event must start before it ends'
+        )
 
     try:
         update_cols = ', '.join(update_columns[col] for col in data)
     except KeyError:
-        raise HTTPBadRequest('Invalid event update', 'Invalid column')
+        raise HTTPBadRequest(
+            title='Invalid event update',
+            description='Invalid column'
+        )
 
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
@@ -143,12 +149,17 @@ def on_put(req, resp, event_id):
                 try:
                     check_team_auth(event_data['team'], req)
                 except HTTPUnauthorized:
-                    raise HTTPBadRequest('Invalid event update',
-                                         'Editing events in the past not allowed')
+                    raise HTTPBadRequest(
+                        title='Invalid event update',
+                        description='Editing events in the past not allowed'
+                    )
 
         check_calendar_auth(event_data['team'], req)
         if not user_in_team_by_name(cursor, new_event['user'], event_data['team']):
-            raise HTTPBadRequest('Invalid event update', 'Event user must be part of the team')
+            raise HTTPBadRequest(
+                title='Invalid event update',
+                description='Event user must be part of the team'
+            )
 
         update_cols += ', `link_id` = NULL'
         update = 'UPDATE `event` SET ' + update_cols + (' WHERE `id`=%d' % int(event_id))
@@ -208,8 +219,10 @@ def on_delete(req, resp, event_id):
         ev = cursor.fetchone()
         check_calendar_auth(ev['team'], req)
         if ev['start'] < time.time() - constants.GRACE_PERIOD:
-            raise HTTPBadRequest('Invalid event update',
-                                 'Deleting events in the past not allowed')
+            raise HTTPBadRequest(
+                title='Invalid event update',
+                description='Deleting events in the past not allowed'
+            )
 
         cursor.execute('DELETE FROM `event` WHERE `id`=%s', event_id)
 
