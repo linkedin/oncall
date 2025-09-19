@@ -333,6 +333,19 @@ CREATE TABLE IF NOT EXISTS `user_contact` (
 );
 
 -- -----------------------------------------------------
+-- Table `user_manager`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `user_manager` (
+  `report_id` BIGINT(20) UNSIGNED NOT NULL,
+  `manager_id` BIGINT(20) UNSIGNED NOT NULL,
+  PRIMARY KEY (`report_id`),
+  CONSTRAINT `user_manager_report_id_fk` FOREIGN KEY (`report_id`) REFERENCES `user` (`id`)
+  ON DELETE CASCADE,
+  CONSTRAINT `user_manager_manager_id_fk` FOREIGN KEY (`manager_id`) REFERENCES `user` (`id`)
+  ON DELETE CASCADE
+);
+
+-- -----------------------------------------------------
 -- Table `audit`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `audit` (
