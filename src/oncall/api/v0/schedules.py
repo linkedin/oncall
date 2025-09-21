@@ -10,8 +10,9 @@ from ...auth import login_required, check_team_auth
 from ... import db
 
 HOUR = 60 * 60
+DAY = 24 * HOUR
 WEEK = 24 * HOUR * 7
-simple_ev_lengths = set([WEEK, 2 * WEEK])
+simple_ev_lengths = set([DAY, WEEK, 2 * WEEK])
 simple_12hr_num_events = set([7, 14])
 
 columns = {
