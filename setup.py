@@ -38,7 +38,7 @@ setuptools.setup(
         'PyYAML',
         'PyMYSQL',
         'phonenumbers',
-        'jinja2==3.0.3',
+        'jinja2==3.1.4',
         'webassets',
         'beaker',
         'cryptography==42.0.5',
