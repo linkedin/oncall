@@ -5,6 +5,7 @@ EMAIL_SUPPORT = 'email'
 SMS_SUPPORT = 'sms'
 CALL_SUPPORT = 'call'
 SLACK_SUPPORT = 'slack'
+PUSHOVER_SUPPORT = 'pushover'
 ROCKET_SUPPORT = 'rocketchat'
 TEAMS_SUPPORT = 'teams_messenger'
 
