@@ -5,12 +5,12 @@ import time
 from ujson import dumps as json_dumps
 from falcon import HTTPNotFound, HTTPBadRequest, HTTPUnauthorized
 
-from ...auth import login_required, check_calendar_auth, check_team_auth
+from ...auth import login_required, check_calendar_auth, check_team_auth, check_user_auth_event
 from ... import db, constants
 from ...utils import (
     load_json_body, user_in_team_by_name, create_notification, create_audit
 )
-from ...constants import EVENT_DELETED, EVENT_EDITED
+from ...constants import EVENT_DELETED, EVENT_EDITED, AUTH_USER_CAL_MOD
 
 from .events import columns, all_columns
 
@@ -99,6 +99,8 @@ def on_put(req, resp, event_id):
 
     """
     data = load_json_body(req)
+    if not AUTH_USER_CAL_MOD:
+        check_user_auth_event(event_id, req)
 
     if 'end' in data and 'start' in data and data['start'] >= data['end']:
         raise HTTPBadRequest('Invalid event update', 'Event must start before it ends')
@@ -190,6 +192,11 @@ def on_delete(req, resp, event_id):
     :statuscode 403: Delete not allowed; logged in user is not a team member
     :statuscode 404: Event not found
     """
+
+    if not AUTH_USER_CAL_MOD:
+        check_user_auth_event(event_id, req)
+
+
     connection = db.connect()
     cursor = connection.cursor(db.DictCursor)
 
