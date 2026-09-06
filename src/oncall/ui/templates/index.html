@@ -353,7 +353,11 @@
         {{/isEqual}}
         </span>
         <span>
-          <button id="pin-team" class="btn btn-white" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.pinTeam" data-modal-title="Pin {{name}}" data-modal-content="Pin {{name}} to landing page?"> Pin to home </button>
+          {{#if isPinned}}
+            <button id="pin-team" class="btn btn-white" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.unpinTeam" data-modal-title="Unpin {{name}}" data-modal-content="Unpin {{name}} from landing page?"> Unpin from home </button>
+          {{else}}
+            <button id="pin-team" class="btn btn-white" data-toggle="modal" data-target="#confirm-action-modal" data-modal-action="oncall.team.pinTeam" data-modal-title="Pin {{name}}" data-modal-content="Pin {{name}} to landing page?"> Pin to home </button>
+          {{/if}}
         </span>
       </div>
     </div>
@@ -401,7 +405,7 @@
     {{>error-page this}}
   {{else}}
     <div class="subheader-wrapper">
-      {{>team-subheader name=name page="calendar"}}
+      {{>team-subheader name=name page="calendar" isPinned=isPinned}}
     </div>
     <div class="main container-fluid">
       <div class="col-md-3 col-left-edge">
@@ -654,7 +658,7 @@
     {{>error-page this}}
   {{else}}
     <div class="subheader-wrapper">
-      {{>team-subheader name=name page="audit"}}
+      {{>team-subheader name=name page="audit" isPinned=isPinned}}
     </div>
     <div class="main container-fluid">
       <h3 class="module-heading"> Audit </h3>
@@ -761,7 +765,7 @@
     {{>error-page this}}
   {{else}}
     <div class="subheader-wrapper">
-      {{>team-subheader name=name page="subscriptions"}}
+      {{>team-subheader name=name page="subscriptions" isPinned=isPinned}}
     </div>
     <div class="main container-fluid">
       <h3 class="module-heading"> Subscriptions <button id="add-subscription" class="btn btn-primary pull-right">+ New Subscription</button></h3>
@@ -845,7 +849,7 @@
     {{>error-page this}}
   {{else}}
     <div class="subheader-wrapper">
-      {{>team-subheader name=name page="schedules"}}
+      {{>team-subheader name=name page="schedules" isPinned=isPinned}}
     </div>
     <div class="main container-fluid clearfix">
       <h4 class="clearfix module-heading">
@@ -1244,7 +1248,7 @@
     {{>error-page this}}
   {{else}}
     <div class="subheader-wrapper">
-      {{>team-subheader name=name page="info"}}
+      {{>team-subheader name=name page="info" isPinned=isPinned}}
     </div>
     <div class="main container-fluid clearfix team-info">
       <aside class="pull-left col-md-3 col-left-edge">

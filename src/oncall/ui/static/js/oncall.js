@@ -786,7 +786,8 @@ var oncall = {
       subheaderWrapper: '.subheader-wrapper',
       deleteTeam: '#delete-team',
       teamName: null,
-      route: null
+      route: null,
+      isPinned: false
     },
     init: function(name, route){
       Handlebars.registerPartial('team-subheader', this.data.teamSubheaderTemplate);
@@ -875,7 +876,8 @@ var oncall = {
               override_phone_number: overrideNumber,
               iris_plan: irisPlan,
               iris_enabled: irisEnabled ? '1' : '0',
-              page: self.data.route
+              page: self.data.route,
+              isPinned: !!self.data.isPinned
             },
             state = (self.data.route === 'calendar') ? name : '/team/' + name + '/' + self.data.route;
 
@@ -917,6 +919,53 @@ var oncall = {
         $cta.removeClass('loading disabled').prop('disabled', false);
       });
     },
+    // Sets data.isPinned from the current user's pinned teams list.
+    annotatePinned: function(data) {
+      var deferred = $.Deferred(),
+          teamName = data && data.name;
+
+      if (!oncall.data.user || !teamName || data.error) {
+        if (data) {
+          data.isPinned = false;
+        }
+        this.data.isPinned = false;
+        deferred.resolve(data);
+        return deferred.promise();
+      }
+
+      $.get(this.data.pinUrl + oncall.data.user + '/pinned_teams').done(function(pinned){
+        data.isPinned = Array.isArray(pinned) && pinned.indexOf(teamName) !== -1;
+        oncall.team.data.isPinned = data.isPinned;
+        deferred.resolve(data);
+      }).fail(function(){
+        data.isPinned = false;
+        oncall.team.data.isPinned = false;
+        deferred.resolve(data);
+      });
+      return deferred.promise();
+    },
+    updatePinButton: function(isPinned) {
+      var $btn = $('#pin-team'),
+          name = this.data.teamName;
+
+      this.data.isPinned = !!isPinned;
+      if (!$btn.length || !name) {
+        return;
+      }
+      if (isPinned) {
+        $btn.attr({
+          'data-modal-action': 'oncall.team.unpinTeam',
+          'data-modal-title': 'Unpin ' + name,
+          'data-modal-content': 'Unpin ' + name + ' from landing page?'
+        }).text(' Unpin from home ');
+      } else {
+        $btn.attr({
+          'data-modal-action': 'oncall.team.pinTeam',
+          'data-modal-title': 'Pin ' + name,
+          'data-modal-content': 'Pin ' + name + ' to landing page?'
+        }).text(' Pin to home ');
+      }
+    },
     pinTeam: function($modal) {
       var $cta = $modal.find('.modal-cta'),
           self = this;
@@ -931,12 +980,34 @@ var oncall = {
         }).done(function(){
           oncall.alerts.removeAlerts();
           oncall.alerts.createAlert('Pinned team to home page', 'success');
+          self.updatePinButton(true);
         }).fail(function(data){
           var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Pinning team failed.';
           oncall.alerts.createAlert(error, 'danger');
         }).always(function(){
         $cta.removeClass('loading disabled').prop('disabled', false);
         $modal.modal('hide');
+        });
+    },
+    unpinTeam: function($modal) {
+      var $cta = $modal.find('.modal-cta'),
+          self = this;
+
+      $cta.addClass('loading disabled').prop('disabled', true);
+      $.ajax({
+          type: 'DELETE',
+          url: self.data.pinUrl + oncall.data.user + '/pinned_teams/' + self.data.teamName,
+          dataType: 'html'
+        }).done(function(){
+          oncall.alerts.removeAlerts();
+          oncall.alerts.createAlert('Unpinned team from home page', 'success');
+          self.updatePinButton(false);
+        }).fail(function(data){
+          var error = oncall.isJson(data.responseText) ? JSON.parse(data.responseText).description : data.responseText || 'Unpinning team failed.';
+          oncall.alerts.createAlert(error, 'danger');
+        }).always(function(){
+          $cta.removeClass('loading disabled').prop('disabled', false);
+          $modal.modal('hide');
         });
     },
     calendar: {
@@ -988,10 +1059,12 @@ var oncall = {
         var self = this;
         $.getJSON(this.data.url + this.data.teamName).done(function(data){
           self.data.teamData = data;
-          self.renderPage(data);
-          self.getTeamSummary();
-          self.checkIfAdmin();
-          oncall.recentlyViewed.setItem(self.data.teamName);
+          oncall.team.annotatePinned(data).done(function(annotated){
+            self.renderPage(annotated);
+            self.getTeamSummary();
+            self.checkIfAdmin();
+            oncall.recentlyViewed.setItem(self.data.teamName);
+          });
         }).fail(function(error){
           var data = {
             error: true,
@@ -1340,9 +1413,11 @@ var oncall = {
         $.getJSON(this.data.url + this.data.teamName).done(function(data){
           data.services.sort();
           self.data.teamData = data;
-          self.renderPage(data);
-          self.checkIfAdmin();
-          oncall.recentlyViewed.setItem(self.data.teamName);
+          oncall.team.annotatePinned(data).done(function(annotated){
+            self.renderPage(annotated);
+            self.checkIfAdmin();
+            oncall.recentlyViewed.setItem(self.data.teamName);
+          });
         }).fail(function(error){
           var data = {
             error: true,
@@ -1643,9 +1718,11 @@ var oncall = {
             data.roles = oncall.data.roles;
 
             self.data.teamData = data;
-            self.data.$page.html(template(data));
-            self.events();
-            self.renderSubscriptionCounts();
+            oncall.team.annotatePinned(data).done(function(annotated){
+              self.data.$page.html(template(annotated));
+              self.events();
+              self.renderSubscriptionCounts();
+            });
           }).fail(function(error){
           var data = {
             error: true,
@@ -1837,9 +1914,11 @@ var oncall = {
           data.timezones = oncall.data.timezones;
           data.roles = oncall.data.roles;
           self.data.teamData = data;
-          self.renderPage(data);
-          self.renderPopulateScheduleModal.call(self);
-          oncall.recentlyViewed.setItem(self.data.teamName);
+          oncall.team.annotatePinned(data).done(function(annotated){
+            self.renderPage(annotated);
+            self.renderPopulateScheduleModal.call(self);
+            oncall.recentlyViewed.setItem(self.data.teamName);
+          });
         }).fail(function(error){
           var data = {
             error: true,
@@ -2507,10 +2586,12 @@ var oncall = {
             data = teamData[0];
             auditData[0].map(self.formatAudit);
             data.audits = auditData[0];
-            self.data.$page.html(template(data));
-            $('#audit-date').val(start.format('YYYY/MM/DD'));
-            self.events();
-            $('.audit-table').DataTable({pageLength: 25});
+            oncall.team.annotatePinned(data).done(function(annotated){
+              self.data.$page.html(template(annotated));
+              $('#audit-date').val(start.format('YYYY/MM/DD'));
+              self.events();
+              $('.audit-table').DataTable({pageLength: 25});
+            });
           }).fail(function(error){
           var data = {
             error: true,
